@@ -16,6 +16,11 @@ Add it as a middleware to your Ring stack:
       prone/wrap-exceptions))
 ```
 
+## Known problems
+
+- We have not yet found a way to differentiate `some-name` and `some_name`
+  function names by inspecting the stack trace. Currently, we assume kebab case.
+
 ## License
 
 Copyright © 2014 Christian Johansen & Magnar Sveen

@@ -2,6 +2,45 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
+(defn- normalize-frame-clj [frame]
+  {:class-path-url (-> frame
+                       .getClassName
+                       (str/replace "." "/")
+                       (str/replace #"\$.*" ".clj"))
+   :method-name (-> frame
+                    .getClassName
+                    (str/replace "_" "-")
+                    (str/replace #"^.*\$" ""))
+   :package (-> frame
+                .getClassName
+                (str/replace "_" "-")
+                (str/replace #"\$.*" ""))
+   :lang :clj})
+
+(defn- normalize-frame-java [frame]
+  {:class-path-url (-> frame
+                       .getClassName
+                       (str/replace "." "/")
+                       (str ".java"))
+   :method-name (.getMethodName frame)
+   :class-name (-> frame
+                   .getClassName
+                   (str/split #"\.")
+                   last)
+   :package (-> frame
+                .getClassName
+                (str/split #"\.")
+                butlast
+                (->> (str/join ".")))
+   :lang :java})
+
+(defn normalize-frame [frame]
+  (merge {:file-name (.getFileName frame)
+          :line-number (.getLineNumber frame)}
+         (if (-> frame .getFileName (.endsWith ".clj"))
+           (normalize-frame-clj frame)
+           (normalize-frame-java frame))))
+
 (defn- render-attr [[k v]]
   (str " " (name k) "=\"" v "\""))
 
@@ -51,6 +90,24 @@
                       ", line "
                       (span {:class "line"} (.getLineNumber frame)))))))
 
+(defn- get-class-path-file [class-name]
+  (-> class-name
+      (str/replace "." "/")
+      (str/replace #"\$.+$" "")
+      (str ".clj")))
+
+(defn render-frame-info [frame]
+  (div {:class "frame_info"}
+       (header {:class "trace_info clearfix"}
+               (div {:class "title"}
+                    (h2 {:class "name"} (.getMethodName frame))
+                    (div {:class "location"}
+                         (span {:class "filename"}
+                               (.getFileName frame))))
+               (div {:class "code_block clearfix"}
+                    (tag :pre {}
+                         (slurp (io/resource (get-class-path-file (.getClassName frame)))))))))
+
 (defn serve-exception [req e]
   (serve
    (with-layout (.getMessage e)
@@ -64,7 +121,8 @@
                         (a {:href "#"} "Application Frames")
                         (a {:href "#" :class "selected"} "All Frames"))
                    (ul {:class "frames"}
-                       (map render-stack-frame (.getStackTrace e))))))))
+                       (map render-stack-frame (.getStackTrace e))))
+              (render-frame-info (first (.getStackTrace e)))))))
 
 (defn wrap-exceptions [handler]
   (fn [req]
