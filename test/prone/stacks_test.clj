@@ -1,5 +1,5 @@
-(ns prone.core-test
-  (:require [prone.core :refer :all]
+(ns prone.stacks-test
+  (:require [prone.stacks :refer :all]
             [clojure.test :refer :all]))
 
 (defn- create-ex [msg]
@@ -21,9 +21,9 @@
 (deftest check-assumptions-about-exception
   (is (= "Message for you, Sir!" (.getMessage ex)))
 
-  (is (= "prone.core_test$create_ex" (.getClassName clj-frame)))
+  (is (= "prone.stacks_test$create_ex" (.getClassName clj-frame)))
   (is (= "invoke" (.getMethodName clj-frame)))
-  (is (= "core_test.clj" (.getFileName clj-frame)))
+  (is (= "stacks_test.clj" (.getFileName clj-frame)))
   (is (= 5 (.getLineNumber clj-frame)))
 
   (is (= "java.lang.reflect.Constructor" (.getClassName java-frame)))
@@ -32,12 +32,13 @@
   (is (= 526 (.getLineNumber java-frame))))
 
 (deftest normalize-frame-test
-  (is (= {:class-path-url "prone/core_test.clj"
-          :file-name "core_test.clj"
+  (is (= {:class-path-url "prone/stacks_test.clj"
+          :file-name "stacks_test.clj"
           :method-name "create-ex"
           :line-number 5
-          :package "prone.core-test"
-          :lang :clj}
+          :package "prone.stacks-test"
+          :lang :clj
+          :clj? true}
          (normalize-frame clj-frame)))
 
   (is (= {:class-path-url "java/lang/reflect/Constructor.java"
@@ -46,5 +47,12 @@
           :line-number 526
           :class-name "Constructor"
           :package "java.lang.reflect"
-          :lang :java}
+          :lang :java
+          :java? true}
          (normalize-frame java-frame))))
+
+(deftest non-file-exception
+  (is (= {:method-name "handle"
+          :class-name "AbstractHandler$0"
+          :package "ring.adapter.jetty.proxy$org.eclipse.jetty.server.handler"}
+         (normalize-frame (StackTraceElement. "ring.adapter.jetty.proxy$org.eclipse.jetty.server.handler.AbstractHandler$0" "handle" nil -1)))))
