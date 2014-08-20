@@ -37,8 +37,7 @@
           :method-name "create-ex"
           :line-number 5
           :package "prone.stacks-test"
-          :lang :clj
-          :clj? true}
+          :lang :clj}
          (normalize-frame clj-frame)))
 
   (is (= {:class-path-url "java/lang/reflect/Constructor.java"
@@ -47,8 +46,7 @@
           :line-number 526
           :class-name "Constructor"
           :package "java.lang.reflect"
-          :lang :java
-          :java? true}
+          :lang :java}
          (normalize-frame java-frame))))
 
 (deftest non-file-exception

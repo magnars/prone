@@ -14,8 +14,7 @@
                 .getClassName
                 (str/replace "_" "-")
                 (str/replace #"\$.*" ""))
-   :lang :clj
-   :clj? true})
+   :lang :clj})
 
 (defn- normalize-frame-java [frame]
   {:class-path-url (-> frame
@@ -32,8 +31,7 @@
                 (str/split #"\.")
                 butlast
                 (->> (str/join ".")))
-   :lang :java
-   :java? true})
+   :lang :java})
 
 (defn normalize-frame [frame]
   (if-not (.getFileName frame)

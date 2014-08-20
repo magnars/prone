@@ -17,7 +17,7 @@
    [:span {:class "stroke"}
     [:span {:class "icon"}]
     [:div {:class "info"}
-     (if (:clj? frame)
+     (if (= (:lang frame) :clj)
        [:div {:class "name"}
         [:strong (:package frame)]
         [:span {:class "method"} "/" (:method-name frame)]]
@@ -43,20 +43,24 @@
        (:class-path-url frame)]]]
     [:div {:class "code_block clearfix"}
      [:pre
-      (slurp (io/resource (:class-path-url frame)))]]]])
+      (if (:class-path-url frame)
+        (slurp (io/resource (:class-path-url frame)))
+        "[Source file not found]")]]]])
 
-(defn render-exception [request {:keys [message type frames]}]
+(defn build-exception [request {:keys [message type frames]}]
+  (list [:div {:class "top"}
+         [:header {:class "exception"}
+          [:h2 [:strong type] [:span " at " (:uri request)]]
+          [:p message]]]
+        [:section {:class "backtrace"}
+         [:nav {:class "sidebar"}
+          [:nav {:class "tabs"}
+           [:a {:href "#"} "Application Frames"]
+           [:a {:href "#" :class "selected"} "All Frames"]]
+          [:ul {:class "frames"}
+           (map build-stack-frame frames)]]
+         (build-frame-info (first frames))]))
+
+(defn render-exception [request {:keys [message] :as error}]
   (render
-   (with-layout message
-     [:div {:class "top"}
-      [:header {:class "exception"}
-       [:h2 [:strong type] [:span " at " (:uri request)]]
-       [:p message]]]
-     [:section {:class "backtrace"}
-      [:nav {:class "sidebar"}
-       [:nav {:class "tabs"}
-        [:a {:href "#"} "Application Frames"]
-        [:a {:href "#" :class "selected"} "All Frames"]]
-       [:ul {:class "frames"}
-        (map build-stack-frame frames)]]
-      (build-frame-info (first frames))])))
+   (with-layout message (build-exception request error))))
