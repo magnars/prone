@@ -43,9 +43,11 @@
        (:class-path-url frame)]]]
     [:div {:class "code_block clearfix"}
      [:pre
-      (if (:class-path-url frame)
-        (slurp (io/resource (:class-path-url frame)))
-        "[Source file not found]")]]]])
+      (if-not (:class-path-url frame)
+        "(unknown source file)"
+        (if-not (io/resource (:class-path-url frame))
+          "(could not locate source file on class path)"
+          (slurp (io/resource (:class-path-url frame)))))]]]])
 
 (defn build-exception [request {:keys [message type frames]}]
   (list [:div {:class "top"}
