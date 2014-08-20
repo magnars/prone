@@ -1,15 +1,16 @@
 (ns prone.rendering
+  "Functions to render exception and request/response data as HTML"
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [prone.hiccough :refer :all]))
 
-(defn with-layout [title & html-forms]
+(defn with-layout [title & markup-snippets]
   (str "<!DOCTYPE html>"
        (tag :html {}
             (tag :head {}
                  (tag :title {} title)
                  (tag :style {} (slurp (io/resource "prone-styles.css"))))
-            (tag :body {} (str/join html-forms)))))
+            (tag :body {} (str/join markup-snippets)))))
 
 (defn render-stack-frame [frame]
   (li {}

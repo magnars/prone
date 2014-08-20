@@ -1,4 +1,7 @@
 (ns prone.hiccough
+  "A very minimal templating DSL inspired by hiccup. Using this to avoid
+   depending on a specific version of a tool that most people already have
+   in their web stack"
   (:require [clojure.string :as str]))
 
 (defn- render-attr [[k v]]
