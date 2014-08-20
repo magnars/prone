@@ -13,25 +13,25 @@
             (tag :body {} (str/join markup-snippets)))))
 
 (defn render-stack-frame [frame]
-  (li {}
-      (span {:class "stroke"}
-            (span {:class "icon"})
-            (div {:class "info"}
-                 (if (:clj? frame)
-                   (div {:class "name"}
-                        (strong {} (:package frame))
-                        (span {:class "method"} "/" (:method-name frame)))
-                   (div {:class "name"}
-                        (strong {} (:package frame) "." (:class-name frame))
-                        (span {:class "method"} "$" (:method-name frame))))
-                 (if (:file-name frame)
-                   (div {:class "location"}
-                        (span {:class "filename"}
-                              (:file-name frame))
-                        ", line "
-                        (span {:class "line"} (:line-number frame)))
-                   (div {:class "location"}
-                        "(unknown file)"))))))
+  [:li
+   [:span {:class "stroke"}
+    [:span {:class "icon"}]
+    [:div {:class "info"}
+     (if (:clj? frame)
+       [:div {:class "name"}
+        [:strong (:package frame)]
+        [:span {:class "method"} "/" (:method-name frame)]]
+       [:div {:class "name"}
+        [:strong (:package frame) "." (:class-name frame)]
+        [:span {:class "method"} "$" (:method-name frame)]])
+     (if (:file-name frame)
+       [:div {:class "location"}
+        [:span {:class "filename"}
+         (:file-name frame)]
+        ", line "
+        [:span {:class "line"} (:line-number frame)]]
+       [:div {:class "location"}
+        "(unknown file)"])]]])
 
 (defn render-frame-info [frame]
   (div {:class "frame_info"}
@@ -57,5 +57,5 @@
                        (a {:href "#"} "Application Frames")
                        (a {:href "#" :class "selected"} "All Frames"))
                   (ul {:class "frames"}
-                      (map render-stack-frame frames)))
+                      (map (comp render render-stack-frame) frames)))
              (render-frame-info (first frames)))))

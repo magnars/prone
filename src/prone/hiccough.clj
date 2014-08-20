@@ -26,17 +26,20 @@
 (def li (partial tag :li))
 (def a (partial tag :a))
 
-(defn- render-map [m]
-  (if (nil? m)
-    ""
-    (let [attrs (if (map? (second m)) (second m) nil)
-          forms (if attrs (rest (rest m)) (rest m))]
-      (tag (first m)
-           (or attrs {})
-           (map #(if (string? %) % (render-map %)) forms)))))
+(defn- render-1 [form]
+  (cond
+   (nil? form) ""
+   (string? form) form
+   (number? form) form
+   :else (let [attrs (if (map? (second form)) (second form) nil)
+               forms (if attrs (rest (rest form)) (rest form))]
+           (tag (first form)
+                (or attrs {})
+                (map render-1 forms)))))
 
-(defn render-maps
-  "Render one or more maps of data as markup. Translates hiccup-like
-   [:div {} 'Hey'] to (tag :div {} 'Hey') and returns the resulting string"
-  [& maps]
-  (str/join "\n" (map render-map maps)))
+(defn render
+  "Render one or more forms of data as markup. Translates hiccup-like
+   [:div {} 'Hey'] to (tag :div {} 'Hey') and returns the resulting string.
+   Also accepts raw strings, numbers, nils and other data"
+  [& forms]
+  (str/join "\n" (map render-1 forms)))
