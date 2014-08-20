@@ -9,11 +9,18 @@
         [:html
          [:head
           [:title title]
-          [:style (slurp (io/resource "prone-styles.css"))]]
-         [:body markup-snippets]]))
+          [:style (slurp (io/resource "prone/better-errors.css"))]
+          [:style (slurp (io/resource "prone/styles.css"))]]
+         [:body
+          markup-snippets
+          [:script (slurp (io/resource "prone/cull.js"))]
+          [:script (slurp (io/resource "prone/dome.js"))]
+          [:script (slurp (io/resource "prone/select-frame.js"))]]]))
 
-(defn build-stack-frame [frame]
-  [:li
+(defn build-stack-frame [index frame]
+  [:li {:id (str "frame_entry_" index)
+        :data-frame-id index
+        :class "frame"}
    [:span {:class "stroke"}
     [:span {:class "icon"}]
     [:div {:class "info"}
@@ -33,8 +40,9 @@
        [:div {:class "location"}
         "(unknown file)"])]]])
 
-(defn build-frame-info [frame]
-  [:div {:class "frame_info"}
+(defn build-frame-info [index frame]
+  [:div {:class "frame_info hidden"
+         :id (str "frame_info_" index)}
    [:header {:class "trace_info clearfix"}
     [:div {:class "title"}
      [:h2 {:class "name"} (:method-name frame)]
@@ -59,9 +67,9 @@
           [:nav {:class "tabs"}
            [:a {:href "#"} "Application Frames"]
            [:a {:href "#" :class "selected"} "All Frames"]]
-          [:ul {:class "frames"}
-           (map build-stack-frame frames)]]
-         (build-frame-info (first frames))]))
+          [:ul {:class "frames" :id "frames"}
+           (map-indexed build-stack-frame frames)]]
+         (map-indexed build-frame-info frames)]))
 
 (defn render-exception [request {:keys [message] :as error}]
   (render
