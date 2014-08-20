@@ -10,4 +10,5 @@
   (is (= (render [:h1 {} [:span {}] [:span {} "Hey"]]) "<h1><span></span><span>Hey</span></h1>"))
   (is (= (render [:h1 [:span "Easy"]]) "<h1><span>Easy</span></h1>"))
   (is (= (render [:h1 nil [:span "Easy"]]) "<h1><span>Easy</span></h1>"))
-  (is (= (render "Text" [:h1 "Easy"]) "Text\n<h1>Easy</h1>")))
+  (is (= (render "Text" [:h1 "Easy"]) "Text\n<h1>Easy</h1>"))
+  (is (= (render [:h1 (map identity [1 2 3])]) "<h1>1\n2\n3</h1>")))
