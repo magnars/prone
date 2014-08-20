@@ -17,13 +17,13 @@
    [:span {:class "stroke"}
     [:span {:class "icon"}]
     [:div {:class "info"}
-     (if (= (:lang frame) :clj)
-       [:div {:class "name"}
-        [:strong (:package frame)]
-        [:span {:class "method"} "/" (:method-name frame)]]
-       [:div {:class "name"}
-        [:strong (:package frame) "." (:class-name frame)]
-        [:span {:class "method"} "$" (:method-name frame)]])
+     (case (:lang frame)
+       :clj [:div {:class "name"}
+             [:strong (:package frame)]
+             [:span {:class "method"} "/" (:method-name frame)]]
+       :java [:div {:class "name"}
+              [:strong (:package frame) "." (:class-name frame)]
+              [:span {:class "method"} "$" (:method-name frame)]])
      (if (:file-name frame)
        [:div {:class "location"}
         [:span {:class "filename"}
