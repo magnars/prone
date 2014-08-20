@@ -27,11 +27,13 @@
 (def a (partial tag :a))
 
 (defn- render-map [m]
-  (let [attrs (if (map? (second m)) (second m) nil)
-        forms (if attrs (rest (rest m)) (rest m))]
-    (tag (first m)
-         (or attrs {})
-         (map #(if (string? %) % (render-map %)) forms))))
+  (if (nil? m)
+    ""
+    (let [attrs (if (map? (second m)) (second m) nil)
+          forms (if attrs (rest (rest m)) (rest m))]
+      (tag (first m)
+           (or attrs {})
+           (map #(if (string? %) % (render-map %)) forms)))))
 
 (defn render-maps
   "Render one or more maps of data as markup. Translates hiccup-like
