@@ -25,3 +25,16 @@
 (def ul (partial tag :ul))
 (def li (partial tag :li))
 (def a (partial tag :a))
+
+(defn- render-map [m]
+  (let [attrs (if (map? (second m)) (second m) nil)
+        forms (if attrs (rest (rest m)) (rest m))]
+    (tag (first m)
+         (or attrs {})
+         (map #(if (string? %) % (render-map %)) forms))))
+
+(defn render-maps
+  "Render one or more maps of data as markup. Translates hiccup-like
+   [:div {} 'Hey'] to (tag :div {} 'Hey') and returns the resulting string"
+  [& maps]
+  (str/join "\n" (map render-map maps)))
