@@ -29,13 +29,13 @@
 (defn- render-1 [form]
   (cond
    (nil? form) ""
-   (string? form) form
-   (number? form) form
-   :else (let [attrs (if (map? (second form)) (second form) nil)
-               forms (if attrs (rest (rest form)) (rest form))]
-           (tag (first form)
-                (or attrs {})
-                (map render-1 forms)))))
+   (vector? form) (let [attrs (if (map? (second form)) (second form) nil)
+                        forms (if attrs (rest (rest form)) (rest form))]
+                    (tag (first form)
+                         (or attrs {})
+                         (map render-1 forms)))
+   (seq? form) (str/join "\n" (map render-1 form))
+   :else form))
 
 (defn render
   "Render one or more forms of data as markup. Translates hiccup-like
