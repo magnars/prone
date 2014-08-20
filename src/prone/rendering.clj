@@ -12,7 +12,7 @@
                  (tag :style {} (slurp (io/resource "prone-styles.css"))))
             (tag :body {} (str/join markup-snippets)))))
 
-(defn render-stack-frame [frame]
+(defn build-stack-frame [frame]
   [:li
    [:span {:class "stroke"}
     [:span {:class "icon"}]
@@ -33,7 +33,7 @@
        [:div {:class "location"}
         "(unknown file)"])]]])
 
-(defn render-frame-info [frame]
+(defn build-frame-info [frame]
   (div {:class "frame_info"}
        (header {:class "trace_info clearfix"}
                (div {:class "title"}
@@ -57,5 +57,5 @@
                        (a {:href "#"} "Application Frames")
                        (a {:href "#" :class "selected"} "All Frames"))
                   (ul {:class "frames"}
-                      (map (comp render render-stack-frame) frames)))
-             (render-frame-info (first frames)))))
+                      (map (comp render build-stack-frame) frames)))
+             (build-frame-info (first frames)))))
