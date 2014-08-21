@@ -22,7 +22,8 @@
                                (map (partial set-application-frame application-name))
                                (mapv load-source)))
               (update-in [:frames 0] assoc :selected? true))
-   :request {:uri (:uri request)}})
+   :request {:uri (:uri request)}
+   :frame-filter :application})
 
 (comment (defn get-application-name []
   (second (edn/read-string (slurp "project.clj")))))

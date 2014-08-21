@@ -15,6 +15,11 @@
         (update-in m this-path (partial map #(update-in* % nested-path f)))))
     (update-in m path f)))
 
+(defn filter-frames [frame-filter frames]
+  (case frame-filter
+    :all frames
+    :application (filter :application? frames)))
+
 (q/defcomponent StackFrame [frame select-frame]
   (d/li {:className (when (:selected? frame) "selected")
          :onClick (fn [] (put! select-frame (:id frame)))}
@@ -58,7 +63,7 @@
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
-  [{:keys [error request]} chans]
+  [{:keys [error request frame-filter]} chans]
   (d/div {:className "top"}
          (d/header {:className "exception"}
                    (d/h2 {}
@@ -68,10 +73,17 @@
          (d/section {:className "backtrace"}
                     (d/nav {:className "sidebar"}
                            (d/nav {:className "tabs"}
-                                  (d/a {:href "#"} "Application Frames")
-                                  (d/a {:href "#" :className "selected"} "All Frames"))
+                                  (d/a {:href "#"
+                                        :className (when (= :application frame-filter) "selected")
+                                        :onClick #(put! (:change-frame-filter chans) :application)}
+                                       "Application Frames")
+                                  (d/a {:href "#"
+                                        :className (when (= :all frame-filter) "selected")
+                                        :onClick #(put! (:change-frame-filter chans) :all)}
+                                       "All Frames"))
                            (apply d/ul {:className "frames" :id "frames"}
-                                  (map #(StackFrame % (:select-frame chans)) (:frames error))))
+                                  (map #(StackFrame % (:select-frame chans))
+                                       (filter-frames frame-filter (:frames error)))))
                     (StackInfo (first (filter :selected? (:frames error)))))))
 
 (defn update-selected-frame [data frame-id]
@@ -79,11 +91,17 @@
                                           (assoc % :selected? true)
                                           (dissoc % :selected?))))
 
-(let [chans {:select-frame (chan)}
+(let [chans {:select-frame (chan)
+             :change-frame-filter (chan)}
       prone-data (atom nil)]
   (go-loop []
            (when-let [frame-id (<! (:select-frame chans))]
              (swap! prone-data update-selected-frame frame-id)
+             (recur)))
+
+  (go-loop []
+           (when-let [filter (<! (:change-frame-filter chans))]
+             (swap! prone-data assoc :frame-filter filter)
              (recur)))
 
   (add-watch

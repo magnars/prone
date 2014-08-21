@@ -28,3 +28,6 @@
                                  "prone")
                     (filter :application?)
                     (map :name)))))
+
+(deftest frame-filter
+  (is (= :application (:frame-filter (prep {:frames []} {} "")))))
