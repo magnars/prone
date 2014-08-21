@@ -14,6 +14,12 @@
     (assoc frame :application? true)
     frame))
 
+(defn select-starting-frame [frames]
+  (if-let [first-frame (or (first (filter :application? frames))
+                           (first frames))]
+    (update-in frames [(:id first-frame)] assoc :selected? true)
+    frames))
+
 (defn prep [error request application-name]
   {:error (-> error
               (update-in [:frames]
@@ -21,9 +27,9 @@
                                (map-indexed (fn [idx f] (assoc f :id idx)))
                                (map (partial set-application-frame application-name))
                                (mapv load-source)))
-              (update-in [:frames 0] assoc :selected? true))
+              (update-in [:frames] select-starting-frame))
    :request {:uri (:uri request)}
    :frame-filter :application})
 
 (comment (defn get-application-name []
-  (second (edn/read-string (slurp "project.clj")))))
+           (second (edn/read-string (slurp "project.clj")))))

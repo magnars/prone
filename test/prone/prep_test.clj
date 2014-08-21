@@ -17,16 +17,24 @@
   (is (= "(could not locate source file on class path)"
          (:source (first (prep-frames [{:class-path-url "plone/plep_test.clj"}]))))))
 
-(deftest selection-for-first-frame
-  (is (= ["a"] (->> (prep-frames [{:name "a"} {:name "b"} {:name "c"}])
-                    (filter :selected?)
-                    (map :name)))))
-
 (deftest application-frames
   (is (= ["a"] (->> (prep-frames [{:name "a" :package "prone.prep-test"}
                                   {:name "b" :package "plone.plep-test"}]
                                  "prone")
                     (filter :application?)
+                    (map :name)))))
+
+
+(deftest selection-for-first-frame
+  (is (= ["a"] (->> (prep-frames [{:name "a"} {:name "b"} {:name "c"}])
+                    (filter :selected?)
+                    (map :name)))))
+
+(deftest selection-for-first-application-frame
+  (is (= ["b"] (->> (prep-frames [{:name "a", :package "core.main"}
+                                  {:name "b", :package "prone.core"}
+                                  {:name "c", :package "prone.plone"}] "prone")
+                    (filter :selected?)
                     (map :name)))))
 
 (deftest frame-filter
