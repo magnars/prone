@@ -10,12 +10,15 @@
          [:head
           [:title title]
           [:style (slurp (io/resource "prone/better-errors.css"))]
-          [:style (slurp (io/resource "prone/styles.css"))]]
+          [:style (slurp (io/resource "prone/prism.css"))]
+          [:style (slurp (io/resource "prone/styles.css"))]]]
          [:body
           markup-snippets
+          [:script (slurp (io/resource "prone/prism.js"))]
+          [:script (slurp (io/resource "prone/prism.clojure.js"))]
           [:script (slurp (io/resource "prone/cull.js"))]
           [:script (slurp (io/resource "prone/dome.js"))]
-          [:script (slurp (io/resource "prone/select-frame.js"))]]]))
+          [:script (slurp (io/resource "prone/select-frame.js"))]]))
 
 (defn build-stack-frame [index frame]
   [:li {:id (str "frame_entry_" index)
@@ -51,11 +54,12 @@
        (:class-path-url frame)]]]
     [:div {:class "code_block clearfix"}
      [:pre
-      (if-not (:class-path-url frame)
-        "(unknown source file)"
-        (if-not (io/resource (:class-path-url frame))
-          "(could not locate source file on class path)"
-          (slurp (io/resource (:class-path-url frame)))))]]]])
+      [:code {:class "language-clojure"}
+       (if-not (:class-path-url frame)
+         "(unknown source file)"
+         (if-not (io/resource (:class-path-url frame))
+           "(could not locate source file on class path)"
+           (slurp (io/resource (:class-path-url frame)))))]]]]])
 
 (defn build-exception [request {:keys [message type frames]}]
   (list [:div {:class "top"}
