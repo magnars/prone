@@ -5,6 +5,11 @@
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
+(defn action [f]
+  (fn [e]
+    (.preventDefault e)
+    (f)))
+
 (defn update-in* [m path f]
   "Like update-in, but can map over lists by nesting paths."
   (if (vector? (last path))
@@ -22,7 +27,7 @@
 
 (q/defcomponent StackFrame [frame select-frame]
   (d/li {:className (when (:selected? frame) "selected")
-         :onClick (fn [] (put! select-frame (:id frame)))}
+         :onClick (action #(put! select-frame (:id frame)))}
         (d/span {:className "stroke"}
                 (d/span {:className (if (:application? frame)
                                       "icon application"
@@ -77,11 +82,11 @@
                            (d/nav {:className "tabs"}
                                   (d/a {:href "#"
                                         :className (when (= :application frame-filter) "selected")
-                                        :onClick #(put! (:change-frame-filter chans) :application)}
+                                        :onClick (action #(put! (:change-frame-filter chans) :application))}
                                        "Application Frames")
                                   (d/a {:href "#"
                                         :className (when (= :all frame-filter) "selected")
-                                        :onClick #(put! (:change-frame-filter chans) :all)}
+                                        :onClick (action #(put! (:change-frame-filter chans) :all))}
                                        "All Frames"))
                            (apply d/ul {:className "frames" :id "frames"}
                                   (map #(StackFrame % (:select-frame chans))
