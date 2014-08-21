@@ -63,6 +63,6 @@
 (defn normalize-exception [exception]
   {:message (.getMessage exception)
    :type (.getName (type exception))
-   :frames (map load-source (->> exception
-                                 .getStackTrace
-                                 (map normalize-frame)))})
+   :frames (->> exception
+                .getStackTrace
+                (mapv (comp load-source normalize-frame)))})

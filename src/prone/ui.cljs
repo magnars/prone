@@ -4,7 +4,7 @@
             [quiescent.dom :as d]))
 
 (q/defcomponent StackFrame [frame]
-  (d/li {:className "frame"}
+  (d/li {:className (when (:selected? frame) "selected")}
         (d/span {:className "stroke"}
                 (d/span {:className "icon"})
                 (d/div {:className "info"}
@@ -41,7 +41,7 @@
                                  (d/code {:className (source-classes (:lang frame))}
                                          (:source frame)))))))
 
-(q/defcomponent ErrorDetails
+(q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
   [{:keys [error request]}]
   (d/div {:className "top"}
@@ -57,7 +57,7 @@
                                   (d/a {:href "#" :className "selected"} "All Frames"))
                            (apply d/ul {:className "frames" :id "frames"}
                                   (map StackFrame (:frames error))))
-                    (StackInfo (first (:frames error))))))
+                    (StackInfo (first (filter :selected? (:frames error)))))))
 
 (def prone-data (atom nil))
 
@@ -65,8 +65,10 @@
  prone-data
  :state-change
  (fn [key ref old new]
-   (q/render (ErrorDetails new)
+   (q/render (ProneUI new)
              (.getElementById js/document "ui-root"))))
 
-(let [data-text (-> js/document (.getElementById "prone-data") .-innerHTML)]
-  (reset! prone-data (reader/read-string data-text)))
+(let [data-text (-> js/document (.getElementById "prone-data") .-innerHTML)
+      data (reader/read-string data-text)
+      prepped-data (update-in data [:error :frames 0] assoc :selected? true)]
+  (reset! prone-data prepped-data))
