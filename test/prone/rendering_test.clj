@@ -10,7 +10,7 @@
                :method-name "some-func"
                :file-name "prone/rendering_test.clj"
                :line-number 42}
-        text (hiccup-string (build-stack-frame frame))]
+        text (hiccup-string (build-stack-frame {:uri "/some/uri"} frame))]
     (is (= "prone.rendering-test/some-func prone/rendering_test.clj, line 42" text))))
 
 (deftest build-stack-frame-java-test
@@ -20,7 +20,7 @@
                :method-name "doIt"
                :file-name "com/dom/dum/Thingamajiggy.java"
                :line-number 42}
-        text (hiccup-string (build-stack-frame frame))]
+        text (hiccup-string (build-stack-frame {:uri "/some/uri"} frame))]
     (is (= "com.dom.dum.Thingamajiggy$doIt com/dom/dum/Thingamajiggy.java, line 42" text))))
 
 (deftest build-exception-test

@@ -10,9 +10,15 @@
 
 (def ex (create-ex "Message for you, Sir!"))
 
+(def anon-fn-ex ((fn [] (create-ex "Message for you, Sir!"))))
+
 (def clj-frame (->> (.getStackTrace ex)
                     (filter #(re-find #"^prone" (.getClassName %)))
                     first))
+
+(def clj-anon-frame (->> (.getStackTrace anon-fn-ex)
+                         (filter #(re-find #"^prone" (.getClassName %)))
+                         second))
 
 (def java-frame (->> (.getStackTrace ex)
                      (filter #(re-find #"^java.lang" (.getClassName %)))
@@ -47,7 +53,9 @@
           :class-name "Constructor"
           :package "java.lang.reflect"
           :lang :java}
-         (normalize-frame java-frame))))
+         (normalize-frame java-frame)))
+
+  (is (= "[fn]" (:method-name (normalize-frame clj-anon-frame)))))
 
 (deftest non-file-exception
   (is (= {:method-name "handle"

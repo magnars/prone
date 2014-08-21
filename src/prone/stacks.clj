@@ -2,19 +2,20 @@
   (:require [clojure.string :as str]))
 
 (defn- normalize-frame-clj [frame]
-  {:class-path-url (-> frame
-                       .getClassName
-                       (str/replace "." "/")
-                       (str/replace #"\$.*" ".clj"))
-   :method-name (-> frame
+  (let [fn-name (-> frame
                     .getClassName
                     (str/replace "_" "-")
-                    (str/replace #"^.*\$" ""))
-   :package (-> frame
-                .getClassName
-                (str/replace "_" "-")
-                (str/replace #"\$.*" ""))
-   :lang :clj})
+                    (str/replace #"^.*\$" ""))]
+    {:class-path-url (-> frame
+                         .getClassName
+                         (str/replace "." "/")
+                         (str/replace #"\$.*" ".clj"))
+     :method-name (if (re-find #"^fn--\d+$" fn-name) "[fn]" fn-name)
+     :package (-> frame
+                  .getClassName
+                  (str/replace "_" "-")
+                  (str/replace #"\$.*" ""))
+     :lang :clj}))
 
 (defn- normalize-frame-java [frame]
   {:class-path-url (-> frame
