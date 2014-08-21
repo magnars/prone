@@ -3,11 +3,19 @@
             [prone.core :refer [wrap-exceptions]]))
 
 (defn handler [req]
-  (if (re-find #"prone.js.map$" (:uri req))
-    {:status 200
-     :headers {"Content-Type" "application/octet-stream"}
-     :body (slurp (io/resource "prone/generated/prone.js.map"))}
-    (throw (Exception. "Oh noes!"))))
+  (cond
+
+   ;; serve source maps
+   (re-find #"prone.js.map$" (:uri req))
+   {:status 200
+    :headers {"Content-Type" "application/octet-stream"}
+    :body (slurp (io/resource "prone/generated/prone.js.map"))}
+
+   ;; throw exception in dependency (outside of app)
+   (= (:uri req) "/external-throw") (re-find #"." nil)
+
+   ;; basic case
+   :else (throw (Exception. "Oh noes!"))))
 
 (def app
   (-> handler
