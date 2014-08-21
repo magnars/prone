@@ -54,7 +54,9 @@
              (normalize-frame-java frame)))))
 
 (defn normalize-exception [exception]
-  {:message (.getMessage exception)
-   :type (.getName (type exception))
-   :frames (->> exception .getStackTrace (map normalize-frame))})
+  (let [type (.getName (type exception))]
+    {:message (.getMessage exception)
+     :type type
+     :class-name (last (str/split type #"\."))
+     :frames (->> exception .getStackTrace (map normalize-frame))}))
 

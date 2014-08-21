@@ -69,7 +69,9 @@
                    (d/h2 {}
                          (d/strong {} (:type error))
                          (d/span {} " at " (:uri request)))
-                   (d/p {} (:message error)))
+                   (d/p {} (or (:message error)
+                               (d/span {} (:class-name error)
+                                       (d/span {:className "subtle"} " [no message]")))))
          (d/section {:className "backtrace"}
                     (d/nav {:className "sidebar"}
                            (d/nav {:className "tabs"}

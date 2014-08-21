@@ -60,7 +60,8 @@
 (deftest normalize-exception-test
   (let [normalized (normalize-exception ex)]
     (is (= "Message for you, Sir!" (:message normalized)))
-    (is (= "java.lang.Exception" (:type normalized)))))
+    (is (= "java.lang.Exception" (:type normalized)))
+    (is (= "Exception" (:class-name normalized)))))
 
 (deftest non-file-exception
   (is (= {:method-name "handle"
