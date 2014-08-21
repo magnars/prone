@@ -1,5 +1,6 @@
 (ns prone.stacks
-  (:require [clojure.string :as str]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]))
 
 (defn- normalize-frame-clj [frame]
   (let [fn-name (-> frame
@@ -34,6 +35,13 @@
                 (->> (str/join ".")))
    :lang :java})
 
+(defn- load-source [frame]
+  (assoc frame :source (if-not (:class-path-url frame)
+                         "(unknown source file)"
+                         (if-not (io/resource (:class-path-url frame))
+                           "(could not locate source file on class path)"
+                           (slurp (io/resource (:class-path-url frame)))))))
+
 (defn normalize-frame [frame]
   (if-not (.getFileName frame)
     {:method-name (.getMethodName frame)
@@ -54,7 +62,7 @@
 
 (defn normalize-exception [exception]
   {:message (.getMessage exception)
-   :type (type exception)
-   :frames (->> exception
-                .getStackTrace
-                (map normalize-frame))})
+   :type (.getName (type exception))
+   :frames (map load-source (->> exception
+                                 .getStackTrace
+                                 (map normalize-frame)))})

@@ -57,6 +57,11 @@
 
   (is (= "[fn]" (:method-name (normalize-frame clj-anon-frame)))))
 
+(deftest normalize-exception-test
+  (let [normalized (normalize-exception ex)]
+    (is (= "Message for you, Sir!" (:message normalized)))
+    (is (= "java.lang.Exception" (:type normalized)))))
+
 (deftest non-file-exception
   (is (= {:method-name "handle"
           :class-name "AbstractHandler$0"
