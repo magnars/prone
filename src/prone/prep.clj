@@ -8,11 +8,21 @@
                            "(could not locate source file on class path)"
                            (slurp (io/resource (:class-path-url frame)))))))
 
-(defn prep [error request]
+(defn- set-application-frame [application-name frame]
+  (if (and (:package frame)
+           (.startsWith (:package frame) (str application-name ".")))
+    (assoc frame :application? true)
+    frame))
+
+(defn prep [error request application-name]
   {:error (-> error
               (update-in [:frames]
                          #(->> %
                                (map-indexed (fn [idx f] (assoc f :id idx)))
+                               (map (partial set-application-frame application-name))
                                (mapv load-source)))
               (update-in [:frames 0] assoc :selected? true))
    :request {:uri (:uri request)}})
+
+(comment (defn get-application-name []
+  (second (edn/read-string (slurp "project.clj")))))

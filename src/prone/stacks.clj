@@ -57,3 +57,4 @@
   {:message (.getMessage exception)
    :type (.getName (type exception))
    :frames (->> exception .getStackTrace (map normalize-frame))})
+

@@ -2,8 +2,8 @@
   (:require [prone.prep :refer :all]
             [clojure.test :refer :all]))
 
-(defn prep-frames [frames]
-  (-> (prep {:frames frames} {})
+(defn prep-frames [frames & [application-name]]
+  (-> (prep {:frames frames} {} application-name)
       :error :frames))
 
 (deftest ids-for-frames
@@ -20,4 +20,11 @@
 (deftest selection-for-first-frame
   (is (= ["a"] (->> (prep-frames [{:name "a"} {:name "b"} {:name "c"}])
                     (filter :selected?)
+                    (map :name)))))
+
+(deftest application-frames
+  (is (= ["a"] (->> (prep-frames [{:name "a" :package "prone.prep-test"}
+                                  {:name "b" :package "plone.plep-test"}]
+                                 "prone")
+                    (filter :application?)
                     (map :name)))))

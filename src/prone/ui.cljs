@@ -19,7 +19,9 @@
   (d/li {:className (when (:selected? frame) "selected")
          :onClick (fn [] (put! select-frame (:id frame)))}
         (d/span {:className "stroke"}
-                (d/span {:className "icon"})
+                (d/span {:className (if (:application? frame)
+                                      "icon application"
+                                      "icon")})
                 (d/div {:className "info"}
                        (if (= (:lang frame) :clj)
                          (d/div {:className "name"}
