@@ -5,7 +5,8 @@
                                   [ring "1.2.1"]
                                   [hiccup-find  "0.4.0"]
                                   [org.clojure/clojurescript "0.0-2202"]
-                                  [quiescent "0.1.4"]]
+                                  [quiescent "0.1.4"]
+                                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]]
                    :injections [(require 'flare.clojure-test)
                                 (flare.clojure-test/install!)]
                    :source-paths ["dev"]
@@ -16,4 +17,4 @@
                                          :compiler {:output-to "resources/prone/generated/prone.js"
                                                     :optimizations :whitespace
                                                     :output-dir "resources/prone/generated/out"
-                                                    :source-map "resources/prone/generated/prone.js.map"}}]}}})
+}}]}}})

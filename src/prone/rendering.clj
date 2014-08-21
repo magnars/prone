@@ -2,7 +2,8 @@
   "Functions to render exception and request/response data as HTML"
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [prone.hiccough :refer :all]))
+            [prone.hiccough :refer :all]
+            [prone.prep :refer [prep]]))
 
 (defn with-layout [title & markup-snippets]
   (list "<!DOCTYPE html>"
@@ -25,4 +26,4 @@
      [:div {:id "ui-root"}]
      [:script {:type "text/json"
                :id "prone-data"}
-      (prn-str {:error error :request {:uri (:uri request)}})])))
+      (prn-str (prep error request))])))

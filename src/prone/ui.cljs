@@ -1,10 +1,23 @@
 (ns prone.ui
-  (:require [cljs.reader :as reader]
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:require [cljs.core.async :refer [put! chan <!]]
+            [cljs.reader :as reader]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
-(q/defcomponent StackFrame [frame]
-  (d/li {:className (when (:selected? frame) "selected")}
+(defn update-in* [m path f]
+  "Like update-in, but can map over lists by nesting paths."
+  (if (vector? (last path))
+    (let [nested-path (last path)
+          this-path (drop-last path)]
+      (if (empty? nested-path)
+        (update-in m this-path (partial map f))
+        (update-in m this-path (partial map #(update-in* % nested-path f)))))
+    (update-in m path f)))
+
+(q/defcomponent StackFrame [frame select-frame]
+  (d/li {:className (when (:selected? frame) "selected")
+         :onClick (fn [] (put! select-frame (:id frame)))}
         (d/span {:className "stroke"}
                 (d/span {:className "icon"})
                 (d/div {:className "info"}
@@ -43,7 +56,7 @@
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
-  [{:keys [error request]}]
+  [{:keys [error request]} chans]
   (d/div {:className "top"}
          (d/header {:className "exception"}
                    (d/h2 {}
@@ -56,19 +69,28 @@
                                   (d/a {:href "#"} "Application Frames")
                                   (d/a {:href "#" :className "selected"} "All Frames"))
                            (apply d/ul {:className "frames" :id "frames"}
-                                  (map StackFrame (:frames error))))
+                                  (map #(StackFrame % (:select-frame chans)) (:frames error))))
                     (StackInfo (first (filter :selected? (:frames error)))))))
 
-(def prone-data (atom nil))
+(defn update-selected-frame [data frame-id]
+  (update-in* data [:error :frames []] #(if (= (:id %) frame-id)
+                                          (assoc % :selected? true)
+                                          (dissoc % :selected?))))
 
-(add-watch
- prone-data
- :state-change
- (fn [key ref old new]
-   (q/render (ProneUI new)
-             (.getElementById js/document "ui-root"))))
+(let [chans {:select-frame (chan)}
+      prone-data (atom nil)]
+  (go-loop []
+           (when-let [frame-id (<! (:select-frame chans))]
+             (swap! prone-data update-selected-frame frame-id)
+             (recur)))
 
-(let [data-text (-> js/document (.getElementById "prone-data") .-innerHTML)
-      data (reader/read-string data-text)
-      prepped-data (update-in data [:error :frames 0] assoc :selected? true)]
-  (reset! prone-data prepped-data))
+  (add-watch
+   prone-data
+   :state-change
+   (fn [key ref old new]
+     (q/render (ProneUI new chans)
+               (.getElementById js/document "ui-root"))))
+
+  (let [data-text (-> js/document (.getElementById "prone-data") .-innerHTML)
+        data (reader/read-string data-text)]
+    (reset! prone-data data)))
