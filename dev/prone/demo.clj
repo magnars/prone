@@ -4,7 +4,10 @@
 
 (defn piggie-backer [app]
   (fn [req]
-    (app (assoc req :nested {:maps {:are {:certainly {:supported 42}}}}))))
+    (app (-> req
+             (assoc :nested {:maps {:are {:certainly {:supported 42}}}})
+             (assoc :some {:nested {:maps {:are {:simply "Too long to peek
+             inside, at least while staying on only a single line."}}}})))))
 
 (defn handler [req]
   (cond

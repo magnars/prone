@@ -15,35 +15,71 @@
         (number? v) "number"
         (keyword? v) "operator")))
 
-(q/defcomponent NestedMap [ks]
-  (let [linked-keys (interpose
-                     " "
-                     (map #(d/span {:className "token comment"} (to-str %)) ks))]
+(q/defcomponent MapSummary [ks]
+  (let [linked-keys (interpose " " (map #(d/span {:className "token comment"} (to-str %)) ks))]
     (apply d/pre {} (flatten ["{" linked-keys "}"]))))
 
-(defn gen-map-entry [[k v] navigate-request]
-  (cond
-   (map? v) [(d/a {:href "#"
-                   :onClick (action #(put! navigate-request [:concat [k]]))} (to-str k))
-             (NestedMap (keys v))]
-   :else [(to-str k) (d/pre {:className (get-token-class v)} (to-str v))]))
+(defn browseworthy-map?
+  "Maps are only browseworthy if it is inconvenient to just look at the
+   stringified version"
+  [m]
+  (and (map? m)
+       (< 100 (.-length (to-str m)))))
 
-(q/defcomponent MapEntry [m navigate-request]
+(declare gen-map-entry)
+
+(q/defcomponent ValueToken [t]
+  (prn "Value" t)
+  (d/code {:className (get-token-class t)} (to-str t)))
+
+(defn prepare-inline-kv [m navigate-request]
+  (let [[k v] (gen-map-entry m navigate-request)]
+    ["{" k " " v "}"]))
+
+(q/defcomponent InlineMapBrowser [m navigate-request]
+  (prn "InlineMapBrowser" m)
+  (let [kv-pairs (mapcat #(prepare-inline-kv % navigate-request) m)]
+    (apply d/span {} kv-pairs)))
+
+(q/defcomponent InlineToken
+  "A value to be rendered roughly in one line. If the value is a list or a
+   map, it will be browsable as well"
+  [t navigate-request]
+  (prn "InlineToken" t)
+  (cond
+   (map? t) (InlineMapBrowser t navigate-request)
+   :else (ValueToken t)))
+
+(defn gen-map-entry [[k v] navigate-request]
+  (prn "gen-map-entry" k v)
+  (cond
+   (browseworthy-map? v) [(d/a {:href "#"
+                                :onClick (action #(put! navigate-request [:concat [k]]))} (to-str k))
+                          (MapSummary (keys v))]
+   :else [(ValueToken k) (InlineToken v navigate-request)]))
+
+(q/defcomponent MapEntry
+  "A map entry is one key/value pair, formatted apropriately for their types"
+  [m navigate-request]
   (let [[k v] (gen-map-entry m navigate-request)]
     (d/tr {}
           (d/td {:className "name"} k)
           (d/td {} v))))
 
-(q/defcomponent MapPath [path navigate-request]
+(q/defcomponent MapPath
+  "The heading and current path in the map. When browsing nested maps and lists,
+   the path component will display the full path from the root of the map, with
+   navigation options along the way."
+  [path navigate-request]
   (let [paths (map #(take (inc %) path) (range (count path)))]
     (apply d/span {}
-           (flatten
-            [(map #(d/a {:href "#"
+           (conj
+            (mapv #(d/a {:href "#"
                          :onClick (action (fn [] (put! navigate-request [:reset %])))}
                         (to-str (last %)))
                   (butlast paths))
-             (when-let [curr (last (last paths))]
-               (to-str curr))]))))
+            (when-let [curr (last (last paths))]
+              (to-str curr))))))
 
 (q/defcomponent MapBrowser [{:keys [name data path]} navigate-request]
   (d/div
