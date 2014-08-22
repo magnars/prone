@@ -2,6 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [put! chan <!]]
             [cljs.reader :as reader]
+            [clojure.string :as str]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
@@ -66,9 +67,44 @@
                           (d/code {:className (source-classes (:lang frame))}
                                   (:source frame))))))
 
+(defn to-str [v]
+  (str/trim (prn-str v)))
+
+(q/defcomponent NestedMap [ks]
+  (let [linked-keys (interpose
+                     " "
+                     (map #(d/span {:className "token comment"} (to-str %)) ks))]
+    (apply d/pre {} (flatten ["{" linked-keys "}"]))))
+
+(defn get-token-class [v]
+  (str "token "
+       (cond
+        (string? v) "string"
+        (number? v) "number"
+        (keyword? v) "operator")))
+
+(defn gen-map-entry [[k v] navigate-request]
+  (cond
+   (map? v) [(d/a {:href "#"
+                   :onClick (action #(put! navigate-request [:concat [k]]))} (to-str k))
+             (NestedMap (keys v))]
+   :else [(to-str k) (d/pre {:className (get-token-class v)} (to-str v))]))
+
+(q/defcomponent MapEntry [m navigate-request]
+  (let [[k v] (gen-map-entry m navigate-request)]
+    (d/tr {}
+          (d/td {:className "name"} k)
+          (d/td {} v))))
+
+(q/defcomponent MapBrowser [m navigate-request]
+  (d/div {:className "inset variables"}
+         (d/table {:className "var_table"}
+                  (apply d/tbody {}
+                         (map #(MapEntry % navigate-request) m)))))
+
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
-  [{:keys [error request frame-filter]} chans]
+  [{:keys [error request frame-filter paths]} chans]
   (d/div {:className "top"}
          (d/header {:className "exception"}
                    (d/h2 {}
@@ -94,16 +130,24 @@
                     (d/div {:className "frame_info"}
                            (StackInfo (first (filter :selected? (:frames error))))
                            (d/div {:className "sub"}
-                                  (d/h3 {} "Request info")
-                                  (str request))))))
+                                  (d/h3 {}
+                                        "Request map "
+                                        (d/span {:className "subtle"}
+                                                (to-str (:request paths))))
+                                  (MapBrowser (get-in request (:request paths)) (:navigate-request chans)))))))
 
 (defn update-selected-frame [data frame-id]
   (update-in* data [:error :frames []] #(if (= (:id %) frame-id)
                                           (assoc % :selected? true)
                                           (dissoc % :selected?))))
 
+(defn navigate-request [data navigation]
+  (case (first navigation)
+    :concat (update-in data [:paths :request] #(concat % (second navigation)))))
+
 (let [chans {:select-frame (chan)
-             :change-frame-filter (chan)}
+             :change-frame-filter (chan)
+             :navigate-request (chan)}
       prone-data (atom nil)]
   (go-loop []
     (when-let [frame-id (<! (:select-frame chans))]
@@ -113,6 +157,11 @@
   (go-loop []
     (when-let [filter (<! (:change-frame-filter chans))]
       (swap! prone-data assoc :frame-filter filter)
+      (recur)))
+
+  (go-loop []
+    (when-let [navigation (<! (:navigate-request chans))]
+      (swap! prone-data navigate-request navigation)
       (recur)))
 
   (add-watch
