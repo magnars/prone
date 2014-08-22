@@ -17,4 +17,4 @@
                                          :compiler {:output-to "resources/prone/generated/prone.js"
                                                     :optimizations :whitespace
                                                     :output-dir "resources/prone/generated/out"
-}}]}}})
+                                                    :source-map "resources/prone/generated/prone.js.map"}}]}}})
