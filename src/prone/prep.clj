@@ -36,7 +36,8 @@
               (update-in [:frames] select-starting-frame))
    :request (into {} (map (juxt first (comp prepare-for-serialization second)) request))
    :frame-filter :application
-   :paths {:request []}})
+   :paths {:request []
+           :ex-info []}})
 
 (comment (defn get-application-name []
            (second (edn/read-string (slurp "project.clj")))))

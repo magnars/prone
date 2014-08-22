@@ -89,6 +89,11 @@
                                        (filter-frames frame-filter (:frames error)))))
                     (d/div {:className "frame_info"}
                            (StackInfo (first (filter :selected? (:frames error))))
+                           (when (= "clojure.lang.ExceptionInfo" (:type error))
+                             (d/div {:className "sub"}
+                                    (MapBrowser {:data (:data error)
+                                                 :path (:ex-info paths)
+                                                 :name "ExceptionInfo data"} (:navigate-ex-info chans))))
                            (d/div {:className "sub"}
                                   (MapBrowser {:data request
                                                :path (:request paths)
@@ -99,29 +104,38 @@
                                           (assoc % :selected? true)
                                           (dissoc % :selected?))))
 
-(defn navigate-request [data navigation]
+(defn navigate-map [name data navigation]
   (case (first navigation)
-    :concat (update-in data [:paths :request] #(concat % (second navigation)))
-    :reset (assoc-in data [:paths :request] (second navigation))))
+    :concat (update-in name [:paths name] #(concat % (second navigation)))
+    :reset (assoc-in name [:paths name] (second navigation))))
+
+(def navigate-request (partial navigate-map :request))
+(def navigate-ex-info (partial navigate-map :ex-info))
 
 (let [chans {:select-frame (chan)
              :change-frame-filter (chan)
-             :navigate-request (chan)}
+             :navigate-request (chan)
+             :ex-info (chan)}
       prone-data (atom nil)]
   (go-loop []
-    (when-let [frame-id (<! (:select-frame chans))]
-      (swap! prone-data update-selected-frame frame-id)
-      (recur)))
+           (when-let [frame-id (<! (:select-frame chans))]
+             (swap! prone-data update-selected-frame frame-id)
+             (recur)))
 
   (go-loop []
-    (when-let [filter (<! (:change-frame-filter chans))]
-      (swap! prone-data assoc :frame-filter filter)
-      (recur)))
+           (when-let [filter (<! (:change-frame-filter chans))]
+             (swap! prone-data assoc :frame-filter filter)
+             (recur)))
 
   (go-loop []
-    (when-let [navigation (<! (:navigate-request chans))]
-      (swap! prone-data navigate-request navigation)
-      (recur)))
+           (when-let [navigation (<! (:navigate-request chans))]
+             (swap! prone-data navigate-request navigation)
+             (recur)))
+
+  (go-loop []
+           (when-let [navigation (<! (:navigate-ex-info chans))]
+             (swap! prone-data navigate-ex-info navigation)
+             (recur)))
 
   (add-watch
    prone-data

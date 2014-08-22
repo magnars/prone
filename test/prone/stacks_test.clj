@@ -68,3 +68,10 @@
           :class-name "AbstractHandler$0"
           :package "ring.adapter.jetty.proxy$org.eclipse.jetty.server.handler"}
          (normalize-frame (StackTraceElement. "ring.adapter.jetty.proxy$org.eclipse.jetty.server.handler.AbstractHandler$0" "handle" nil -1)))))
+
+(deftest normalize-ex-info-test
+  (let [normalized (normalize-exception (try
+                                          (throw (ex-info "Oops" {:data 42}))
+                                          (catch Exception e
+                                            e)))]
+    (is (= {:data 42} (:data normalized)))))

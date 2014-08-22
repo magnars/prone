@@ -24,6 +24,10 @@
    ;; throw exception in dependency (outside of app)
    (= (:uri req) "/external-throw") (re-find #"." nil)
 
+   ;; throw an ex-info with data attached
+   (= (:uri req) "/ex-info")
+   (throw (ex-info "This will be informative" {:authors [:magnars :cjohansen]}))
+
    ;; basic case
    :else (throw (Exception. "Oh noes!"))))
 
