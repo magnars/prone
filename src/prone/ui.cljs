@@ -2,14 +2,10 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [put! chan <!]]
             [cljs.reader :as reader]
-            [clojure.string :as str]
+            [prone.map-browser :refer [MapBrowser]]
+            [prone.uitils :refer [action]]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
-
-(defn action [f]
-  (fn [e]
-    (.preventDefault e)
-    (f)))
 
 (defn update-in* [m path f]
   "Like update-in, but can map over lists by nesting paths."
@@ -25,6 +21,9 @@
   (case frame-filter
     :all frames
     :application (filter :application? frames)))
+
+(def source-classes {:clj "language-clojure"
+                     :java "language-java"})
 
 (q/defcomponent StackFrame [frame select-frame]
   (d/li {:className (when (:selected? frame) "selected")
@@ -50,11 +49,7 @@
                          (d/div {:className "location"}
                                 "(unknown file)"))))))
 
-(def source-classes {:clj "language-clojure"
-                     :java "language-java"})
-
 (q/defcomponent StackInfo [frame]
-
   (d/header {:className "trace_info clearfix"}
             (d/div {:className "title"}
                    (d/h2 {:className "name"} (:method-name frame))
@@ -66,41 +61,6 @@
                            :data-line (:line-number frame)}
                           (d/code {:className (source-classes (:lang frame))}
                                   (:source frame))))))
-
-(defn to-str [v]
-  (str/trim (prn-str v)))
-
-(q/defcomponent NestedMap [ks]
-  (let [linked-keys (interpose
-                     " "
-                     (map #(d/span {:className "token comment"} (to-str %)) ks))]
-    (apply d/pre {} (flatten ["{" linked-keys "}"]))))
-
-(defn get-token-class [v]
-  (str "token "
-       (cond
-        (string? v) "string"
-        (number? v) "number"
-        (keyword? v) "operator")))
-
-(defn gen-map-entry [[k v] navigate-request]
-  (cond
-   (map? v) [(d/a {:href "#"
-                   :onClick (action #(put! navigate-request [:concat [k]]))} (to-str k))
-             (NestedMap (keys v))]
-   :else [(to-str k) (d/pre {:className (get-token-class v)} (to-str v))]))
-
-(q/defcomponent MapEntry [m navigate-request]
-  (let [[k v] (gen-map-entry m navigate-request)]
-    (d/tr {}
-          (d/td {:className "name"} k)
-          (d/td {} v))))
-
-(q/defcomponent MapBrowser [m navigate-request]
-  (d/div {:className "inset variables"}
-         (d/table {:className "var_table"}
-                  (apply d/tbody {}
-                         (map #(MapEntry % navigate-request) m)))))
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
@@ -133,7 +93,7 @@
                                   (d/h3 {}
                                         "Request map "
                                         (d/span {:className "subtle"}
-                                                (to-str (:request paths))))
+                                                (prn-str (:request paths))))
                                   (MapBrowser (get-in request (:request paths)) (:navigate-request chans)))))))
 
 (defn update-selected-frame [data frame-id]
