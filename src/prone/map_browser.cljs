@@ -34,8 +34,27 @@
           (d/td {:className "name"} k)
           (d/td {} v))))
 
-(q/defcomponent MapBrowser [m navigate-request]
-  (d/div {:className "inset variables"}
-         (d/table {:className "var_table"}
-                  (apply d/tbody {}
-                         (map #(MapEntry % navigate-request) m)))))
+(q/defcomponent MapPath [path navigate-request]
+  (let [paths (map #(take (inc %) path) (range (count path)))]
+    (apply d/span {}
+           (flatten
+            [(map #(d/a {:href "#"
+                         :onClick (action (fn [] (put! navigate-request [:reset %])))}
+                        (to-str (last %)))
+                  (butlast paths))
+             (when-let [curr (last (last paths))]
+               (to-str curr))]))))
+
+(q/defcomponent MapBrowser [{:keys [name data path]} navigate-request]
+  (d/div
+   {}
+   (d/h3 {}
+         (if (empty? path) name (d/a {:href "#"
+                                      :onClick (action #(put! navigate-request [:reset []]))} name))
+         " "
+         (d/span {:className "subtle"}
+                 (MapPath path navigate-request)))
+   (d/div {:className "inset variables"}
+          (d/table {:className "var_table"}
+                   (apply d/tbody {}
+                          (map #(MapEntry % navigate-request) (get-in data path)))))))

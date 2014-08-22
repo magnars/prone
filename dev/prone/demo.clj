@@ -2,6 +2,10 @@
   (:require [clojure.java.io :as io]
             [prone.core :refer [wrap-exceptions]]))
 
+(defn piggie-backer [app]
+  (fn [req]
+    (app (assoc req :nested {:maps {:are {:certainly {:supported 42}}}}))))
+
 (defn handler [req]
   (cond
 
@@ -19,4 +23,5 @@
 
 (def app
   (-> handler
-      wrap-exceptions))
+      wrap-exceptions
+      piggie-backer))

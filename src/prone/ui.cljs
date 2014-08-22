@@ -90,11 +90,9 @@
                     (d/div {:className "frame_info"}
                            (StackInfo (first (filter :selected? (:frames error))))
                            (d/div {:className "sub"}
-                                  (d/h3 {}
-                                        "Request map "
-                                        (d/span {:className "subtle"}
-                                                (prn-str (:request paths))))
-                                  (MapBrowser (get-in request (:request paths)) (:navigate-request chans)))))))
+                                  (MapBrowser {:data request
+                                               :path (:request paths)
+                                               :name "Request map"} (:navigate-request chans)))))))
 
 (defn update-selected-frame [data frame-id]
   (update-in* data [:error :frames []] #(if (= (:id %) frame-id)
@@ -103,7 +101,8 @@
 
 (defn navigate-request [data navigation]
   (case (first navigation)
-    :concat (update-in data [:paths :request] #(concat % (second navigation)))))
+    :concat (update-in data [:paths :request] #(concat % (second navigation)))
+    :reset (assoc-in data [:paths :request] (second navigation))))
 
 (let [chans {:select-frame (chan)
              :change-frame-filter (chan)
