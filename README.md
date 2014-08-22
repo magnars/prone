@@ -21,6 +21,20 @@ Add it as a middleware to your Ring stack:
 - We have not yet found a way to differentiate `some-name` and `some_name`
   function names by inspecting the stack trace. Currently, we assume kebab case.
 
+## Contribute
+
+Yes, please do. And add tests for your feature or fix, or we'll certainly break
+it later.
+
+#### Up and running
+
+To start the server:
+
+- run `lein cljsbuild auto` in one terminal
+- run `lein ring server-headless` in another.
+
+`lein test` will run all tests.
+
 ## License
 
 Copyright © 2014 Christian Johansen & Magnar Sveen
