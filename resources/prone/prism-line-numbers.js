@@ -12,14 +12,8 @@
 
     var linesNum = env.code.split('\n').length;
 
-    var start = 1;
-
-    if (pre.hasAttribute('data-start')) {
-      start = parseInt(pre.getAttribute('data-start'), 10) - 1;
-    }
-
     var lines = new Array();
-    for (var i = start, l = linesNum + start; i < l; i++) {
+    for (var i = 1, l = linesNum + 1; i < l; i++) {
       lines.push(i);
     }
 
@@ -27,16 +21,25 @@
 
     lineNumbersWrapper.innerHTML = "<span>" + lines + "</span>";
 
-    var highlight = pre.getAttribute("data-line");
-    if (highlight) {
-      var child = lineNumbersWrapper.childNodes[highlight - 1];
-      if (child) {
-        child.className = "highlight";
+    var highlightLine = pre.getAttribute("data-line");
+    var highlightEl;
+    if (highlightLine) {
+      highlightEl = lineNumbersWrapper.childNodes[highlightLine - 1];
+      if (highlightEl) {
+        highlightEl.className = "highlight";
       }
     }
 
     pre.parentNode.insertBefore(lineNumbersWrapper, pre);
 
+    var container = pre.parentNode;
+    
+    if (highlightEl && (container.offsetHeight - highlightEl.offsetTop < (highlightEl.offsetHeight * 3))) {
+      container.scrollTop = highlightEl.offsetTop - (highlightEl.offsetHeight * 5)
+    } else {
+      container.scrollTop = 0;
+    }
+    
   });
 
 }());

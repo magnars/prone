@@ -1,6 +1,7 @@
 .hidden {display: none !important;}
 .token.operator {background: none;}
 .subtle {color: #aaa;}
-pre[class*="language-"] {margin-top: 0 !important; background: #fff; padding-bottom: 1.75em !important;}
+.code_block {height: 250px; overflow: scroll; position: relative;}
+pre[class*="language-"] {margin-top: 0; background: #fff; padding-bottom: 1.75em; padding-left: 1em;}
 .code_linenums {padding-top: 11px;}
 .line-highlight {background: rgba(220, 30, 30, 0.1); -webkit-animation: highlight 400ms linear 1; -moz-animation: highlight 400ms linear 1; animation: highlight 400ms linear 1;}
