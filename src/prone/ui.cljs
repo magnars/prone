@@ -117,7 +117,8 @@
    :state-change
    (fn [key ref old new]
      (q/render (ProneUI new chans)
-               (.getElementById js/document "ui-root"))))
+               (.getElementById js/document "ui-root"))
+     (.highlightAll js/Prism)))
 
   (let [data-text (-> js/document (.getElementById "prone-data") .-innerHTML)
         data (reader/read-string data-text)]
