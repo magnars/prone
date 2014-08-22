@@ -1,5 +1,6 @@
 (ns prone.prep
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io])
+  (:import [java.io InputStream]))
 
 (defn- load-source [frame]
   (assoc frame :source (if-not (:class-path-url frame)
@@ -20,6 +21,11 @@
     (update-in frames [(:id first-frame)] assoc :selected? true)
     frames))
 
+(defn- prepare-for-serialization [val]
+  (if (instance? InputStream val)
+    (slurp val)
+    val))
+
 (defn prep [error request application-name]
   {:error (-> error
               (update-in [:frames]
@@ -28,7 +34,7 @@
                                (map (partial set-application-frame application-name))
                                (mapv load-source)))
               (update-in [:frames] select-starting-frame))
-   :request {:uri (:uri request)}
+   :request (into {} (map (juxt first (comp prepare-for-serialization second)) request))
    :frame-filter :application})
 
 (comment (defn get-application-name []

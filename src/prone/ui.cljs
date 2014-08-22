@@ -54,18 +54,17 @@
 
 (q/defcomponent StackInfo [frame]
 
-  (d/div {:className "frame_info"}
-         (d/header {:className "trace_info clearfix"}
-                   (d/div {:className "title"}
-                          (d/h2 {:className "name"} (:method-name frame))
-                          (d/div {:className "location"}
-                                 (d/span {:className "filename"}
-                                         (:class-path-url frame))))
-                   (d/div {:className "code_block clearfix"}
-                          (d/pre {:className "line-numbers code"
-                                  :data-line (:line-number frame)}
-                                 (d/code {:className (source-classes (:lang frame))}
-                                         (:source frame)))))))
+  (d/header {:className "trace_info clearfix"}
+            (d/div {:className "title"}
+                   (d/h2 {:className "name"} (:method-name frame))
+                   (d/div {:className "location"}
+                          (d/span {:className "filename"}
+                                  (:class-path-url frame))))
+            (d/div {:className "code_block clearfix"}
+                   (d/pre {:className "line-numbers code"
+                           :data-line (:line-number frame)}
+                          (d/code {:className (source-classes (:lang frame))}
+                                  (:source frame))))))
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
@@ -92,7 +91,11 @@
                            (apply d/ul {:className "frames" :id "frames"}
                                   (map #(StackFrame % (:select-frame chans))
                                        (filter-frames frame-filter (:frames error)))))
-                    (StackInfo (first (filter :selected? (:frames error)))))))
+                    (d/div {:className "frame_info"}
+                           (StackInfo (first (filter :selected? (:frames error))))
+                           (d/div {:className "sub"}
+                                  (d/h3 {} "Request info")
+                                  (str request))))))
 
 (defn update-selected-frame [data frame-id]
   (update-in* data [:error :frames []] #(if (= (:id %) frame-id)
@@ -103,14 +106,14 @@
              :change-frame-filter (chan)}
       prone-data (atom nil)]
   (go-loop []
-           (when-let [frame-id (<! (:select-frame chans))]
-             (swap! prone-data update-selected-frame frame-id)
-             (recur)))
+    (when-let [frame-id (<! (:select-frame chans))]
+      (swap! prone-data update-selected-frame frame-id)
+      (recur)))
 
   (go-loop []
-           (when-let [filter (<! (:change-frame-filter chans))]
-             (swap! prone-data assoc :frame-filter filter)
-             (recur)))
+    (when-let [filter (<! (:change-frame-filter chans))]
+      (swap! prone-data assoc :frame-filter filter)
+      (recur)))
 
   (add-watch
    prone-data
