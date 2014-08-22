@@ -53,6 +53,8 @@
   (let [kv-pairs (mapcat #(format-inline-map % navigate-request) m)]
     (apply d/span {} kv-pairs)))
 
+(declare InlineToken)
+
 (defn- format-list [l pre post]
   (apply d/span {} (flatten [pre (interpose " " (map InlineToken l)) post])))
 
