@@ -1,7 +1,7 @@
 (ns prone.map-browser
   (:require [cljs.core.async :refer [put! chan <!]]
             [clojure.string :as str]
-            [prone.uitils :refer [action]]
+            [prone.uitilities :refer [action]]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 

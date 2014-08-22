@@ -1,4 +1,4 @@
-(ns prone.uitils)
+(ns prone.uitilities)
 
 (defn action [f]
   (fn [e]

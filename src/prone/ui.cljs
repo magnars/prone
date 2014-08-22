@@ -3,7 +3,7 @@
   (:require [cljs.core.async :refer [put! chan <!]]
             [cljs.reader :as reader]
             [prone.map-browser :refer [MapBrowser]]
-            [prone.uitils :refer [action]]
+            [prone.uitilities :refer [action]]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
