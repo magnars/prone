@@ -62,7 +62,7 @@
                                  (d/span {:className "filename"}
                                          (:class-path-url frame))))
                    (d/div {:className "code_block clearfix"}
-                          (d/pre {:className "line-numbers"
+                          (d/pre {:className "line-numbers code"
                                   :data-line (:line-number frame)}
                                  (d/code {:className (source-classes (:lang frame))}
                                          (:source frame)))))))

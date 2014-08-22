@@ -27,6 +27,7 @@
            [:script {:type "text/json" :id "prone-data"} (prn-str data)]
            [:script (slurp (io/resource "prone/react-0.11.1.js"))]
            [:script (slurp (io/resource "prone/prism.js"))]
+           [:script (slurp (io/resource "prone/prism-line-numbers.js"))]
            [:script (slurp (io/resource "prone/prism.clojure.js"))]
            [:script (slurp (io/resource "prone/generated/prone.js"))]]])))
 
