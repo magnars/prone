@@ -8,50 +8,60 @@
 (defn- to-str [v]
   (str/trim (prn-str v)))
 
-(defn- get-token-class [v]
+(defn- get-token-class
+  "These token classes are recognized by Prism.js, giving values in the map
+   browser similar highlighting as the source code."
+  [v]
   (str "token "
        (cond
         (string? v) "string"
         (number? v) "number"
         (keyword? v) "operator")))
 
-(q/defcomponent MapSummary [ks]
+(q/defcomponent MapSummary
+  "A map summary is a list of its keys enclosed in brackets. The summary is
+   given the comment token type to visually differentiate it from fully expanded
+   maps"
+  [ks]
   (let [linked-keys (interpose " " (map #(d/span {:className "token comment"} (to-str %)) ks))]
     (apply d/pre {} (flatten ["{" linked-keys "}"]))))
 
 (defn browseworthy-map?
-  "Maps are only browseworthy if it is inconvenient to just look at the
-   stringified version"
+  "Maps are only browseworthy if it is inconvenient to just look at the inline
+   version (i.e., it is too big)"
   [m]
   (and (map? m)
        (< 100 (.-length (to-str m)))))
 
+;; The gen-map-entry function is used by functions itself calls. Circular
+;; dependencies are nasty, and one day I am sure we can avoid this one as well.
 (declare gen-map-entry)
 
-(q/defcomponent ValueToken [t]
-  (prn "Value" t)
+(q/defcomponent ValueToken
+  "A simple value, render it with its type so it gets highlighted"
+  [t]
   (d/code {:className (get-token-class t)} (to-str t)))
 
-(defn prepare-inline-kv [m navigate-request]
+(defn- format-inline-map [m navigate-request]
   (let [[k v] (gen-map-entry m navigate-request)]
     ["{" k " " v "}"]))
 
-(q/defcomponent InlineMapBrowser [m navigate-request]
-  (prn "InlineMapBrowser" m)
-  (let [kv-pairs (mapcat #(prepare-inline-kv % navigate-request) m)]
+(q/defcomponent InlineMapBrowser
+  "Display the map all in one line. The name implies browsability - this
+   unfortunately is not in place yet. Work in progress."
+  [m navigate-request]
+  (let [kv-pairs (mapcat #(format-inline-map % navigate-request) m)]
     (apply d/span {} kv-pairs)))
 
 (q/defcomponent InlineToken
   "A value to be rendered roughly in one line. If the value is a list or a
    map, it will be browsable as well"
   [t navigate-request]
-  (prn "InlineToken" t)
   (cond
    (map? t) (InlineMapBrowser t navigate-request)
    :else (ValueToken t)))
 
 (defn gen-map-entry [[k v] navigate-request]
-  (prn "gen-map-entry" k v)
   (cond
    (browseworthy-map? v) [(d/a {:href "#"
                                 :onClick (action #(put! navigate-request [:concat [k]]))} (to-str k))
