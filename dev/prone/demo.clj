@@ -7,7 +7,8 @@
     (app (-> req
              (assoc :nested {:maps {:are {:certainly {:supported 42}}}})
              (assoc :some {:nested {:maps {:are {:simply "Too long to peek
-             inside, at least while staying on only a single line."}}}})))))
+             inside, at least while staying on only a single line."}}}})
+             (assoc :lists [:are "Also" "supported" 13])))))
 
 (defn handler [req]
   (cond

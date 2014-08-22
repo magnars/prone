@@ -53,12 +53,18 @@
   (let [kv-pairs (mapcat #(format-inline-map % navigate-request) m)]
     (apply d/span {} kv-pairs)))
 
+(q/defcomponent InlineVectorBrowser
+  "Display a vector in one line"
+  [v navigate-request]
+  (apply d/span {} (flatten ["[" (interpose " " (map InlineToken v)) "]"])))
+
 (q/defcomponent InlineToken
   "A value to be rendered roughly in one line. If the value is a list or a
    map, it will be browsable as well"
   [t navigate-request]
   (cond
    (map? t) (InlineMapBrowser t navigate-request)
+   (vector? t) (InlineVectorBrowser t navigate-request)
    :else (ValueToken t)))
 
 (defn gen-map-entry [[k v] navigate-request]
