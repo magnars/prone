@@ -53,10 +53,23 @@
   (let [kv-pairs (mapcat #(format-inline-map % navigate-request) m)]
     (apply d/span {} kv-pairs)))
 
+(defn- format-list [l pre post]
+  (apply d/span {} (flatten [pre (interpose " " (map InlineToken l)) post])))
+
 (q/defcomponent InlineVectorBrowser
   "Display a vector in one line"
   [v navigate-request]
-  (apply d/span {} (flatten ["[" (interpose " " (map InlineToken v)) "]"])))
+  (format-list v "[" "]"))
+
+(q/defcomponent InlineListBrowser
+  "Display a list in one line"
+  [v navigate-request]
+  (format-list v "(" ")"))
+
+(q/defcomponent InlineSetBrowser
+  "Display a set in one line"
+  [v navigate-request]
+  (format-list v "#{" "}"))
 
 (q/defcomponent InlineToken
   "A value to be rendered roughly in one line. If the value is a list or a
@@ -65,6 +78,8 @@
   (cond
    (map? t) (InlineMapBrowser t navigate-request)
    (vector? t) (InlineVectorBrowser t navigate-request)
+   (list? t) (InlineListBrowser t navigate-request)
+   (set? t) (InlineSetBrowser t navigate-request)
    :else (ValueToken t)))
 
 (defn gen-map-entry [[k v] navigate-request]
