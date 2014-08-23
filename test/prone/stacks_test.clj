@@ -39,6 +39,7 @@
 
 (deftest normalize-frame-test
   (is (= {:class-path-url "prone/stacks_test.clj"
+          :loaded-from nil
           :file-name "stacks_test.clj"
           :method-name "create-ex"
           :line-number 5
@@ -47,6 +48,7 @@
          (normalize-frame clj-frame)))
 
   (is (= {:class-path-url "java/lang/reflect/Constructor.java"
+          :loaded-from "jdk1.7.0_45"
           :file-name "Constructor.java"
           :method-name "newInstance"
           :line-number 526
@@ -56,6 +58,20 @@
          (normalize-frame java-frame)))
 
   (is (= "[fn]" (:method-name (normalize-frame clj-anon-frame)))))
+
+(deftest loaded-from-test
+  (is (= "clojure-1.5.1"
+         (->> (.getStackTrace ex)
+              (filter #(re-find #"^clojure.lang" (.getClassName %)))
+              first
+              normalize-frame
+              :loaded-from)))
+  (is (= "clojure-1.5.1"
+         (->> (.getStackTrace ex)
+              (filter #(re-find #"^clojure.core" (.getClassName %)))
+              first
+              normalize-frame
+              :loaded-from))))
 
 (deftest normalize-exception-test
   (let [normalized (normalize-exception ex)]

@@ -42,6 +42,7 @@
                                 (d/span {:className "method"} "$" (:method-name frame))))
                        (if (:file-name frame)
                          (d/div {:className "location"}
+                                (:loaded-from frame) " "
                                 (d/span {:className "filename"}
                                         (:file-name frame))
                                 ", line "

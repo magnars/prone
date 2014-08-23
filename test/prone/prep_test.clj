@@ -24,7 +24,6 @@
                     (filter :application?)
                     (map :name)))))
 
-
 (deftest selection-for-first-frame
   (is (= ["a"] (->> (prep-frames [{:name "a"} {:name "b"} {:name "c"}])
                     (filter :selected?)
