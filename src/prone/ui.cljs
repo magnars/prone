@@ -110,9 +110,6 @@
     :concat (update-in data [:paths name] #(concat % (second navigation)))
     :reset (assoc-in data [:paths name] (second navigation))))
 
-(def navigate-request (partial navigate-map :request))
-(def navigate-ex-info (partial navigate-map :ex-info))
-
 (let [chans {:select-frame (chan)
              :change-frame-filter (chan)
              :navigate-request (chan)
@@ -130,12 +127,12 @@
 
   (go-loop []
            (when-let [navigation (<! (:navigate-request chans))]
-             (swap! prone-data navigate-request navigation)
+             (swap! prone-data (partial navigate-map :request) navigation)
              (recur)))
 
   (go-loop []
            (when-let [navigation (<! (:navigate-ex-info chans))]
-             (swap! prone-data navigate-ex-info navigation)
+             (swap! prone-data (partial navigate-map :ex-info) navigation)
              (recur)))
 
   (add-watch
