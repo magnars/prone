@@ -97,23 +97,23 @@
   [path navigate-request]
   (let [paths (map #(take (inc %) path) (range (count path)))]
     (apply d/span {}
-           (conj
-            (mapv #(d/a {:href "#"
-                         :onClick (action (fn [] (put! navigate-request [:reset %])))}
-                        (to-str (last %)))
-                  (butlast paths))
-            (when-let [curr (last (last paths))]
-              (to-str curr))))))
+           (interpose " "
+            (conj
+             (mapv #(d/a {:href "#"
+                          :onClick (action (fn [] (put! navigate-request [:reset %])))}
+                         (to-str (last %)))
+                   (butlast paths))
+             (when-let [curr (last (last paths))]
+               (to-str curr)))))))
 
 (q/defcomponent MapBrowser [{:keys [name data path]} navigate-request]
   (d/div
    {}
-   (d/h3 {}
+   (d/h3 {:className "map-path"}
          (if (empty? path) name (d/a {:href "#"
                                       :onClick (action #(put! navigate-request [:reset []]))} name))
          " "
-         (d/span {:className "subtle"}
-                 (MapPath path navigate-request)))
+         (MapPath path navigate-request))
    (d/div {:className "inset variables"}
           (d/table {:className "var_table"}
                    (apply d/tbody {}
