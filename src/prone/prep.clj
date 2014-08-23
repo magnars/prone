@@ -37,7 +37,7 @@
    :request (into {} (map (juxt first (comp prepare-for-serialization second)) request))
    :frame-filter :application
    :paths {:request []
-           :ex-info []}})
+           :data []}})
 
 (comment (defn get-application-name []
            (second (edn/read-string (slurp "project.clj")))))

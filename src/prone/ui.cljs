@@ -90,11 +90,11 @@
                                        (filter-frames frame-filter (:frames error)))))
                     (d/div {:className "frame_info"}
                            (StackInfo (first (filter :selected? (:frames error))))
-                           (when (= "clojure.lang.ExceptionInfo" (:type error))
+                           (when (:data error)
                              (d/div {:className "sub"}
                                     (MapBrowser {:data (:data error)
-                                                 :path (:ex-info paths)
-                                                 :name "ExceptionInfo data"} (:navigate-ex-info chans))))
+                                                 :path (:data paths)
+                                                 :name "Exception data"} (:navigate-data chans))))
                            (d/div {:className "sub"}
                                   (MapBrowser {:data request
                                                :path (:request paths)
@@ -113,27 +113,27 @@
 (let [chans {:select-frame (chan)
              :change-frame-filter (chan)
              :navigate-request (chan)
-             :navigate-ex-info (chan)}
+             :navigate-data (chan)}
       prone-data (atom nil)]
   (go-loop []
-           (when-let [frame-id (<! (:select-frame chans))]
-             (swap! prone-data update-selected-frame frame-id)
-             (recur)))
+    (when-let [frame-id (<! (:select-frame chans))]
+      (swap! prone-data update-selected-frame frame-id)
+      (recur)))
 
   (go-loop []
-           (when-let [filter (<! (:change-frame-filter chans))]
-             (swap! prone-data assoc :frame-filter filter)
-             (recur)))
+    (when-let [filter (<! (:change-frame-filter chans))]
+      (swap! prone-data assoc :frame-filter filter)
+      (recur)))
 
   (go-loop []
-           (when-let [navigation (<! (:navigate-request chans))]
-             (swap! prone-data (partial navigate-map :request) navigation)
-             (recur)))
+    (when-let [navigation (<! (:navigate-request chans))]
+      (swap! prone-data (partial navigate-map :request) navigation)
+      (recur)))
 
   (go-loop []
-           (when-let [navigation (<! (:navigate-ex-info chans))]
-             (swap! prone-data (partial navigate-map :ex-info) navigation)
-             (recur)))
+    (when-let [navigation (<! (:navigate-data chans))]
+      (swap! prone-data (partial navigate-map :data) navigation)
+      (recur)))
 
   (add-watch
    prone-data
