@@ -116,7 +116,7 @@
 (let [chans {:select-frame (chan)
              :change-frame-filter (chan)
              :navigate-request (chan)
-             :ex-info (chan)}
+             :navigate-ex-info (chan)}
       prone-data (atom nil)]
   (go-loop []
            (when-let [frame-id (<! (:select-frame chans))]
