@@ -107,8 +107,8 @@
 
 (defn navigate-map [name data navigation]
   (case (first navigation)
-    :concat (update-in name [:paths name] #(concat % (second navigation)))
-    :reset (assoc-in name [:paths name] (second navigation))))
+    :concat (update-in data [:paths name] #(concat % (second navigation)))
+    :reset (assoc-in data [:paths name] (second navigation))))
 
 (def navigate-request (partial navigate-map :request))
 (def navigate-ex-info (partial navigate-map :ex-info))
