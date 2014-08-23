@@ -89,7 +89,7 @@
    (browseworthy-map? v) [(d/a {:href "#"
                                 :onClick (action #(put! navigate-request [:concat [k]]))} (to-str k))
                           (MapSummary (keys v))]
-   :else [(ValueToken k) (InlineToken v navigate-request)]))
+   :else [(InlineToken k navigate-request) (InlineToken v navigate-request)]))
 
 (q/defcomponent MapEntry
   "A map entry is one key/value pair, formatted apropriately for their types"
