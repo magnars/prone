@@ -18,33 +18,15 @@
         (number? v) "number"
         (keyword? v) "operator")))
 
-(q/defcomponent MapSummary
-  "A map summary is a list of its keys enclosed in brackets. The summary is
-   given the comment token type to visually differentiate it from fully expanded
-   maps"
-  [ks]
-  (let [linked-keys (interpose " " (map #(d/span {:className "token comment"} (to-str %)) ks))]
-    (apply d/pre {} (flatten ["{" linked-keys "}"]))))
-
-(defn browseworthy-map?
-  "Maps are only browseworthy if it is inconvenient to just look at the inline
-   version (i.e., it is too big)"
-  [m]
-  (and (map? m)
-       (< 100 (.-length (to-str m)))))
-
-;; The gen-map-entry function is used by functions itself calls. Circular
-;; dependencies are nasty, and one day I am sure we can avoid this one as well.
-(declare gen-map-entry)
+(declare InlineToken)
 
 (q/defcomponent ValueToken
   "A simple value, render it with its type so it gets highlighted"
   [t]
   (d/code {:className (get-token-class t)} (to-str t)))
 
-(defn- format-inline-map [m navigate-request]
-  (let [[k v] (gen-map-entry m navigate-request)]
-    ["{" k " " v "}"]))
+(defn- format-inline-map [[k v] navigate-request]
+  ["{" (InlineToken k navigate-request) " " (InlineToken v navigate-request) "}"])
 
 (q/defcomponent InlineMapBrowser
   "Display the map all in one line. The name implies browsability - this
@@ -52,8 +34,6 @@
   [m navigate-request]
   (let [kv-pairs (mapcat #(format-inline-map % navigate-request) m)]
     (apply d/span {} kv-pairs)))
-
-(declare InlineToken)
 
 (defn- format-list [l pre post]
   (apply d/span {} (flatten [pre (interpose " " (map InlineToken l)) post])))
@@ -84,20 +64,31 @@
    (set? t) (InlineSetBrowser t navigate-request)
    :else (ValueToken t)))
 
-(defn gen-map-entry [[k v] navigate-request]
-  (cond
-   (browseworthy-map? v) [(d/a {:href "#"
-                                :onClick (action #(put! navigate-request [:concat [k]]))} (to-str k))
-                          (MapSummary (keys v))]
-   :else [(InlineToken k navigate-request) (InlineToken v navigate-request)]))
+(defn browseworthy-map?
+  "Maps are only browseworthy if it is inconvenient to just look at the inline
+   version (i.e., it is too big)"
+  [m]
+  (and (map? m)
+       (< 100 (.-length (to-str m)))))
+
+(q/defcomponent MapSummary
+  "A map summary is a list of its keys enclosed in brackets. The summary is
+   given the comment token type to visually differentiate it from fully expanded
+   maps"
+  [k ks navigate-request]
+  (let [linked-keys (interpose " " (map #(d/span {} (to-str %)) ks))]
+    (d/a {:href "#"
+          :onClick (action #(put! navigate-request [:concat [k]]))}
+         (apply d/pre {} (flatten ["{" linked-keys "}"])))))
 
 (q/defcomponent MapEntry
-  "A map entry is one key/value pair, formatted apropriately for their types"
-  [m navigate-request]
-  (let [[k v] (gen-map-entry m navigate-request)]
-    (d/tr {}
-          (d/td {:className "name"} k)
-          (d/td {} v))))
+  "A map entry is one key/value pair, formatted appropriately for their types"
+  [[k v] navigate-request]
+  (d/tr {}
+        (d/td {:className "name"} (InlineToken k navigate-request))
+        (d/td {} (if (browseworthy-map? v)
+                   (MapSummary k (keys v) navigate-request)
+                   (InlineToken v navigate-request)))))
 
 (q/defcomponent MapPath
   "The heading and current path in the map. When browsing nested maps and lists,
