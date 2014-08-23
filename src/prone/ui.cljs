@@ -88,7 +88,7 @@
                            (apply d/ul {:className "frames" :id "frames"}
                                   (map #(StackFrame % (:select-frame chans))
                                        (filter-frames frame-filter (:frames error)))))
-                    (d/div {:className "frame_info"}
+                    (d/div {:className "frame_info" :id "frame-info"}
                            (StackInfo (first (filter :selected? (:frames error))))
                            (when (:data error)
                              (d/div {:className "sub"}
@@ -142,7 +142,8 @@
      (q/render (ProneUI new chans)
                (.getElementById js/document "ui-root"))
      (when-not (= (:error new) (:error old))
-       (.highlightAll js/Prism))))
+       (.highlightAll js/Prism)
+       (set! (-> js/document (.getElementById "frame-info") .-scrollTop) 0))))
 
   (let [data-text (-> js/document (.getElementById "prone-data") .-innerHTML)
         data (reader/read-string data-text)]
