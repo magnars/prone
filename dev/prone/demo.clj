@@ -12,6 +12,7 @@
              (assoc :vectors [:are "Also" "supported" 13])
              (assoc :lists '(:are "Also" "supported" 13))
              (assoc :sets #{:are "Also" "supported" 13})
+             (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside," "at" "least" "while" "staying" "on" "only" "a" "single" "line."])
              (assoc :session {:name "John Doe"
                               :age 37
                               :url (java.net.URL. "http://example.com")
