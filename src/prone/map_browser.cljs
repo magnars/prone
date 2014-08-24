@@ -34,14 +34,14 @@
           (d/span {:className "subtle"} "<" (:prone.prep/original-type t) ">")))
 
 (defn- format-inline-map [[k v] navigate-request]
-  ["{" (InlineToken k navigate-request) " " (InlineToken v navigate-request) "}"])
+  [(InlineToken k navigate-request) " " (InlineToken v navigate-request)])
 
 (q/defcomponent InlineMapBrowser
   "Display the map all in one line. The name implies browsability - this
    unfortunately is not in place yet. Work in progress."
   [m navigate-request]
   (let [kv-pairs (mapcat #(format-inline-map % navigate-request) m)]
-    (apply d/span {} kv-pairs)))
+    (apply d/span {} (concat ["{"] (interpose " " kv-pairs) ["}"]))))
 
 (defn- format-list [l pre post]
   (apply d/span {} (flatten [pre (interpose " " (map InlineToken l)) post])))

@@ -6,7 +6,7 @@
 (defn piggie-backer [app]
   (fn [req]
     (app (-> req
-             (assoc :nested {:maps {:are {:certainly {:supported 42}}}})
+             (assoc :nested {:maps {:are {:certainly {:supported 42, :displayed 43}}}})
              (assoc :some {:nested {:maps {:are {:simply "Too long to peek
              inside, at least while staying on only a single line.
              They need to be shortened somehow in the UI."}}}})
