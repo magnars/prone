@@ -1,6 +1,7 @@
 (ns prone.demo
   (:require [clojure.java.io :as io]
-            [prone.core :refer [wrap-exceptions]]))
+            [prone.core :refer [wrap-exceptions]])
+  (:import [java.io ByteArrayInputStream]))
 
 (defn piggie-backer [app]
   (fn [req]
@@ -10,7 +11,12 @@
              inside, at least while staying on only a single line."}}}})
              (assoc :vectors [:are "Also" "supported" 13])
              (assoc :lists '(:are "Also" "supported" 13))
-             (assoc :sets #{:are "Also" "supported" 13})))))
+             (assoc :sets #{:are "Also" "supported" 13})
+             (assoc :session {:name "John Doe"
+                              :age 37
+                              :url (java.net.URL. "http://example.com")
+                              :body (ByteArrayInputStream. (.getBytes "Hello"))
+                              :lazy (map inc [1 2 3])})))))
 
 (defn handler [req]
   (cond

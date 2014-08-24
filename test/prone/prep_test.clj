@@ -1,6 +1,8 @@
 (ns prone.prep-test
-  (:require [prone.prep :refer :all]
-            [clojure.test :refer :all]))
+  (:require [clojure.java.io :as io]
+            [clojure.test :refer :all]
+            [prone.prep :refer :all])
+  (:import [java.io ByteArrayInputStream]))
 
 (defn prep-frames [frames & [application-name]]
   (-> (prep {:frames frames} {} application-name)
@@ -38,3 +40,18 @@
 
 (deftest frame-filter
   (is (= :application (:frame-filter (prep {:frames []} {} "")))))
+
+(deftest no-unreadable-forms
+  (is (= {:name "John Doe"
+          :age 37
+          :url {:prone.prep/to-string "http://example.com"
+                :prone.prep/original-type "java.net.URL"}
+          :body {:prone.prep/to-string "Hello"
+                 :prone.prep/original-type "java.io.ByteArrayInputStream"}
+          :lazy '(2 3 4)}
+         (-> (prep {} {:session {:name "John Doe"
+                                 :age 37
+                                 :url (java.net.URL. "http://example.com")
+                                 :body (ByteArrayInputStream. (.getBytes "Hello"))
+                                 :lazy (map inc [1 2 3])}} "")
+             :request :session))))

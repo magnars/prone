@@ -1,5 +1,7 @@
 (ns prone.prep
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [clojure.walk :as walk])
   (:import [java.io InputStream]))
 
 (defn- load-source [frame]
@@ -21,10 +23,32 @@
     (update-in frames [(:id first-frame)] assoc :selected? true)
     frames))
 
-(defn- prepare-for-serialization [val]
-  (if (instance? InputStream val)
-    (slurp val)
-    val))
+(defn- get-type [val]
+  (-> val
+      type
+      str
+      (str/replace #"^class " "")))
+
+(defn- prepare-for-serialization-1 [val]
+  (cond
+   (nil? val) val
+   (map? val) val
+   (vector? val) val
+   (list? val) val
+   (set? val) val
+   (seq? val) val
+   (string? val) val
+   (number? val) val
+   (keyword? val) val
+   (= true val) val
+   (= false val) val
+   (instance? InputStream val) {::to-string (slurp val)
+                                ::original-type (get-type val)}
+   :else {::to-string (.toString val)
+          ::original-type (get-type val)}))
+
+(defn- prepare-for-serialization [m]
+  (walk/postwalk prepare-for-serialization-1 m))
 
 (defn prep [error request application-name]
   {:error (-> error
@@ -34,10 +58,7 @@
                                (map (partial set-application-frame application-name))
                                (mapv load-source)))
               (update-in [:frames] select-starting-frame))
-   :request (into {} (map (juxt first (comp prepare-for-serialization second)) request))
+   :request (prepare-for-serialization request)
    :frame-filter :application
    :paths {:request []
            :data []}})
-
-(comment (defn get-application-name []
-           (second (edn/read-string (slurp "project.clj")))))

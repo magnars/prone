@@ -25,6 +25,12 @@
   [t]
   (d/code {:className (get-token-class t)} (to-str t)))
 
+(q/defcomponent SerializedValueToken
+  [t]
+  (d/code {:className (get-token-class (:prone.prep/to-string t))}
+          (prn-str (:prone.prep/to-string t))
+          (d/span {:className "subtle"} "<" (:prone.prep/original-type t) ">")))
+
 (defn- format-inline-map [[k v] navigate-request]
   ["{" (InlineToken k navigate-request) " " (InlineToken v navigate-request) "}"])
 
@@ -53,11 +59,15 @@
   [v navigate-request]
   (format-list v "#{" "}"))
 
+(defn serialized-value? [v]
+  (:prone.prep/original-type v))
+
 (q/defcomponent InlineToken
   "A value to be rendered roughly in one line. If the value is a list or a
    map, it will be browsable as well"
   [t navigate-request]
   (cond
+   (serialized-value? t) (SerializedValueToken t)
    (map? t) (InlineMapBrowser t navigate-request)
    (vector? t) (InlineVectorBrowser t navigate-request)
    (list? t) (InlineListBrowser t navigate-request)
@@ -69,6 +79,7 @@
    version (i.e., it is too big)"
   [m]
   (and (map? m)
+       (not (serialized-value? m))
        (< 100 (.-length (to-str m)))))
 
 (q/defcomponent MapSummary
