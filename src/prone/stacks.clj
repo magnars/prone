@@ -14,9 +14,9 @@
                     (str/replace "_" "-")
                     (str/replace #"^.*\$" ""))
         class-path-url (-> frame
-                         .getClassName
-                         (str/replace "." "/")
-                         (str/replace #"\$.*" ".clj"))]
+                           .getClassName
+                           (str/replace "." "/")
+                           (str/replace #"\$.*" ".clj"))]
     {:class-path-url class-path-url
      :loaded-from (find-loaded-from class-path-url)
      :method-name (if (re-find #"^fn--\d+$" fn-name) "[fn]" fn-name)

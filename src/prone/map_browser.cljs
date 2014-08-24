@@ -10,7 +10,7 @@
 
 (defn- get-token-class
   "These token classes are recognized by Prism.js, giving values in the map
-   browser similar highlighting as the source code."
+  browser similar highlighting as the source code."
   [v]
   (str "token "
        (cond
@@ -109,13 +109,13 @@
   (let [paths (map #(take (inc %) path) (range (count path)))]
     (apply d/span {}
            (interpose " "
-            (conj
-             (mapv #(d/a {:href "#"
-                          :onClick (action (fn [] (put! navigate-request [:reset %])))}
-                         (to-str (last %)))
-                   (butlast paths))
-             (when-let [curr (last (last paths))]
-               (to-str curr)))))))
+                      (conj
+                       (mapv #(d/a {:href "#"
+                                    :onClick (action (fn [] (put! navigate-request [:reset %])))}
+                                   (to-str (last %)))
+                             (butlast paths))
+                       (when-let [curr (last (last paths))]
+                         (to-str curr)))))))
 
 (q/defcomponent MapBrowser [{:keys [name data path]} navigate-request]
   (d/div
