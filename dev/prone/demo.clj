@@ -8,11 +8,14 @@
     (app (-> req
              (assoc :nested {:maps {:are {:certainly {:supported 42}}}})
              (assoc :some {:nested {:maps {:are {:simply "Too long to peek
-             inside, at least while staying on only a single line."}}}})
+             inside, at least while staying on only a single line.
+             They need to be shortened somehow in the UI."}}}})
              (assoc :vectors [:are "Also" "supported" 13])
              (assoc :lists '(:are "Also" "supported" 13))
              (assoc :sets #{:are "Also" "supported" 13})
-             (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside," "at" "least" "while" "staying" "on" "only" "a" "single" "line."])
+             (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside,"
+                                   "at" "least" "while" "staying" "on" "only" "a" "single" "line."
+                                   "They need to be shortened somehow in the UI."])
              (assoc :session {:name "John Doe"
                               :age 37
                               :url (java.net.URL. "http://example.com")

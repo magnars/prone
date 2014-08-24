@@ -5,6 +5,8 @@
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
+(def inline-length-limit 125)
+
 (defn- to-str [v]
   (str/trim (prn-str v)))
 
@@ -80,21 +82,24 @@
   [m]
   (and (map? m)
        (not (serialized-value? m))
-       (< 100 (.-length (to-str m)))))
+       (< inline-length-limit (.-length (to-str m)))))
 
 (defn browseworthy-list?
   "Lists are only browseworthy if it is inconvenient to just look at the inline
   version (i.e., it is too big)"
   [t]
   (and (or (list? t) (vector? t))
-       (< 100 (.-length (to-str t)))))
+       (< inline-length-limit (.-length (to-str t)))))
 
 (q/defcomponent MapSummary
   "A map summary is a list of its keys enclosed in brackets. The summary is
    given the comment token type to visually differentiate it from fully expanded
    maps"
   [k ks navigate-request]
-  (let [linked-keys (interpose " " (map #(d/span {} (to-str %)) ks))]
+  (let [too-long? (< inline-length-limit (.-length (to-str ks)))
+        linked-keys (if too-long?
+                      (str (count ks) " keys")
+                      (interpose " " (map #(d/span {} (to-str %)) ks)))]
     (d/a {:href "#"
           :onClick (action #(put! navigate-request [:concat [k]]))}
          (apply d/pre {} (flatten ["{" linked-keys "}"])))))
