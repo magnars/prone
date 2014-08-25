@@ -2,7 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.walk :as walk]
-            [prone.clj-code-trunc :as clj-code])
+            [prone.code-trunc :as clj-code])
   (:import [java.io InputStream]))
 
 (defn- load-source [frame]

@@ -1,4 +1,4 @@
-(ns prone.clj-code-trunc
+(ns prone.code-trunc
   (:require [clojure.string :as str]))
 
 (defn- indented? [str]
@@ -16,10 +16,13 @@
    :else (recur lines (dec line))))
 
 (defn- find-first-form [lines]
-  (loop [idx 1]
-    (if (indented? (nth lines idx))
-      (recur (inc idx))
-      (str/join "\n" (take idx lines)))))
+  (str/join "\n" (if (= 1 (count lines))
+                   lines
+                   (loop [idx 1]
+                     (if (and (< idx (count lines))
+                              (indented? (nth lines idx)))
+                       (recur (inc idx))
+                       (take idx lines))))))
 
 (defn truncate [code focus-line max-lines]
   (let [lines (str/split code #"\n")]
