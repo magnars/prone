@@ -13,11 +13,11 @@
 
 (deftest source-for-frames
   (is (re-find #"prone.prep-test"
-               (:source (first (prep-frames [{:class-path-url "prone/prep_test.clj"}])))))
+               (:code (:source (first (prep-frames [{:class-path-url "prone/prep_test.clj"}]))))))
   (is (= "(unknown source file)"
-         (:source (first (prep-frames [{}])))))
+         (:code (:source (first (prep-frames [{}]))))))
   (is (= "(could not locate source file on class path)"
-         (:source (first (prep-frames [{:class-path-url "plone/plep_test.clj"}]))))))
+         (:code (:source (first (prep-frames [{:class-path-url "plone/plep_test.clj"}])))))))
 
 (deftest application-frames
   (is (= ["a"] (->> (prep-frames [{:name "a" :package "prone.prep-test"}

@@ -11,9 +11,10 @@
     }
 
     var linesNum = env.code.split('\n').length;
+    var startLine = parseInt(pre.getAttribute("data-line-offset") || 0, 10);
+    var lines = [];
 
-    var lines = new Array();
-    for (var i = 1, l = linesNum + 1; i < l; i++) {
+    for (var i = startLine + 1, l = linesNum + startLine + 1; i < l; i++) {
       lines.push(i);
     }
 
@@ -24,7 +25,7 @@
     var highlightLine = pre.getAttribute("data-line");
     var highlightEl;
     if (highlightLine) {
-      highlightEl = lineNumbersWrapper.childNodes[highlightLine - 1];
+      highlightEl = lineNumbersWrapper.childNodes[highlightLine - startLine - 1];
       if (highlightEl) {
         highlightEl.className = "highlight";
       }

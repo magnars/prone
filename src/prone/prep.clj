@@ -1,15 +1,18 @@
 (ns prone.prep
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [clojure.walk :as walk])
+            [clojure.walk :as walk]
+            [prone.clj-code-trunc :as clj-code])
   (:import [java.io InputStream]))
 
 (defn- load-source [frame]
   (assoc frame :source (if-not (:class-path-url frame)
-                         "(unknown source file)"
+                         {:code "(unknown source file)" :start-line 1}
                          (if-not (io/resource (:class-path-url frame))
-                           "(could not locate source file on class path)"
-                           (slurp (io/resource (:class-path-url frame)))))))
+                           {:code "(could not locate source file on class path)" :start-line 1}
+                           (clj-code/truncate (slurp (io/resource (:class-path-url frame)))
+                                              (:line-number frame)
+                                              500)))))
 
 (defn- set-application-frame [application-name frame]
   (if (and (:package frame)
