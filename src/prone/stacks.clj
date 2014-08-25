@@ -62,13 +62,24 @@
              (normalize-frame-clj frame)
              (normalize-frame-java frame)))))
 
+(defn- add-data [normalized exception]
+  (if-let [data (and (instance? clojure.lang.ExceptionInfo exception)
+                     (.data exception))]
+    (assoc normalized :data data)
+    normalized))
+
+(declare normalize-exception)
+
+(defn- add-cause [normalized exception]
+  (if-let [cause (.getCause exception)]
+    (assoc normalized :caused-by (normalize-exception cause))
+    normalized))
+
 (defn normalize-exception [exception]
-  (let [type (.getName (type exception))
-        normalized {:message (.getMessage exception)
-                    :type type
-                    :class-name (last (str/split type #"\."))
-                    :frames (->> exception .getStackTrace (map normalize-frame))}]
-    (if-let [data (and (instance? clojure.lang.ExceptionInfo exception)
-                       (.data exception))]
-      (merge normalized {:data data})
-      normalized)))
+  (let [type (.getName (type exception))]
+    (-> {:message (.getMessage exception)
+         :type type
+         :class-name (last (str/split type #"\."))
+         :frames (->> exception .getStackTrace (map normalize-frame))}
+        (add-data exception)
+        (add-cause exception))))

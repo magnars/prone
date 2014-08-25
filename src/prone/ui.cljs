@@ -68,11 +68,23 @@
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
   [{:keys [error request frame-filter paths]} chans]
+(let [error (get-in error (:error paths))]
   (d/div {:className "top"}
          (d/header {:className "exception"}
                    (d/h2 {}
                          (d/strong {} (:type error))
-                         (d/span {} " at " (:uri request)))
+                         (d/span {} " at " (:uri request))
+                         (when (or (:caused-by error) (seq (:error paths)))
+                           (d/span {:className "caused-by"}
+                                   (when (seq (:error paths))
+                                     (d/a {:href "#"
+                                           :onClick (action #(put! (:navigate-error chans) [:reset (drop 1 (:error paths))]))}
+                                          "< back"))
+                                   (when-let [caused-by (:caused-by error)]
+                                     (d/span {} " Caused by " (d/a {:href "#"
+                                                                    :onClick (action #(put! (:navigate-error chans) [:concat [:caused-by]]))}
+                                                                   (or (:message caused-by)
+                                                                       (:class-name caused-by))))))))
                    (d/p {} (or (:message error)
                                (d/span {} (:class-name error)
                                        (d/span {:className "subtle"} " [no message]")))))
@@ -100,22 +112,29 @@
                            (d/div {:className "sub"}
                                   (MapBrowser {:data request
                                                :path (:request paths)
-                                               :name "Request map"} (:navigate-request chans)))))))
+                                               :name "Request map"} (:navigate-request chans))))))))
 
 (defn update-selected-frame [data frame-id]
-  (update-in* data [:error :frames []] #(if (= (:id %) frame-id)
-                                          (assoc % :selected? true)
-                                          (dissoc % :selected?))))
+  (let [path (concat [:error] (-> data :paths :error) [:frames []])]
+    (update-in* data path
+                #(if (= (:id %) frame-id)
+                   (assoc % :selected? true)
+                   (dissoc % :selected?)))))
 
 (defn navigate-map [name data navigation]
   (case (first navigation)
     :concat (update-in data [:paths name] #(concat % (second navigation)))
     :reset (assoc-in data [:paths name] (second navigation))))
 
+(defn code-excerpt-changed? [old new]
+  (not (and (= (:error new) (:error old))
+            (= (-> new :paths :error) (-> old :paths :error)))))
+
 (let [chans {:select-frame (chan)
              :change-frame-filter (chan)
              :navigate-request (chan)
-             :navigate-data (chan)}
+             :navigate-data (chan)
+             :navigate-error (chan)}
       prone-data (atom nil)]
   (go-loop []
     (when-let [frame-id (<! (:select-frame chans))]
@@ -137,13 +156,18 @@
       (swap! prone-data (partial navigate-map :data) navigation)
       (recur)))
 
+  (go-loop []
+    (when-let [navigation (<! (:navigate-error chans))]
+      (swap! prone-data (partial navigate-map :error) navigation)
+      (recur)))
+
   (add-watch
    prone-data
    :state-change
    (fn [key ref old new]
      (q/render (ProneUI new chans)
                (.getElementById js/document "ui-root"))
-     (when-not (= (:error new) (:error old))
+     (when (code-excerpt-changed? old new)
        (.highlightAll js/Prism)
        (set! (-> js/document (.getElementById "frame-info") .-scrollTop) 0))))
 

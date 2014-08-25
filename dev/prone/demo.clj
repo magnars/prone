@@ -22,6 +22,18 @@
                               :body (ByteArrayInputStream. (.getBytes "Hello"))
                               :lazy (map inc [1 2 3])})))))
 
+(defn- create-original-cause []
+  (try
+    (throw (Exception. "This is the original cause"))
+    (catch Exception e
+      e)))
+
+(defn- create-intermediate-cause []
+  (try
+    (throw (Exception. "This is an intermediate cause" (create-original-cause)))
+    (catch Exception e
+      e)))
+
 (defn handler [req]
   (cond
 
@@ -37,6 +49,10 @@
    ;; throw an ex-info with data attached
    (= (:uri req) "/ex-info")
    (throw (ex-info "This will be informative" {:authors [:magnars :cjohansen]}))
+
+   ;; throw an exception with a cause
+   (= (:uri req) "/caused-by")
+   (throw (Exception. "It went wrong because of something else" (create-intermediate-cause)))
 
    ;; basic case
    :else (throw (Exception. "Oh noes!"))))

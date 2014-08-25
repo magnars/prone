@@ -53,15 +53,21 @@
 (defn- prepare-for-serialization [m]
   (walk/postwalk prepare-for-serialization-1 m))
 
+(defn- prep-error [error application-name]
+  (-> (if (:caused-by error)
+        (update-in error [:caused-by] #(prep-error % application-name))
+        error)
+      (update-in [:frames]
+                 #(->> %
+                       (map-indexed (fn [idx f] (assoc f :id idx)))
+                       (map (partial set-application-frame application-name))
+                       (mapv load-source)))
+      (update-in [:frames] select-starting-frame)))
+
 (defn prep [error request application-name]
-  {:error (-> error
-              (update-in [:frames]
-                         #(->> %
-                               (map-indexed (fn [idx f] (assoc f :id idx)))
-                               (map (partial set-application-frame application-name))
-                               (mapv load-source)))
-              (update-in [:frames] select-starting-frame))
+  {:error (prep-error error application-name)
    :request (prepare-for-serialization request)
    :frame-filter :application
    :paths {:request []
-           :data []}})
+           :data []
+           :error []}})

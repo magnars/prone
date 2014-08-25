@@ -91,3 +91,11 @@
                                           (catch Exception e
                                             e)))]
     (is (= {:data 42} (:data normalized)))))
+
+(deftest normalize-chains-test
+  (let [normalized (normalize-exception (try
+                                          (throw (Exception. "It went wrong because of something else" ex))
+                                          (catch Exception e
+                                            e)))]
+    (is (= (normalize-exception ex)
+           (:caused-by normalized)))))
