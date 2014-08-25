@@ -83,8 +83,7 @@
                                      (when-let [caused-by (:caused-by error)]
                                        (d/span {} " Caused by " (d/a {:href "#"
                                                                       :onClick (action #(put! (:navigate-error chans) [:concat [:caused-by]]))}
-                                                                     (or (:message caused-by)
-                                                                         (:class-name caused-by))))))))
+                                                                     (:class-name caused-by)))))))
                      (d/p {} (or (:message error)
                                  (d/span {} (:class-name error)
                                          (d/span {:className "subtle"} " [no message]")))))
