@@ -57,12 +57,14 @@
                    (d/div {:className "location"}
                           (d/span {:className "filename"}
                                   (:class-path-url frame))))
-            (d/div {:className "code_block clearfix"}
-                   (d/pre {:className "line-numbers code"
-                           :data-line (:line-number frame)
-                           :data-line-offset (:offset (:source frame))}
-                          (d/code {:className (source-classes (:lang frame))}
-                                  (:code (:source frame)))))))
+            (if-let [source-code (-> frame :source :code)]
+              (d/div {:className "code_block clearfix"}
+                     (d/pre {:className "line-numbers code"
+                             :data-line (:line-number frame)
+                             :data-line-offset (:offset (:source frame))}
+                            (d/code {:className (source-classes (:lang frame))} source-code)))
+              (d/div {:className "source-failure"}
+                     (-> frame :source :failure)))))
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"

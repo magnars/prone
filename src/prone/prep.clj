@@ -7,9 +7,9 @@
 
 (defn- load-source [frame]
   (assoc frame :source (if-not (:class-path-url frame)
-                         {:code "(unknown source file)" :start-line 1}
+                         {:failure "(unknown source file)"}
                          (if-not (io/resource (:class-path-url frame))
-                           {:code "(could not locate source file on class path)" :start-line 1}
+                           {:failure "(could not locate source file on class path)"}
                            (clj-code/truncate (slurp (io/resource (:class-path-url frame)))
                                               (:line-number frame)
                                               500)))))

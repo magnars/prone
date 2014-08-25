@@ -11,4 +11,16 @@ pre[class*="language-"] {margin-top: 0; background: #fff; padding-bottom: 1.75em
 .caused-by {float: right;}
 .caused-by a {color: #99f;}
 
+.source-failure {
+    background: #f1f1f1;
+    border: 1px solid #ccc;
+    border-top: none;
+    color: #666;
+    height: 30px
+    line-height: 30px;
+    vertical-align: middle;
+    overflow: hidden;
+    padding: 110px 10px;
+    text-align: center;
+}
 header.exception:hover h2 {padding-right: 0;}

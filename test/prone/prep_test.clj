@@ -15,9 +15,9 @@
   (is (re-find #"prone.prep-test"
                (:code (:source (first (prep-frames [{:class-path-url "prone/prep_test.clj"}]))))))
   (is (= "(unknown source file)"
-         (:code (:source (first (prep-frames [{}]))))))
+         (:failure (:source (first (prep-frames [{}]))))))
   (is (= "(could not locate source file on class path)"
-         (:code (:source (first (prep-frames [{:class-path-url "plone/plep_test.clj"}])))))))
+         (:failure (:source (first (prep-frames [{:class-path-url "plone/plep_test.clj"}])))))))
 
 (deftest application-frames
   (is (= ["a"] (->> (prep-frames [{:name "a" :package "prone.prep-test"}
