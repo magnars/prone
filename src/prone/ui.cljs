@@ -51,7 +51,6 @@
                                 "(unknown file)"))))))
 
 (q/defcomponent StackInfo [frame]
-  (prn (:offset (:source frame)))
   (d/header {:className "trace_info clearfix"}
             (d/div {:className "title"}
                    (d/h2 {:className "name"} (:method-name frame))
