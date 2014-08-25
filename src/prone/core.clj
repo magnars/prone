@@ -36,6 +36,7 @@
     (try
       (handler req)
       (catch Exception e
+        (.printStackTrace e)
         (-> e
             normalize-exception
             (prep req (get-application-name))
