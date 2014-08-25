@@ -68,51 +68,51 @@
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
   [{:keys [error request frame-filter paths]} chans]
-(let [error (get-in error (:error paths))]
-  (d/div {:className "top"}
-         (d/header {:className "exception"}
-                   (d/h2 {}
-                         (d/strong {} (:type error))
-                         (d/span {} " at " (:uri request))
-                         (when (or (:caused-by error) (seq (:error paths)))
-                           (d/span {:className "caused-by"}
-                                   (when (seq (:error paths))
-                                     (d/a {:href "#"
-                                           :onClick (action #(put! (:navigate-error chans) [:reset (drop 1 (:error paths))]))}
-                                          "< back"))
-                                   (when-let [caused-by (:caused-by error)]
-                                     (d/span {} " Caused by " (d/a {:href "#"
-                                                                    :onClick (action #(put! (:navigate-error chans) [:concat [:caused-by]]))}
-                                                                   (or (:message caused-by)
-                                                                       (:class-name caused-by))))))))
-                   (d/p {} (or (:message error)
-                               (d/span {} (:class-name error)
-                                       (d/span {:className "subtle"} " [no message]")))))
-         (d/section {:className "backtrace"}
-                    (d/nav {:className "sidebar"}
-                           (d/nav {:className "tabs"}
-                                  (d/a {:href "#"
-                                        :className (when (= :application frame-filter) "selected")
-                                        :onClick (action #(put! (:change-frame-filter chans) :application))}
-                                       "Application Frames")
-                                  (d/a {:href "#"
-                                        :className (when (= :all frame-filter) "selected")
-                                        :onClick (action #(put! (:change-frame-filter chans) :all))}
-                                       "All Frames"))
-                           (apply d/ul {:className "frames" :id "frames"}
-                                  (map #(StackFrame % (:select-frame chans))
-                                       (filter-frames frame-filter (:frames error)))))
-                    (d/div {:className "frame_info" :id "frame-info"}
-                           (StackInfo (first (filter :selected? (:frames error))))
-                           (when (:data error)
+  (let [error (get-in error (:error paths))]
+    (d/div {:className "top"}
+           (d/header {:className "exception"}
+                     (d/h2 {}
+                           (d/strong {} (:type error))
+                           (d/span {} " at " (:uri request))
+                           (when (or (:caused-by error) (seq (:error paths)))
+                             (d/span {:className "caused-by"}
+                                     (when (seq (:error paths))
+                                       (d/a {:href "#"
+                                             :onClick (action #(put! (:navigate-error chans) [:reset (drop 1 (:error paths))]))}
+                                            "< back"))
+                                     (when-let [caused-by (:caused-by error)]
+                                       (d/span {} " Caused by " (d/a {:href "#"
+                                                                      :onClick (action #(put! (:navigate-error chans) [:concat [:caused-by]]))}
+                                                                     (or (:message caused-by)
+                                                                         (:class-name caused-by))))))))
+                     (d/p {} (or (:message error)
+                                 (d/span {} (:class-name error)
+                                         (d/span {:className "subtle"} " [no message]")))))
+           (d/section {:className "backtrace"}
+                      (d/nav {:className "sidebar"}
+                             (d/nav {:className "tabs"}
+                                    (d/a {:href "#"
+                                          :className (when (= :application frame-filter) "selected")
+                                          :onClick (action #(put! (:change-frame-filter chans) :application))}
+                                         "Application Frames")
+                                    (d/a {:href "#"
+                                          :className (when (= :all frame-filter) "selected")
+                                          :onClick (action #(put! (:change-frame-filter chans) :all))}
+                                         "All Frames"))
+                             (apply d/ul {:className "frames" :id "frames"}
+                                    (map #(StackFrame % (:select-frame chans))
+                                         (filter-frames frame-filter (:frames error)))))
+                      (d/div {:className "frame_info" :id "frame-info"}
+                             (StackInfo (first (filter :selected? (:frames error))))
+                             (when (:data error)
+                               (d/div {:className "sub"}
+                                      (MapBrowser {:data (:data error)
+                                                   :path (:data paths)
+                                                   :name "Exception data"} (:navigate-data chans))))
                              (d/div {:className "sub"}
-                                    (MapBrowser {:data (:data error)
-                                                 :path (:data paths)
-                                                 :name "Exception data"} (:navigate-data chans))))
-                           (d/div {:className "sub"}
-                                  (MapBrowser {:data request
-                                               :path (:request paths)
-                                               :name "Request map"} (:navigate-request chans))))))))
+                                    (MapBrowser {:data request
+                                                 :path (:request paths)
+                                                 :name "Request map"} (:navigate-request chans))))))))
 
 (defn update-selected-frame [data frame-id]
   (let [path (concat [:error] (-> data :paths :error) [:frames []])]
