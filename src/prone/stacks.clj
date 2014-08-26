@@ -30,7 +30,9 @@
   (let [class-path-url-stub (-> frame
                                 .getClassName
                                 (str/replace "." "/"))]
-    {:class-path-url (str class-path-url-stub ".java")
+    {:class-path-url (-> class-path-url-stub
+                         (str/replace #"\$[^/]+$" "")
+                         (str ".java"))
      :loaded-from (find-loaded-from (str class-path-url-stub ".class"))
      :method-name (.getMethodName frame)
      :class-name (-> frame
