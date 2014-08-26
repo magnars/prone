@@ -31,7 +31,7 @@
                                 .getClassName
                                 (str/replace "." "/"))]
     {:class-path-url (-> class-path-url-stub
-                         (str/replace #"\$[^/]+$" "")
+                         (str/replace #"\$[^/]+$" "") ;; remove inner classes
                          (str ".java"))
      :loaded-from (find-loaded-from (str class-path-url-stub ".class"))
      :method-name (.getMethodName frame)
