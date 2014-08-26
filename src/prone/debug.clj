@@ -8,7 +8,7 @@
   nil)
 
 (defmacro debug [message & forms]
-  (list 'queue-debug {:line (:line (meta &form))
+  (list 'prone.debug/queue-debug {:line (:line (meta &form))
                       :column (:column (meta &form))
                       :file *file*
                       :locals (into {} (map (fn [l] [`'~l l]) (reverse (keys &env))))

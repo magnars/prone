@@ -64,10 +64,21 @@
                        (mapv load-source)))
       (update-in [:frames] select-starting-frame)))
 
-(defn prep [error request application-name]
-  {:error (prep-error error application-name)
+(defn- prep-debug [debug-data]
+  (prepare-for-serialization debug-data))
+
+(defn prep-error-page [error debug-data request application-name]
+  (let [prepped-error (prep-error error application-name)]
+    {:title (-> prepped-error :message)
+     :error prepped-error
+     :debug (prep-debug debug-data)
+     :request (prepare-for-serialization request)
+     :frame-filter :application
+     :paths {:request []
+             :data []
+             :error []}}))
+
+(defn prep-debug-page [debug-data request]
+  {:title "Debug halt"
    :request (prepare-for-serialization request)
-   :frame-filter :application
-   :paths {:request []
-           :data []
-           :error []}})
+   :debug (prep-debug debug-data)})

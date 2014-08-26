@@ -1,12 +1,13 @@
 (ns prone.core
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
+            [prone.debug :as debug]
             [prone.hiccough :refer [render]]
-            [prone.prep :refer [prep]]
+            [prone.prep :refer [prep-error-page prep-debug-page]]
             [prone.stacks :refer [normalize-exception]]))
 
-(defn- serve [html]
-  {:status 200
+(defn- serve [html & [status]]
+  {:status (or status 500)
    :body html
    :headers {"Content-Type" "text/html"}})
 
@@ -18,7 +19,7 @@
    (list "<!DOCTYPE html>"
          [:html
           [:head
-           [:title (-> data :error :message)]
+           [:title (:title data)]
            [:style (slurp (io/resource "prone/better-errors.css"))]
            [:style (slurp (io/resource "prone/prism.css"))]
            [:style (slurp (io/resource "prone/styles.css"))]]
@@ -33,12 +34,19 @@
 
 (defn wrap-exceptions [handler]
   (fn [req]
+    (reset! debug/debug-data [])
     (try
-      (handler req)
+      (let [result (handler req)]
+        (if (< 0 (count @debug/debug-data))
+          (-> @debug/debug-data
+              (prep-debug-page req)
+              render-page
+              (serve 203))
+          result))
       (catch Exception e
         (.printStackTrace e)
         (-> e
             normalize-exception
-            (prep req (get-application-name))
+            (prep-error-page @debug/debug-data req (get-application-name))
             render-page
             serve)))))

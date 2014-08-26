@@ -5,7 +5,7 @@
   (:import [java.io ByteArrayInputStream]))
 
 (defn prep-frames [frames & [application-name]]
-  (-> (prep {:frames frames} {} application-name)
+  (-> (prep-error-page {:frames frames} {} {} application-name)
       :error :frames))
 
 (deftest ids-for-frames
@@ -39,7 +39,7 @@
                     (map :name)))))
 
 (deftest frame-filter
-  (is (= :application (:frame-filter (prep {:frames []} {} "")))))
+  (is (= :application (:frame-filter (prep-error-page {:frames []} {} {} "")))))
 
 (deftest no-unreadable-forms
   (is (= {:name "John Doe"
@@ -49,9 +49,9 @@
           :body {:prone.prep/to-string "Hello"
                  :prone.prep/original-type "java.io.ByteArrayInputStream"}
           :lazy '(2 3 4)}
-         (-> (prep {} {:session {:name "John Doe"
-                                 :age 37
-                                 :url (java.net.URL. "http://example.com")
-                                 :body (ByteArrayInputStream. (.getBytes "Hello"))
-                                 :lazy (map inc [1 2 3])}} "")
+         (-> (prep-error-page {} {} {:session {:name "John Doe"
+                                               :age 37
+                                               :url (java.net.URL. "http://example.com")
+                                               :body (ByteArrayInputStream. (.getBytes "Hello"))
+                                               :lazy (map inc [1 2 3])}} "")
              :request :session))))

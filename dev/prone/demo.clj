@@ -1,6 +1,7 @@
 (ns prone.demo
   (:require [clojure.java.io :as io]
-            [prone.core :refer [wrap-exceptions]])
+            [prone.core :refer [wrap-exceptions]]
+            [prone.debug :refer [debug]])
   (:import [java.io ByteArrayInputStream]))
 
 (defn piggie-backer [app]
@@ -53,6 +54,15 @@
    ;; throw an exception with a cause
    (= (:uri req) "/caused-by")
    (throw (Exception. "It went wrong because of something else" (create-intermediate-cause)))
+
+   ;; use the debug function
+   (= (:uri req) "/debug")
+   (do
+     (debug {:id (rand)})
+     (debug "Aight?" {:id (rand)})
+     {:status 200
+      :headers {"content-type" "text/html"}
+      :body "<h1>Yo world</h1>"})
 
    ;; basic case
    :else (throw (Exception. "Oh noes!"))))
