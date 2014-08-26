@@ -10,8 +10,9 @@
           :line-number 8
           :column 3
           :message "I'm lost"
-          :forms nil}
-         (select-keys (last @debug-data) [:id :form :env :message :forms :line-number :column])))
+          :forms nil
+          :locals nil}
+         (select-keys (last @debug-data) [:id :form :env :message :forms :line-number :column :locals])))
 
   (debug {:data 42})
   (is (= [{:data 42}] (:forms (last @debug-data))))

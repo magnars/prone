@@ -2,10 +2,11 @@
 
 (def debug-data (atom []))
 
-(defn queue-debug [{:keys [forms message] :as data}]
+(defn queue-debug [{:keys [forms message locals] :as data}]
   (swap! debug-data conj (merge data {:id (count @debug-data)
                                       :message (if (string? message) message nil)
-                                      :forms (if (string? message) forms (concat [message] forms))}))
+                                      :forms (if (string? message) forms (concat [message] forms))
+                                      :locals (if (seq locals) locals nil)}))
   nil)
 
 (defmacro debug [message & forms]
