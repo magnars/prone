@@ -1,7 +1,7 @@
-(ns prone.map-browser
-  (:require [cljs.core.async :refer [put! chan <!]]
+(ns prone.ui.components.map-browser
+  (:require [cljs.core.async :refer [put!]]
             [clojure.string :as str]
-            [prone.uitilities :refer [action]]
+            [prone.ui.utils :refer [action get-in*]]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
@@ -137,18 +137,6 @@
                              (butlast paths))
                        (when-let [curr (last (last paths))]
                          (to-str curr)))))))
-
-(defn- get-in* [data path]
-  "Like get-in, but looks up indexed values in lists too."
-  (loop [data data
-         [head & tail] path]
-    (if head
-      (recur (if (and (list? data)
-                      (number? head))
-               (nth data head)
-               (get data head))
-             tail)
-      data)))
 
 (q/defcomponent MapBrowser [{:keys [name data path]} navigate-request]
   (d/div
