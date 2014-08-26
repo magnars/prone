@@ -55,14 +55,18 @@
    (= (:uri req) "/caused-by")
    (throw (Exception. "It went wrong because of something else" (create-intermediate-cause)))
 
-   ;; use the debug function
+   ;; use the debug function to halt rendering (and inspect data)
    (= (:uri req) "/debug")
    (do
      (debug {:id (rand)})
-     (debug "Aight?" {:id (rand)})
+     (debug "How's this work?" {:id (rand)})
+
+     (let [team "America"]
+       (debug "Look at them locals"))
+
      {:status 200
       :headers {"content-type" "text/html"}
-      :body "<h1>Yo world</h1>"})
+      :body "<h1>Hello, bittersweet and slightly tangy world</h1>"})
 
    ;; basic case
    :else (throw (Exception. "Oh noes!"))))
