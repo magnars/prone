@@ -7,11 +7,11 @@
 
   (debug "I'm lost")
   (is (= {:id 0
-          :line 8
+          :line-number 8
           :column 3
           :message "I'm lost"
           :forms nil}
-         (select-keys (last @debug-data) [:id :form :env :message :forms :line :column])))
+         (select-keys (last @debug-data) [:id :form :env :message :forms :line-number :column])))
 
   (debug {:data 42})
   (is (= [{:data 42}] (:forms (last @debug-data))))

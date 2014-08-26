@@ -9,9 +9,9 @@
   nil)
 
 (defmacro debug [message & forms]
-  (list 'prone.debug/queue-debug {:line (:line (meta &form))
+  (list 'prone.debug/queue-debug {:line-number (:line (meta &form))
                       :column (:column (meta &form))
-                      :file *file*
+                      :file-name *file*
                       :locals (into {} (map (fn [l] [`'~l l]) (reverse (keys &env))))
                       :message message
                       :forms (list 'quote forms)}))
