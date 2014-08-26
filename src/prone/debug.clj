@@ -3,7 +3,8 @@
 (def debug-data (atom []))
 
 (defn queue-debug [{:keys [forms message] :as data}]
-  (swap! debug-data conj (merge data {:message (if (string? message) message nil)
+  (swap! debug-data conj (merge data {:id (count @debug-data)
+                                      :message (if (string? message) message nil)
                                       :forms (if (string? message) forms (concat [message] forms))}))
   nil)
 

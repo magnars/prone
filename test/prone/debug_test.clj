@@ -6,11 +6,12 @@
   (reset! debug-data [])
 
   (debug "I'm lost")
-  (is (= {:line 8
+  (is (= {:id 0
+          :line 8
           :column 3
           :message "I'm lost"
           :forms nil}
-         (select-keys (last @debug-data) [:form :env :message :forms :line :column])))
+         (select-keys (last @debug-data) [:id :form :env :message :forms :line :column])))
 
   (debug {:data 42})
   (is (= [{:data 42}] (:forms (last @debug-data))))
