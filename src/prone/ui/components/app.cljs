@@ -12,7 +12,7 @@
     :all frames
     :application (filter :application? frames)))
 
-(q/defcomponent Header
+(q/defcomponent ErrorHeader
   [{:keys [error request paths]} chans]
   (d/header {:className "exception"}
             (d/h2 {}
@@ -32,21 +32,49 @@
                         (d/span {} (:class-name error)
                                 (d/span {:className "subtle"} " [no message]"))))))
 
+(q/defcomponent DebugHeader
+  [{:keys [request]} chans]
+  (d/header {:className "exception"}
+            (d/h2 {}
+                  (d/span {} "Tired of seeing this page? Remove calls to "
+                          "prone.debug/debug - and stop causing exceptions"))
+            (d/p {} "Halted for debugging")))
+
+(q/defcomponent Header
+  [data chans]
+  (if (:error data)
+    (ErrorHeader data chans)
+    (DebugHeader data chans)))
+
+(q/defcomponent StackFrameLink
+  [{:keys [frame-filter target name]} chans]
+  (d/a {:href "#"
+        :className (when (= target frame-filter) "selected")
+        :onClick (action #(put! (:change-frame-filter chans) target))}
+       name))
+
 (q/defcomponent Sidebar
-  [{:keys [error frame-filter]} chans]
+  [{:keys [error frame-filter debug-data]} chans]
   (d/nav {:className "sidebar"}
          (d/nav {:className "tabs"}
-                (d/a {:href "#"
-                      :className (when (= :application frame-filter) "selected")
-                      :onClick (action #(put! (:change-frame-filter chans) :application))}
-                     "Application Frames")
-                (d/a {:href "#"
-                      :className (when (= :all frame-filter) "selected")
-                      :onClick (action #(put! (:change-frame-filter chans) :all))}
-                     "All Frames"))
+                (when error
+                  (StackFrameLink {:frame-filter frame-filter
+                                   :target :application
+                                   :name "Application Frames"} chans)
+                  (StackFrameLink {:frame-filter frame-filter
+                                   :target :all
+                                   :name "All Frames"} chans))
+                (when (seq debug-data)
+                  (StackFrameLink {:frame-filter frame-filter
+                                   :target :debug
+                                   :name "Debug Calls"} chans)))
          (apply d/ul {:className "frames" :id "frames"}
-                (map #(StackFrame % (:select-frame chans))
-                     (filter-frames frame-filter (:frames error))))))
+                (when (and error (#{:application :all} frame-filter))
+                  (map #(StackFrame % (:select-frame chans))
+                       (filter-frames frame-filter (:frames error))))
+                (when (= :debug frame-filter)
+                  (map #(StackFrame % (:select-frame chans))
+                       debug-data)))))
 
 (q/defcomponent Body
   [{:keys [error request paths]} chans]
@@ -69,4 +97,5 @@
          (Header data chans)
          (d/section {:className "backtrace"}
                     (Sidebar data chans)
-                    (Body data chans))))
+                                        ;(Body data chans)
+                    )))
