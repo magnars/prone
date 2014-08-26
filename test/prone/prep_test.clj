@@ -1,7 +1,7 @@
 (ns prone.prep-test
   (:require [clojure.java.io :as io]
             [clojure.test :refer :all]
-            [prone.prep :refer :all])
+            [prone.prep :refer [prep-error-page prep-debug-page]])
   (:import [java.io ByteArrayInputStream]))
 
 (defn prep-frames [frames & [application-name]]
@@ -55,3 +55,20 @@
                                                :body (ByteArrayInputStream. (.getBytes "Hello"))
                                                :lazy (map inc [1 2 3])}} "")
              :request :session))))
+
+(defn prep-debug [debug]
+  (prep-debug-page debug {}))
+
+(deftest prep-debug-auxilliary-info
+  (let [file "/Users/christian/projects/prone/test/prone/debug_test.clj"]
+    (is (= :clj (:lang (first (:debug-data (prep-debug [{:file-name ""}]))))))
+
+    (is (= "test/prone/debug_test.clj"
+           (:file-name (first (:debug-data (prep-debug [{:file-name file}]))))))
+
+    (is (= "prone.debug-test"
+           (:package (first (:debug-data (prep-debug [{:file-name file}]))))))
+
+    (let [source (:source (first (:debug-data (prep-debug [{:file-name file}]))))]
+      (is (re-find #"^\(ns prone\.debug-test" (:code source)))
+      (is (= 0 (:offset source))))))

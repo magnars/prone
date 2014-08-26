@@ -3,16 +3,23 @@
             [clojure.string :as str]
             [clojure.walk :as walk]
             [prone.code-trunc :as clj-code])
-  (:import [java.io InputStream]))
+  (:import [java.io InputStream File]))
+
+(defonce max-source-lines 500)
+
+(defn- load-source-file [source line-number]
+  (if (nil? source)
+    {:failure "(could not locate source file on class path)"}
+    (let [file (if (instance? java.net.URL source) (File. (.getPath source)) source)]
+      (if-not (.exists file)
+        {:failure "(could not locate source file)"}
+        (clj-code/truncate (slurp file) line-number max-source-lines)))))
 
 (defn- load-source [frame]
   (assoc frame :source (if-not (:class-path-url frame)
                          {:failure "(unknown source file)"}
-                         (if-not (io/resource (:class-path-url frame))
-                           {:failure "(could not locate source file on class path)"}
-                           (clj-code/truncate (slurp (io/resource (:class-path-url frame)))
-                                              (:line-number frame)
-                                              500)))))
+                         (load-source-file (io/resource (:class-path-url frame))
+                                           (:line-number frame)))))
 
 (defn- set-application-frame [application-name frame]
   (if (and (:package frame)
@@ -64,14 +71,26 @@
                        (mapv load-source)))
       (update-in [:frames] select-starting-frame)))
 
+(defn- prep-debug-1 [{:keys [file-name line-number] :as debug}]
+  (let [root-dir (str/replace (.getAbsolutePath (File. ".")) #"\.$" "")]
+    (merge debug {:lang :clj
+                  :file-name (str/replace file-name root-dir "")
+                  :method-name "[unknown]"
+                  :package (-> file-name
+                               (str/replace #"^.*(src|test)/" "")
+                               (str/replace #"\.[^/]*$" "")
+                               (str/replace "/" ".")
+                               (str/replace "_" "-"))
+                  :source (load-source-file (File. file-name) line-number)})))
+
 (defn- prep-debug [debug-data]
-  (prepare-for-serialization debug-data))
+  (prepare-for-serialization (map prep-debug-1 debug-data)))
 
 (defn prep-error-page [error debug-data request application-name]
   (let [prepped-error (prep-error error application-name)]
     {:title (-> prepped-error :message)
      :error prepped-error
-     :debug (prep-debug debug-data)
+     :debug-data (prep-debug debug-data)
      :request (prepare-for-serialization request)
      :frame-filter :application
      :paths {:request []
@@ -81,4 +100,5 @@
 (defn prep-debug-page [debug-data request]
   {:title "Debug halt"
    :request (prepare-for-serialization request)
-   :debug (prep-debug debug-data)})
+   :debug-data (prep-debug debug-data)
+   :frame-filter :debug})
