@@ -32,6 +32,12 @@
     (.highlightAll js/Prism)
     (set! (-> js/document (.getElementById "frame-info") .-scrollTop) 0)))
 
+(defn on-msg [chan handler]
+  (go-loop []
+    (when-let [msg (<! chan)]
+      (handler msg)
+      (recur))))
+
 (defn bootstrap! [data]
   (let [chans {:select-frame (chan)
                :change-frame-filter (chan)
@@ -39,30 +45,12 @@
                :navigate-data (chan)
                :navigate-error (chan)}
         prone-data (atom nil)]
-    (go-loop []
-      (when-let [frame-id (<! (:select-frame chans))]
-        (swap! prone-data update-selected-frame frame-id)
-        (recur)))
 
-    (go-loop []
-      (when-let [filter (<! (:change-frame-filter chans))]
-        (swap! prone-data assoc :frame-filter filter)
-        (recur)))
-
-    (go-loop []
-      (when-let [navigation (<! (:navigate-request chans))]
-        (swap! prone-data (partial navigate-map :request) navigation)
-        (recur)))
-
-    (go-loop []
-      (when-let [navigation (<! (:navigate-data chans))]
-        (swap! prone-data (partial navigate-map :data) navigation)
-        (recur)))
-
-    (go-loop []
-      (when-let [navigation (<! (:navigate-error chans))]
-        (swap! prone-data (partial navigate-map :error) navigation)
-        (recur)))
+    (on-msg (:select-frame chans) #(swap! prone-data update-selected-frame %))
+    (on-msg (:change-frame-filter chans) #(swap! prone-data assoc :frame-filter %))
+    (on-msg (:navigate-request chans) #(swap! prone-data (partial navigate-map :request) %))
+    (on-msg (:navigate-data chans) #(swap! prone-data (partial navigate-map :data) %))
+    (on-msg (:navigate-error chans) #(swap! prone-data (partial navigate-map :error) %))
 
     (add-watch prone-data :state-change (partial handle-data-change chans))
     (reset! prone-data data)))

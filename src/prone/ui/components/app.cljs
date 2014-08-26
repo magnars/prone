@@ -56,11 +56,12 @@
 (q/defcomponent Sidebar
   [{:keys [error frame-filter debug-data]} chans]
   (d/nav {:className "sidebar"}
-         (d/nav {:className "tabs"}
+         (apply d/nav {:className "tabs"}
                 (when error
                   (StackFrameLink {:frame-filter frame-filter
                                    :target :application
-                                   :name "Application Frames"} chans)
+                                   :name "Application Frames"} chans))
+                (when error
                   (StackFrameLink {:frame-filter frame-filter
                                    :target :all
                                    :name "All Frames"} chans))
@@ -68,13 +69,16 @@
                   (StackFrameLink {:frame-filter frame-filter
                                    :target :debug
                                    :name "Debug Calls"} chans)))
+
          (apply d/ul {:className "frames" :id "frames"}
-                (when (and error (#{:application :all} frame-filter))
-                  (map #(StackFrame % (:select-frame chans))
-                       (filter-frames frame-filter (:frames error))))
-                (when (= :debug frame-filter)
-                  (map #(StackFrame % (:select-frame chans))
-                       debug-data)))))
+                (cond
+                 (and error (#{:application :all} frame-filter))
+                 (map #(StackFrame % (:select-frame chans))
+                      (filter-frames frame-filter (:frames error)))
+
+                 (= :debug frame-filter)
+                 (map #(StackFrame % (:select-frame chans))
+                      debug-data)))))
 
 (q/defcomponent Body
   [{:keys [error request paths]} chans]
@@ -97,5 +101,5 @@
          (Header data chans)
          (d/section {:className "backtrace"}
                     (Sidebar data chans)
-                                        ;(Body data chans)
+                    (Body data chans)
                     )))
