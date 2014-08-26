@@ -84,7 +84,9 @@
                   :source (load-source-file (File. file-name) line-number)})))
 
 (defn- prep-debug [debug-data]
-  (prepare-for-serialization (map prep-debug-1 debug-data)))
+  (-> (mapv prep-debug-1 debug-data)
+      prepare-for-serialization
+      (update-in [0] assoc :selected? true)))
 
 (defn prep-error-page [error debug-data request application-name]
   (let [prepped-error (prep-error error application-name)]

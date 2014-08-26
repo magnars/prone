@@ -63,6 +63,8 @@
   (let [file "/Users/christian/projects/prone/test/prone/debug_test.clj"]
     (is (= :clj (:lang (first (:debug-data (prep-debug [{:file-name ""}]))))))
 
+    (is (:selected? (first (:debug-data (prep-debug [{:file-name ""}])))))
+
     (is (= "test/prone/debug_test.clj"
            (:file-name (first (:debug-data (prep-debug [{:file-name file}]))))))
 
