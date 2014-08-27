@@ -47,7 +47,12 @@
      :lang :java}))
 
 (defn normalize-frame [frame]
-  (if-not (.getFileName frame)
+  (if (.getFileName frame)
+    (merge {:file-name (.getFileName frame)
+            :line-number (.getLineNumber frame)}
+           (if (-> frame .getFileName (.endsWith ".clj"))
+             (normalize-frame-clj frame)
+             (normalize-frame-java frame)))
     {:method-name (.getMethodName frame)
      :class-name (-> frame
                      .getClassName
@@ -57,12 +62,7 @@
                   .getClassName
                   (str/split #"\.")
                   butlast
-                  (->> (str/join ".")))}
-    (merge {:file-name (.getFileName frame)
-            :line-number (.getLineNumber frame)}
-           (if (-> frame .getFileName (.endsWith ".clj"))
-             (normalize-frame-clj frame)
-             (normalize-frame-java frame)))))
+                  (->> (str/join ".")))}))
 
 (defn- add-data [normalized exception]
   (if-let [data (and (instance? clojure.lang.ExceptionInfo exception)
