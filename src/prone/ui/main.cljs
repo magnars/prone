@@ -2,6 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [chan <!]]
             [cljs.reader :as reader]
+            [clojure.string :as str]
             [prone.ui.components.app :refer [ProneUI]]
             [prone.ui.utils :refer [update-in*]]
             [quiescent :as q :include-macros true]))
@@ -55,7 +56,14 @@
     (add-watch prone-data :state-change (partial handle-data-change chans))
     (reset! prone-data data)))
 
+(defn unescape-script-tags [s]
+  "Script tags must be escaped on the server, or the browser is properly confused.
+   Get the server-mandated replacement string, and put those script tags back in."
+  (let [script-replacement-string (-> js/document (.getElementById "script-replacement-string") .-value)]
+    (str/replace s script-replacement-string "script")))
+
 (bootstrap! (-> js/document
                 (.getElementById "prone-data")
                 .-innerHTML
+                unescape-script-tags
                 reader/read-string))

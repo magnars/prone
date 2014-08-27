@@ -2,6 +2,7 @@
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [prone.debug :as debug]
+            [clojure.string :as str]
             [prone.hiccough :refer [render]]
             [prone.prep :refer [prep-error-page prep-debug-page]]
             [prone.stacks :refer [normalize-exception]]))
@@ -14,8 +15,21 @@
 (defn get-application-name []
   (second (edn/read-string (slurp "project.clj"))))
 
+(defn- random-string-not-present-in [haystack length]
+  "Look for a random string that is not present in haystack, increasing the
+   length for each failed attempt."
+  (let [needle (->> #(rand-nth "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+                    repeatedly
+                    (take length)
+                    (apply str))]
+    (if (.contains haystack needle)
+      (recur haystack (inc length))
+      needle)))
+
 (defn render-page [data]
   (render
+ (let [data-str (prn-str data)
+       script-replacement-string (random-string-not-present-in data-str 6)]
    (list "<!DOCTYPE html>"
          [:html
           [:head
@@ -25,12 +39,13 @@
            [:style (slurp (io/resource "prone/styles.css"))]]
           [:body
            [:div {:id "ui-root"}]
-           [:script {:type "text/json" :id "prone-data"} (prn-str data)]
+           [:input {:type "hidden" :id "script-replacement-string" :value script-replacement-string}]
+           [:script {:type "text/json" :id "prone-data"} (str/replace data-str #"\bscript\b" script-replacement-string)]
            [:script (slurp (io/resource "prone/react-0.11.1.js"))]
            [:script (slurp (io/resource "prone/prism.js"))]
            [:script (slurp (io/resource "prone/prism-line-numbers.js"))]
            [:script (slurp (io/resource "prone/prism.clojure.js"))]
-           [:script (slurp (io/resource "prone/generated/prone.js"))]]])))
+           [:script (slurp (io/resource "prone/generated/prone.js"))]]]))))
 
 (defn wrap-exceptions [handler]
   (fn [req]
