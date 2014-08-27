@@ -25,16 +25,6 @@
     :frame (swap! data update-selected-frame id)
     :debug (swap! data update-selected-debug id)))
 
-(defn navigate-map [name data navigation]
-  (case (first navigation)
-    :concat (update-in data [:paths name] #(concat % (second navigation)))
-    :reset (assoc-in data [:paths name] (second navigation))))
-
-(defn navigate-debug-data [data [debug-id type [nav-type path]]]
-  (case nav-type
-    :concat (update-in data [:paths :debug debug-id type] #(concat % path))
-    :reset (assoc-in data [:paths :debug debug-id type] path)))
-
 (defn code-excerpt-changed? [old new]
   (not (and (= (:error new) (:error old))
             (= (-> new :paths :error) (-> old :paths :error))
@@ -51,10 +41,11 @@
     (.highlightAll js/Prism)
     (set! (-> js/document (.getElementById "frame-info") .-scrollTop) 0)))
 
-(defn navigate-data-map [data [type & path]]
-  (if (= :debug type)
-    (swap! data navigate-debug-data path)
-    (swap! data (partial navigate-map :data) (first path))))
+(defn navigate-data [data [path-key [nav-type path]]]
+  (prn nav-type path (get-in data [:paths path-key]))
+  (case nav-type
+    :concat (update-in data [:paths path-key] #(concat % path))
+    :reset (assoc-in data [:paths path-key] path)))
 
 (defn on-msg [chan handler]
   (go-loop []
@@ -72,9 +63,7 @@
 
     (on-msg (:select-frame chans) #(update-selected-src-loc prone-data %))
     (on-msg (:change-frame-selection chans) #(swap! prone-data assoc :frame-selection %))
-    (on-msg (:navigate-request chans) #(swap! prone-data (partial navigate-map :request) %))
-    (on-msg (:navigate-data chans) #(navigate-data-map prone-data %))
-    (on-msg (:navigate-error chans) #(swap! prone-data (partial navigate-map :error) %))
+    (on-msg (:navigate-data chans) #(swap! prone-data navigate-data %))
 
     (add-watch prone-data :state-change (partial handle-data-change chans))
     (reset! prone-data data)))

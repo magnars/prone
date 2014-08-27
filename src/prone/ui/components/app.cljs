@@ -22,11 +22,13 @@
                     (d/span {:className "caused-by"}
                             (when (seq (:error paths))
                               (d/a {:href "#"
-                                    :onClick (action #(put! (:navigate-error chans) [:reset (drop 1 (:error paths))]))}
+                                    :onClick (action #(put! (:navigate-data chans)
+                                                            [:error [:reset (drop 1 (:error paths))]]))}
                                    "< back"))
                             (when-let [caused-by (:caused-by error)]
                               (d/span {} " Caused by " (d/a {:href "#"
-                                                             :onClick (action #(put! (:navigate-error chans) [:concat [:caused-by]]))}
+                                                             :onClick (action #(put! (:navigate-data chans)
+                                                                                     [:error [:concat [:caused-by]]]))}
                                                             (:type caused-by)))))))
             (d/p {} (or (:message error)
                         (d/span {} (:class-name error)
@@ -87,14 +89,16 @@
          (when (:data error)
            (d/div {:className "sub"}
                   (MapBrowser {:data (:data error)
-                               :path (:data paths)
+                               :path (paths [:data error])
                                :name "Exception data"}
-                              (map> #(vector :error %)
+                              (map> #(vector [:data error] %)
                                     (:navigate-data chans)))))
          (d/div {:className "sub"}
                 (MapBrowser {:data request
                              :path (:request paths)
-                             :name "Request map"} (:navigate-request chans)))))
+                             :name "Request map"}
+                            (map> #(vector :request %)
+                                  (:navigate-data chans))))))
 
 (q/defcomponent DebugBody
   [{:keys [debug-data request paths]} chans]
@@ -107,16 +111,16 @@
            (when (:locals debug-info)
              (d/div {:className "sub"}
                     (MapBrowser {:data (:locals debug-info)
-                                 :path (get-in paths [:debug id :locals])
+                                 :path (paths [:debug id :locals])
                                  :name "Local vars"}
-                                (map> #(vector :debug id :locals %)
+                                (map> #(vector [:debug id :locals] %)
                                       (:navigate-data chans)))))
            (map-indexed (fn [idx src-loc]
                           (d/div {:className "sub"}
                                  (MapBrowser {:data src-loc
-                                              :path (get-in paths [:debug id :forms idx])
+                                              :path (paths [:debug id :forms idx])
                                               :name "Debugged data"}
-                                             (map> #(vector :debug id :forms %)
+                                             (map> #(vector [:debug id :forms idx] %)
                                                    (:navigate-data chans)))))
                         (:forms debug-info)))))
 
