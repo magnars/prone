@@ -107,9 +107,7 @@
      :debug-data (prep-debug debug-data)
      :request (prepare-for-serialization request)
      :frame-selection :application
-     :paths {:request []
-             :data []
-             :error []}}))
+     :paths {}}))
 
 (defn prep-debug-page [debug-data request]
   {:title "Debug halt"
