@@ -42,7 +42,6 @@
     (set! (-> js/document (.getElementById "frame-info") .-scrollTop) 0)))
 
 (defn navigate-data [data [path-key [nav-type path]]]
-  (prn nav-type path (get-in data [:paths path-key]))
   (case nav-type
     :concat (update-in data [:paths path-key] #(concat % path))
     :reset (assoc-in data [:paths path-key] path)))

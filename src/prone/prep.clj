@@ -70,6 +70,11 @@
 (defn- prepare-for-serialization [m]
   (walk/prewalk prepare-for-serialization-1 m))
 
+(defn- add-browsable-data [error]
+  (if-let [data (:data error)]
+    (assoc error :browsables [{:name "Exception data", :data data}])
+    error))
+
 (defn- prep-error [error application-name]
   (-> (if (:caused-by error)
         (update-in error [:caused-by] #(prep-error % application-name))
@@ -80,20 +85,30 @@
                        (map (partial set-application-frame application-name))
                        (mapv add-source)))
       (update-in [:frames] select-starting-frame)
-      (update-in [:data] prepare-for-serialization)))
+      (update-in [:data] prepare-for-serialization)
+      add-browsable-data))
+
+(defn- add-browsable-debug [{:keys [forms locals] :as debug}]
+  (let [browsables (flatten (filter identity [(when locals {:name "Local var", :data locals})
+                                              (when forms (map #(array-map :name "Debugged data", :data %) forms))]))]
+    (if (seq browsables)
+      (assoc debug :browsables browsables)
+      debug)))
 
 (defn- prep-debug-1 [{:keys [class-path-url] :as debug}]
   (let [root-dir (str/replace (.getAbsolutePath (File. ".")) #"\.$" "")
         resource (and class-path-url (io/resource class-path-url))
         file-name (and resource (.getPath resource))]
-    (merge debug {:lang :clj
-                  :file-name (when file-name (str/replace file-name root-dir ""))
-                  :method-name "[unknown]"
-                  :package (and class-path-url (-> class-path-url
-                                                   (str/replace #"\.[^/]*$" "")
-                                                   (str/replace "/" ".")
-                                                   (str/replace "_" "-")))
-                  :source (load-source debug)})))
+    (-> debug
+        (merge {:lang :clj
+                   :file-name (when file-name (str/replace file-name root-dir ""))
+                   :method-name "[unknown]"
+                   :package (and class-path-url (-> class-path-url
+                                                    (str/replace #"\.[^/]*$" "")
+                                                    (str/replace "/" ".")
+                                                    (str/replace "_" "-")))
+                   :source (load-source debug)})
+        add-browsable-debug)))
 
 (defn- prep-debug [debug-data]
   (-> (mapv prep-debug-1 debug-data)
@@ -101,16 +116,21 @@
       (update-in [0] assoc :selected? true)))
 
 (defn prep-error-page [error debug-data request application-name]
-  (let [prepped-error (prep-error error application-name)]
+  (let [prepped-error (prep-error error application-name)
+        prepped-request (prepare-for-serialization request)]
     {:title (-> prepped-error :message)
      :error prepped-error
      :debug-data (prep-debug debug-data)
-     :request (prepare-for-serialization request)
+     :request prepped-request
      :frame-selection :application
-     :paths {}}))
+     :paths {}
+     :browsables [{:name "Request map", :data prepped-request}]}))
 
 (defn prep-debug-page [debug-data request]
-  {:title "Debug halt"
-   :request (prepare-for-serialization request)
-   :debug-data (prep-debug debug-data)
-   :frame-selection :debug})
+  (let [prepped-request (prepare-for-serialization request)]
+    {:title "Debug halt"
+     :request prepped-request
+     :debug-data (prep-debug debug-data)
+     :frame-selection :debug
+     :paths {}
+     :browsables [{:name "Request map", :data prepped-request}]}))

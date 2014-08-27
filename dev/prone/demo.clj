@@ -84,7 +84,9 @@
       :body "<h1>Hello, bittersweet and slightly tangy world</h1>"})
 
    ;; basic case
-   :else (throw (Exception. "Oh noes!"))))
+   :else (do
+           (debug "What's this" {:id 42 :req req})
+           (throw (Exception. "Oh noes!")))))
 
 (def app
   (-> handler

@@ -83,46 +83,30 @@
                       debug-data)))))
 
 (q/defcomponent ErrorBody
-  [{:keys [error request paths]} chans]
-  (d/div {:className "frame_info" :id "frame-info"}
+  [{:keys [error request paths browsables]} chans]
+  (apply d/div {:className "frame_info" :id "frame-info"}
          (CodeExcerpt (first (filter :selected? (:frames error))))
-         (when (:data error)
-           (d/div {:className "sub"}
-                  (MapBrowser {:data (:data error)
-                               :path (paths [:data error])
-                               :name "Exception data"}
-                              (map> #(vector [:data error] %)
-                                    (:navigate-data chans)))))
-         (d/div {:className "sub"}
-                (MapBrowser {:data request
-                             :path (:request paths)
-                             :name "Request map"}
-                            (map> #(vector :request %)
-                                  (:navigate-data chans))))))
+         (map #(d/div {:className "sub"}
+                      (MapBrowser {:data (:data %)
+                                   :path (paths %)
+                                   :name (:name %)}
+                                  (map> (fn [v] [% v]) (:navigate-data chans))))
+              (concat (:browsables error) browsables))))
 
 (q/defcomponent DebugBody
-  [{:keys [debug-data request paths]} chans]
+  [{:keys [debug-data request paths browsables]} chans]
   (let [debug-info (first (filter :selected? debug-data))
         id (:id debug-info)]
     (apply d/div {:className "frame_info" :id "frame-info"}
            (CodeExcerpt debug-info)
            (when (:message debug-info)
              (d/h2 {:className "sub-heading"} (:message debug-info)))
-           (when (:locals debug-info)
-             (d/div {:className "sub"}
-                    (MapBrowser {:data (:locals debug-info)
-                                 :path (paths [:debug id :locals])
-                                 :name "Local vars"}
-                                (map> #(vector [:debug id :locals] %)
-                                      (:navigate-data chans)))))
-           (map-indexed (fn [idx src-loc]
-                          (d/div {:className "sub"}
-                                 (MapBrowser {:data src-loc
-                                              :path (paths [:debug id :forms idx])
-                                              :name "Debugged data"}
-                                             (map> #(vector [:debug id :forms idx] %)
-                                                   (:navigate-data chans)))))
-                        (:forms debug-info)))))
+           (map #(d/div {:className "sub"}
+                        (MapBrowser {:data (:data %)
+                                     :path (paths %)
+                                     :name (:name %)}
+                                    (map> (fn [v] [% v]) (:navigate-data chans))))
+                (concat (:browsables debug-info) browsables)))))
 
 (q/defcomponent Body
   [{:keys [error debug-data] :as data} chans]
