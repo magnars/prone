@@ -1,7 +1,6 @@
 (ns prone.prep-test
   (:require [clojure.java.io :as io]
             [clojure.test :refer :all]
-            [prone.debug :refer [debug]]
             [prone.prep :refer [prep-error-page prep-debug-page]])
   (:import [java.io ByteArrayInputStream]))
 
