@@ -26,4 +26,7 @@
   (let [local 42
         binding 13]
     (debug "Help!")
-    (is (= {'local 42, 'binding 13} (:locals (last @debug-data))))))
+    (is (= {'local 42, 'binding 13} (:locals (last @debug-data)))))
+
+  (debug (str "H" "e" "y"))
+  (is (= ["Hey"] (:forms (last @debug-data)))))
