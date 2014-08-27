@@ -35,9 +35,24 @@
       str
       (str/replace #"^class " "")))
 
+(defn- to-string
+  "Create a string representation of a class, prefering ones that does not include
+   type information - since we already display that next to it."
+  [val]
+  (let [s (pr-str val)]
+    (if (.startsWith s "#<")
+      (.toString val)
+      s)))
+
 (defn- prepare-for-serialization-1 [val]
   (cond
    (nil? val) val
+   (instance? java.lang.Class val) {::value (symbol (.getName val))
+                                    ::original-type "java.lang.Class"}
+   (instance? clojure.lang.IRecord val) {::value (into {} val)
+                                         ::original-type (.getName (type val))}
+   (instance? InputStream val) {::value (slurp val)
+                                ::original-type (get-type val)}
    (map? val) val
    (vector? val) val
    (list? val) val
@@ -49,13 +64,11 @@
    (symbol? val) val
    (= true val) val
    (= false val) val
-   (instance? InputStream val) {::to-string (slurp val)
-                                ::original-type (get-type val)}
-   :else {::to-string (.toString val)
+   :else {::value (to-string val)
           ::original-type (get-type val)}))
 
 (defn- prepare-for-serialization [m]
-  (walk/postwalk prepare-for-serialization-1 m))
+  (walk/prewalk prepare-for-serialization-1 m))
 
 (defn- prep-error [error application-name]
   (-> (if (:caused-by error)
@@ -66,7 +79,8 @@
                        (map-indexed (fn [idx f] (assoc f :id idx)))
                        (map (partial set-application-frame application-name))
                        (mapv add-source)))
-      (update-in [:frames] select-starting-frame)))
+      (update-in [:frames] select-starting-frame)
+      (update-in [:data] prepare-for-serialization)))
 
 (defn- prep-debug-1 [{:keys [class-path-url] :as debug}]
   (let [root-dir (str/replace (.getAbsolutePath (File. ".")) #"\.$" "")

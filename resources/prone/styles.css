@@ -1,6 +1,6 @@
 .hidden {display: none !important;}
 .token.operator {background: none;}
-.subtle {color: #aaa;}
+.subtle {color: #aaa; font-weight: normal;}
 .code_block {height: 250px; overflow: scroll; position: relative;}
 pre[class*="language-"] {margin-top: 0; background: #fff; padding-bottom: 1.75em; padding-left: 1em;}
 .code_linenums {padding-top: 11px;}

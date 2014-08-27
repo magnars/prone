@@ -1,14 +1,32 @@
 (ns prone.ui.components.map-browser
   (:require [cljs.core.async :refer [put!]]
             [clojure.string :as str]
+            [clojure.walk :as walk]
             [prone.ui.utils :refer [action get-in*]]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
-(def inline-length-limit 125)
+(def inline-length-limit 120)
+
+(defn serialized-value? [v]
+  (:prone.prep/original-type v))
+
+(defn- serialized-value-shorthand [v]
+  (if (serialized-value? v)
+    (:prone.prep/value v)
+    v))
+
+(defn- serialized-value-with-type [v]
+  (if (serialized-value? v)
+    (str (:prone.prep/value v) "<" (:prone.prep/original-type v) ">")
+    v))
 
 (defn- to-str [v]
-  (str/trim (prn-str v)))
+  (pr-str (walk/prewalk serialized-value-shorthand v)))
+
+(defn- too-long-for-inline? [v]
+  (< inline-length-limit
+     (.-length (pr-str (walk/prewalk serialized-value-with-type v)))))
 
 (defn- get-token-class
   "These token classes are recognized by Prism.js, giving values in the map
@@ -29,9 +47,9 @@
 
 (q/defcomponent SerializedValueToken
   [t]
-  (d/code {:className (get-token-class (:prone.prep/to-string t))}
-          (prn-str (:prone.prep/to-string t))
-          (d/span {:className "subtle"} "<" (:prone.prep/original-type t) ">")))
+  (d/span {}
+          (InlineToken (:prone.prep/value t))
+          (d/code {:className "subtle"} "<" (:prone.prep/original-type t) ">")))
 
 (defn- format-inline-map [[k v] navigate-request]
   [(InlineToken k navigate-request) " " (InlineToken v navigate-request)])
@@ -61,9 +79,6 @@
   [v navigate-request]
   (format-list v "#{" "}"))
 
-(defn serialized-value? [v]
-  (:prone.prep/original-type v))
-
 (q/defcomponent InlineToken
   "A value to be rendered roughly in one line. If the value is a list or a
    map, it will be browsable as well"
@@ -82,21 +97,21 @@
   [m]
   (and (map? m)
        (not (serialized-value? m))
-       (< inline-length-limit (.-length (to-str m)))))
+       (too-long-for-inline? m)))
 
 (defn browseworthy-list?
   "Lists are only browseworthy if it is inconvenient to just look at the inline
   version (i.e., it is too big)"
   [t]
   (and (or (list? t) (vector? t))
-       (< inline-length-limit (.-length (to-str t)))))
+       (too-long-for-inline? t)))
 
 (q/defcomponent MapSummary
   "A map summary is a list of its keys enclosed in brackets. The summary is
    given the comment token type to visually differentiate it from fully expanded
    maps"
   [k ks navigate-request]
-  (let [too-long? (< inline-length-limit (.-length (to-str ks)))
+  (let [too-long? (too-long-for-inline? ks)
         linked-keys (if too-long?
                       (str (count ks) " keys")
                       (interpose " " (map #(d/span {} (to-str %)) ks)))]

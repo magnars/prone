@@ -41,19 +41,24 @@
 (deftest frame-filter
   (is (= :application (:frame-filter (prep-error-page {:frames []} {} {} "")))))
 
+(defrecord DefLeppard [num-hands])
+
 (deftest no-unreadable-forms
   (is (= {:name "John Doe"
           :age 37
-          :url {:prone.prep/to-string "http://example.com"
+          :url {:prone.prep/value "http://example.com"
                 :prone.prep/original-type "java.net.URL"}
-          :body {:prone.prep/to-string "Hello"
+          :body {:prone.prep/value "Hello"
                  :prone.prep/original-type "java.io.ByteArrayInputStream"}
-          :lazy '(2 3 4)}
+          :lazy '(2 3 4)
+          :record {:prone.prep/value {:num-hands 1}
+                   :prone.prep/original-type "prone.prep_test.DefLeppard"}}
          (-> (prep-error-page {} {} {:session {:name "John Doe"
                                                :age 37
                                                :url (java.net.URL. "http://example.com")
                                                :body (ByteArrayInputStream. (.getBytes "Hello"))
-                                               :lazy (map inc [1 2 3])}} "")
+                                               :lazy (map inc [1 2 3])
+                                               :record (DefLeppard. 1)}} "")
              :request :session))))
 
 (defn prep-debug [debug]
