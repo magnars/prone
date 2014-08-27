@@ -56,7 +56,7 @@
 (q/defcomponent Sidebar
   [{:keys [error frame-filter debug-data]} chans]
   (d/nav {:className "sidebar"}
-         (apply d/nav {:className "tabs"}
+         (d/nav {:className "tabs"}
                 (when error
                   (StackFrameLink {:frame-filter frame-filter
                                    :target :application
@@ -80,7 +80,7 @@
                  (map #(StackFrame % (:select-frame chans))
                       debug-data)))))
 
-(q/defcomponent Body
+(q/defcomponent ErrorBody
   [{:keys [error request paths]} chans]
   (d/div {:className "frame_info" :id "frame-info"}
          (CodeExcerpt (first (filter :selected? (:frames error))))
@@ -93,6 +93,30 @@
                 (MapBrowser {:data request
                              :path (:request paths)
                              :name "Request map"} (:navigate-request chans)))))
+
+(q/defcomponent DebugBody
+  [{:keys [debug-data request paths]} chans]
+  (let [debug-info (first (filter :selected? debug-data))]
+    (apply d/div {:className "frame_info" :id "frame-info"}
+           (CodeExcerpt debug-info)
+           (when (:message debug-info)
+             (d/h2 {} (:message debug-info)))
+           (when (:locals debug-info)
+             (d/div {:className "sub"}
+                    (MapBrowser {:data (:locals debug-info)
+                                 :path []
+                                 :name "Local vars"} (:navigate-data chans))))
+           (map-indexed #(d/div {:className "sub"}
+                                (MapBrowser {:data %2
+                                             :path []
+                                             :name "Debugged data"} (:navigate-request chans)))
+                        (:forms debug-info)))))
+
+(q/defcomponent Body
+  [{:keys [error debug-data] :as data} chans]
+  (if error
+    (ErrorBody data chans)
+    (DebugBody data chans)))
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"

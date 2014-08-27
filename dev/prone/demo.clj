@@ -58,8 +58,8 @@
    ;; use the debug function to halt rendering (and inspect data)
    (= (:uri req) "/debug")
    (do
-     (debug {:id (rand)})
      (debug "How's this work?" {:id (rand)})
+     (debug {:id (rand)})
 
      (let [team "America"]
        (debug "Look at them locals"))

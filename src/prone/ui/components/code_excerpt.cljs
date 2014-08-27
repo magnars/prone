@@ -5,18 +5,18 @@
 (def source-classes {:clj "language-clojure"
                      :java "language-java"})
 
-(q/defcomponent CodeExcerpt [frame]
+(q/defcomponent CodeExcerpt [source-loc]
   (d/header {:className "trace_info clearfix"}
             (d/div {:className "title"}
-                   (d/h2 {:className "name"} (:method-name frame))
+                   (d/h2 {:className "name"} (:method-name source-loc))
                    (d/div {:className "location"}
                           (d/span {:className "filename"}
-                                  (:class-path-url frame))))
-            (if-let [source-code (-> frame :source :code)]
+                                  (:class-path-url source-loc))))
+            (if-let [source-code (-> source-loc :source :code)]
               (d/div {:className "code_block clearfix"}
                      (d/pre {:className "line-numbers code"
-                             :data-line (:line-number frame)
-                             :data-line-offset (:offset (:source frame))}
-                            (d/code {:className (source-classes (:lang frame))} source-code)))
+                             :data-line (:line-number source-loc)
+                             :data-line-offset (-> source-loc :source :offset)}
+                            (d/code {:className (source-classes (:lang source-loc))} source-code)))
               (d/div {:className "source-failure"}
-                     (-> frame :source :failure)))))
+                     (-> source-loc :source :failure)))))

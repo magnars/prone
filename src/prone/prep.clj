@@ -76,6 +76,7 @@
   (let [root-dir (str/replace (.getAbsolutePath (File. ".")) #"\.$" "")]
     (merge debug {:lang :clj
                   :file-name (str/replace file-name root-dir "")
+                  :class-path-url (str/replace file-name root-dir "")
                   :method-name "[unknown]"
                   :package (-> file-name
                                (str/replace #"^.*(src|test)/" "")
