@@ -1,6 +1,7 @@
 (ns prone.prep-test
   (:require [clojure.java.io :as io]
             [clojure.test :refer :all]
+            [prone.debug :refer [debug]]
             [prone.prep :refer [prep-error-page prep-debug-page]])
   (:import [java.io ByteArrayInputStream]))
 
@@ -60,7 +61,8 @@
   (prep-debug-page debug {}))
 
 (deftest prep-debug-auxilliary-info
-  (let [file "/Users/christian/projects/prone/test/prone/debug_test.clj"]
+  (let [file (.getPath (io/resource "prone/debug_test.clj"))]
+
     (is (= :clj (:lang (first (:debug-data (prep-debug [{:file-name ""}]))))))
 
     (is (:selected? (first (:debug-data (prep-debug [{:file-name ""}])))))
