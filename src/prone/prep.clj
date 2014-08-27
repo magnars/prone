@@ -7,19 +7,15 @@
 
 (defonce max-source-lines 500)
 
-(defn- load-source-file [source line-number]
-  (if (nil? source)
-    {:failure "(could not locate source file on class path)"}
-    (let [file (if (instance? java.net.URL source) (File. (.getPath source)) source)]
-      (if-not (.exists file)
-        {:failure "(could not locate source file)"}
-        (clj-code/truncate (slurp file) line-number max-source-lines)))))
+(defn- load-source [{:keys [class-path-url line-number] :as src-loc}]
+  (if-not class-path-url
+    {:failure "(unknown source file)"}
+    (if-let [source (io/resource class-path-url)]
+      (clj-code/truncate (slurp source) line-number max-source-lines)
+      {:failure "(could not locate source file on class path)"})))
 
-(defn- load-source [frame]
-  (assoc frame :source (if-not (:class-path-url frame)
-                         {:failure "(unknown source file)"}
-                         (load-source-file (io/resource (:class-path-url frame))
-                                           (:line-number frame)))))
+(defn- add-source [src-loc]
+  (assoc src-loc :source (load-source src-loc)))
 
 (defn- set-application-frame [application-name frame]
   (if (and (:package frame)
@@ -69,21 +65,21 @@
                  #(->> %
                        (map-indexed (fn [idx f] (assoc f :id idx)))
                        (map (partial set-application-frame application-name))
-                       (mapv load-source)))
+                       (mapv add-source)))
       (update-in [:frames] select-starting-frame)))
 
-(defn- prep-debug-1 [{:keys [file-name line-number] :as debug}]
-  (let [root-dir (str/replace (.getAbsolutePath (File. ".")) #"\.$" "")]
+(defn- prep-debug-1 [{:keys [class-path-url] :as debug}]
+  (let [root-dir (str/replace (.getAbsolutePath (File. ".")) #"\.$" "")
+        resource (and class-path-url (io/resource class-path-url))
+        file-name (and resource (.getPath resource))]
     (merge debug {:lang :clj
-                  :file-name (str/replace file-name root-dir "")
-                  :class-path-url (str/replace file-name root-dir "")
+                  :file-name (when file-name (str/replace file-name root-dir ""))
                   :method-name "[unknown]"
-                  :package (-> file-name
-                               (str/replace #"^.*(src|test)/" "")
-                               (str/replace #"\.[^/]*$" "")
-                               (str/replace "/" ".")
-                               (str/replace "_" "-"))
-                  :source (load-source-file (File. file-name) line-number)})))
+                  :package (and class-path-url (-> class-path-url
+                                                   (str/replace #"\.[^/]*$" "")
+                                                   (str/replace "/" ".")
+                                                   (str/replace "_" "-")))
+                  :source (load-source debug)})))
 
 (defn- prep-debug [debug-data]
   (-> (mapv prep-debug-1 debug-data)

@@ -15,7 +15,7 @@
           :class-path-url "prone/debug_test.clj"}
          (select-keys (last @debug-data)
                       [:id :form :env :message :forms :line-number :column :locals :class-path-url])))
-  (prn (:class-path-url (last @debug-data)))
+
   (debug {:data 42})
   (is (= [{:data 42}] (:forms (last @debug-data))))
   (is (= nil (:message (last @debug-data))))

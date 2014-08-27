@@ -60,18 +60,21 @@
   (prep-debug-page debug {}))
 
 (deftest prep-debug-auxilliary-info
-  (let [file (.getPath (io/resource "prone/debug_test.clj"))]
+  (let [class-path-url "prone/debug_test.clj"]
 
-    (is (= :clj (:lang (first (:debug-data (prep-debug [{:file-name ""}]))))))
+    (is (= :clj (:lang (first (:debug-data (prep-debug [{}]))))))
 
-    (is (:selected? (first (:debug-data (prep-debug [{:file-name ""}])))))
+    (is (:selected? (first (:debug-data (prep-debug [{}])))))
 
     (is (= "test/prone/debug_test.clj"
-           (:file-name (first (:debug-data (prep-debug [{:file-name file}]))))))
+           (:file-name (first (:debug-data (prep-debug [{:class-path-url class-path-url}]))))))
+
+    (is (= "prone/debug_test.clj"
+           (:class-path-url (first (:debug-data (prep-debug [{:class-path-url class-path-url}]))))))
 
     (is (= "prone.debug-test"
-           (:package (first (:debug-data (prep-debug [{:file-name file}]))))))
+           (:package (first (:debug-data (prep-debug [{:class-path-url class-path-url}]))))))
 
-    (let [source (:source (first (:debug-data (prep-debug [{:file-name file}]))))]
+    (let [source (:source (first (:debug-data (prep-debug [{:class-path-url class-path-url}]))))]
       (is (re-find #"^\(ns prone\.debug-test" (:code source)))
       (is (= 0 (:offset source))))))
