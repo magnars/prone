@@ -56,7 +56,10 @@
 
    ;; throw an ex-info with data attached
    (= (:uri req) "/ex-info")
-   (throw (ex-info "This will be informative" {:authors [:magnars :cjohansen]}))
+   (throw (ex-info "This will be informative" {:authors [:magnars :cjohansen]
+                                               :deep {:dark {:scary {:nested {:data "Structure"
+                                                                              :of "Doom"
+                                                                              :fruits ["Apple" "Orange" "Pear" "Banana" "Peach" "Watermelon" "Guava"]}}}}}))
 
    ;; throw an exception with a cause
    (= (:uri req) "/caused-by")

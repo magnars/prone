@@ -106,7 +106,7 @@
      :error prepped-error
      :debug-data (prep-debug debug-data)
      :request (prepare-for-serialization request)
-     :frame-filter :application
+     :frame-selection :application
      :paths {:request []
              :data []
              :error []}}))
@@ -115,4 +115,4 @@
   {:title "Debug halt"
    :request (prepare-for-serialization request)
    :debug-data (prep-debug debug-data)
-   :frame-filter :debug})
+   :frame-selection :debug})

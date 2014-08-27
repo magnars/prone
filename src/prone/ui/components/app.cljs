@@ -1,5 +1,5 @@
 (ns prone.ui.components.app
-  (:require [cljs.core.async :refer [put!]]
+  (:require [cljs.core.async :refer [put! map>]]
             [prone.ui.components.map-browser :refer [MapBrowser]]
             [prone.ui.components.stack-frame :refer [StackFrame]]
             [prone.ui.components.code-excerpt :refer [CodeExcerpt]]
@@ -7,8 +7,8 @@
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
-(defn filter-frames [frame-filter frames]
-  (case frame-filter
+(defn filter-frames [frame-selection frames]
+  (case frame-selection
     :all frames
     :application (filter :application? frames)))
 
@@ -47,37 +47,37 @@
     (DebugHeader data chans)))
 
 (q/defcomponent StackFrameLink
-  [{:keys [frame-filter target name]} chans]
+  [{:keys [frame-selection target name]} chans]
   (d/a {:href "#"
-        :className (when (= target frame-filter) "selected")
-        :onClick (action #(put! (:change-frame-filter chans) target))}
+        :className (when (= target frame-selection) "selected")
+        :onClick (action #(put! (:change-frame-selection chans) target))}
        name))
 
 (q/defcomponent Sidebar
-  [{:keys [error frame-filter debug-data]} chans]
+  [{:keys [error frame-selection debug-data]} chans]
   (d/nav {:className "sidebar"}
          (d/nav {:className "tabs"}
                 (when error
-                  (StackFrameLink {:frame-filter frame-filter
+                  (StackFrameLink {:frame-selection frame-selection
                                    :target :application
                                    :name "Application Frames"} chans))
                 (when error
-                  (StackFrameLink {:frame-filter frame-filter
+                  (StackFrameLink {:frame-selection frame-selection
                                    :target :all
                                    :name "All Frames"} chans))
                 (when (seq debug-data)
-                  (StackFrameLink {:frame-filter frame-filter
+                  (StackFrameLink {:frame-selection frame-selection
                                    :target :debug
                                    :name "Debug Calls"} chans)))
 
          (apply d/ul {:className "frames" :id "frames"}
                 (cond
-                 (and error (#{:application :all} frame-filter))
-                 (map #(StackFrame % (:select-frame chans))
-                      (filter-frames frame-filter (:frames error)))
+                 (and error (#{:application :all} frame-selection))
+                 (map #(StackFrame % (:select-frame chans) :frame)
+                      (filter-frames frame-selection (:frames error)))
 
-                 (= :debug frame-filter)
-                 (map #(StackFrame % (:select-frame chans))
+                 (= :debug frame-selection)
+                 (map #(StackFrame % (:select-frame chans) :debug)
                       debug-data)))))
 
 (q/defcomponent ErrorBody
@@ -88,7 +88,9 @@
            (d/div {:className "sub"}
                   (MapBrowser {:data (:data error)
                                :path (:data paths)
-                               :name "Exception data"} (:navigate-data chans))))
+                               :name "Exception data"}
+                              (map> #(vector :error %)
+                                    (:navigate-data chans)))))
          (d/div {:className "sub"}
                 (MapBrowser {:data request
                              :path (:request paths)
@@ -96,20 +98,26 @@
 
 (q/defcomponent DebugBody
   [{:keys [debug-data request paths]} chans]
-  (let [debug-info (first (filter :selected? debug-data))]
+  (let [debug-info (first (filter :selected? debug-data))
+        id (:id debug-info)]
     (apply d/div {:className "frame_info" :id "frame-info"}
            (CodeExcerpt debug-info)
            (when (:message debug-info)
-             (d/h2 {} (:message debug-info)))
+             (d/h2 {:className "sub-heading"} (:message debug-info)))
            (when (:locals debug-info)
              (d/div {:className "sub"}
                     (MapBrowser {:data (:locals debug-info)
-                                 :path []
-                                 :name "Local vars"} (:navigate-data chans))))
-           (map-indexed #(d/div {:className "sub"}
-                                (MapBrowser {:data %2
-                                             :path []
-                                             :name "Debugged data"} (:navigate-request chans)))
+                                 :path (get-in paths [:debug id :locals])
+                                 :name "Local vars"}
+                                (map> #(vector :debug id :locals %)
+                                      (:navigate-data chans)))))
+           (map-indexed (fn [idx src-loc]
+                          (d/div {:className "sub"}
+                                 (MapBrowser {:data src-loc
+                                              :path (get-in paths [:debug id :forms idx])
+                                              :name "Debugged data"}
+                                             (map> #(vector :debug id :forms %)
+                                                   (:navigate-data chans)))))
                         (:forms debug-info)))))
 
 (q/defcomponent Body
@@ -125,5 +133,4 @@
          (Header data chans)
          (d/section {:className "backtrace"}
                     (Sidebar data chans)
-                    (Body data chans)
-                    )))
+                    (Body data chans))))

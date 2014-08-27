@@ -39,7 +39,7 @@
                     (map :name)))))
 
 (deftest frame-filter
-  (is (= :application (:frame-filter (prep-error-page {:frames []} {} {} "")))))
+  (is (= :application (:frame-selection (prep-error-page {:frames []} {} {} "")))))
 
 (defrecord DefLeppard [num-hands])
 
