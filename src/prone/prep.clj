@@ -50,6 +50,7 @@
    (string? val) val
    (number? val) val
    (keyword? val) val
+   (symbol? val) val
    (= true val) val
    (= false val) val
    (instance? InputStream val) {::to-string (slurp val)
