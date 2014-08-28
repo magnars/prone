@@ -11,7 +11,7 @@
   (or (not= (:selected-src-locs new) (:selected-src-locs old))
       (not= (:src-loc-selection new) (:src-loc-selection old))))
 
-(defn get-active-frames [{:keys [error src-loc-selection debug-data]}]
+(defn get-active-src-locs [{:keys [error src-loc-selection debug-data]}]
   (case src-loc-selection
     :all (:frames error)
     :application (filter :application? (:frames error))
@@ -23,7 +23,7 @@
 (defn prepare-data-for-display [data]
   (let [data (select-current-error-in-chain data)]
     (-> data
-        (assoc :active-frames (get-active-frames data))
+        (assoc :active-src-locs (get-active-src-locs data))
         (assoc :selected-src-loc (get-in data [:selected-src-locs (:src-loc-selection data)])))))
 
 (defn handle-data-change [chans key ref old new]
@@ -50,7 +50,7 @@
 (defn ensure-selected-src-loc [data]
   (if (get-in data [:selected-src-locs (:src-loc-selection data)])
     data
-    (select-src-loc data (first (get-active-frames data)))))
+    (select-src-loc data (first (get-active-src-locs data)))))
 
 (defn change-src-loc-selection [data selection]
   (-> data

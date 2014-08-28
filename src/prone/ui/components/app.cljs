@@ -51,7 +51,7 @@
        name))
 
 (q/defcomponent Sidebar
-  [{:keys [error src-loc-selection selected-src-loc debug-data active-frames]} chans]
+  [{:keys [error src-loc-selection selected-src-loc debug-data active-src-locs]} chans]
   (d/nav {:className "sidebar"}
          (d/nav {:className "tabs"}
                 (when error
@@ -64,7 +64,7 @@
                 (map #(SourceLocation {:frame %
                                    :selected? (= % selected-src-loc)}
                                   (:select-src-loc chans))
-                     active-frames))))
+                     active-src-locs))))
 
 (q/defcomponent Body
   [{:keys [src-loc-selection selected-src-loc debug-data error paths browsables] :as data} {:keys [navigate-data]}]
