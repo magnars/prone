@@ -84,8 +84,10 @@
 
 (q/defcomponent Body
   [{:keys [frame-selection debug-data error paths browsables] :as data} {:keys [navigate-data]}]
-  (let [src-locs (if (= :debug frame-selection) debug-data (:frames error))
+  (let [debugging? (= :debug frame-selection)
+        src-locs (if debugging? debug-data (:frames error))
         src-loc (first (filter :selected? src-locs))
+        local-browsables (:browsables (if debugging? src-loc error))
         heading (when (= :debug frame-selection) (:message debug-data))]
     (apply d/div {:className "frame_info" :id "frame-info"}
            (CodeExcerpt src-loc)
@@ -95,7 +97,7 @@
                                      :path (get paths %)
                                      :name (:name %)}
                                     (map> (fn [v] [% v]) navigate-data)))
-                (concat (:browsables src-loc) browsables)))))
+                (concat local-browsables browsables)))))
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
