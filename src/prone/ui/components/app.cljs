@@ -23,7 +23,7 @@
                             (when (seq (:error paths))
                               (d/a {:href "#"
                                     :onClick (action #(put! (:navigate-data chans)
-                                                            [:error [:reset (drop 1 (:error paths))]]))}
+                                                            [:error [:reset (butlast (:error paths))]]))}
                                    "< back"))
                             (when-let [caused-by (:caused-by error)]
                               (d/span {} " Caused by " (d/a {:href "#"
