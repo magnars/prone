@@ -88,7 +88,7 @@
          (CodeExcerpt (first (filter :selected? (:frames error))))
          (map #(d/div {:className "sub"}
                       (MapBrowser {:data (:data %)
-                                   :path (paths %)
+                                   :path (get paths %)
                                    :name (:name %)}
                                   (map> (fn [v] [% v]) (:navigate-data chans))))
               (concat (:browsables error) browsables))))
@@ -102,7 +102,7 @@
              (d/h2 {:className "sub-heading"} (:message debug-info)))
            (map #(d/div {:className "sub"}
                         (MapBrowser {:data (:data %)
-                                     :path (paths %)
+                                     :path (get paths %)
                                      :name (:name %)}
                                     (map> (fn [v] [% v]) (:navigate-data chans))))
                 (concat (:browsables debug-info) browsables)))))

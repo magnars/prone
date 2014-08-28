@@ -124,7 +124,6 @@
      :debug-data (prep-debug debug-data)
      :request prepped-request
      :frame-selection :application
-     :paths {}
      :browsables [{:name "Request map", :data prepped-request}]}))
 
 (defn prep-debug-page [debug-data request]
@@ -133,5 +132,4 @@
      :request prepped-request
      :debug-data (prep-debug debug-data)
      :frame-selection :debug
-     :paths {}
      :browsables [{:name "Request map", :data prepped-request}]}))
