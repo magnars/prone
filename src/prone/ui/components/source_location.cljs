@@ -4,27 +4,27 @@
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
-(q/defcomponent SourceLocation [{:keys [frame selected?]} select-src-loc]
+(q/defcomponent SourceLocation [{:keys [src-loc selected?]} select-src-loc]
   (d/li {:className (when selected? "selected")
-         :onClick (action #(put! select-src-loc frame))}
+         :onClick (action #(put! select-src-loc src-loc))}
         (d/span {:className "stroke"}
-                (d/span {:className (if (:application? frame)
+                (d/span {:className (if (:application? src-loc)
                                       "icon application"
                                       "icon")})
                 (d/div {:className "info"}
-                       (if (= (:lang frame) :clj)
+                       (if (= (:lang src-loc) :clj)
                          (d/div {:className "name"}
-                                (d/strong {} (:package frame))
-                                (d/span {:className "method"} "/" (:method-name frame)))
+                                (d/strong {} (:package src-loc))
+                                (d/span {:className "method"} "/" (:method-name src-loc)))
                          (d/div {:className "name"}
-                                (d/strong {} (:package frame) "." (:class-name frame))
-                                (d/span {:className "method"} "$" (:method-name frame))))
-                       (if (:file-name frame)
+                                (d/strong {} (:package src-loc) "." (:class-name src-loc))
+                                (d/span {:className "method"} "$" (:method-name src-loc))))
+                       (if (:file-name src-loc)
                          (d/div {:className "location"}
-                                (:loaded-from frame) " "
+                                (:loaded-from src-loc) " "
                                 (d/span {:className "filename"}
-                                        (:file-name frame))
+                                        (:file-name src-loc))
                                 ", line "
-                                (d/span {:className "line"} (:line-number frame)))
+                                (d/span {:className "line"} (:line-number src-loc)))
                          (d/div {:className "location"}
                                 "(unknown file)"))))))

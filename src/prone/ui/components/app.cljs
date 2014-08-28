@@ -61,8 +61,7 @@
                 (when (seq debug-data)
                   (SourceLocLink src-loc-selection :debug "Debug Calls" chans)))
          (apply d/ul {:className "frames" :id "frames"}
-                (map #(SourceLocation {:frame %
-                                   :selected? (= % selected-src-loc)}
+                (map #(SourceLocation {:src-loc %, :selected? (= % selected-src-loc)}
                                   (:select-src-loc chans))
                      active-src-locs))))
 
