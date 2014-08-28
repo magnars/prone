@@ -49,11 +49,11 @@
 
 (defn wrap-exceptions [handler]
   (fn [req]
-    (reset! debug/debug-data [])
+    (binding [debug/*debug-data* (atom [])]
     (try
       (let [result (handler req)]
-        (if (< 0 (count @debug/debug-data))
-          (-> @debug/debug-data
+        (if (< 0 (count @debug/*debug-data*))
+          (-> @debug/*debug-data*
               (prep-debug-page req)
               render-page
               (serve 203))
@@ -62,6 +62,6 @@
         (.printStackTrace e)
         (-> e
             normalize-exception
-            (prep-error-page @debug/debug-data req (get-application-name))
+            (prep-error-page @debug/*debug-data* req (get-application-name))
             render-page
-            serve)))))
+            serve))))))
