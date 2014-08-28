@@ -89,8 +89,8 @@
       add-browsable-data))
 
 (defn- add-browsable-debug [{:keys [forms locals] :as debug}]
-  (let [browsables (flatten (filter identity [(when locals {:name "Local var", :data locals})
-                                              (when forms (map #(array-map :name "Debugged data", :data %) forms))]))]
+  (let [browsables (concat (when locals [{:name "Local var", :data locals}])
+                           (map #(array-map :name "Debugged data", :data %) forms))]
     (if (seq browsables)
       (assoc debug :browsables browsables)
       debug)))
