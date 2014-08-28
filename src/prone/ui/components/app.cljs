@@ -82,36 +82,20 @@
                  (map #(StackFrame % (:select-frame chans) :debug)
                       debug-data)))))
 
-(q/defcomponent ErrorBody
-  [{:keys [error request paths browsables]} chans]
-  (apply d/div {:className "frame_info" :id "frame-info"}
-         (CodeExcerpt (first (filter :selected? (:frames error))))
-         (map #(d/div {:className "sub"}
-                      (MapBrowser {:data (:data %)
-                                   :path (get paths %)
-                                   :name (:name %)}
-                                  (map> (fn [v] [% v]) (:navigate-data chans))))
-              (concat (:browsables error) browsables))))
-
-(q/defcomponent DebugBody
-  [{:keys [debug-data request paths browsables]} chans]
-  (let [debug-info (first (filter :selected? debug-data))]
+(q/defcomponent Body
+  [{:keys [frame-selection debug-data error paths browsables] :as data} {:keys [navigate-data]}]
+  (let [src-locs (if (= :debug frame-selection) debug-data (:frames error))
+        src-loc (first (filter :selected? src-locs))
+        heading (when (= :debug frame-selection) (:message debug-data))]
     (apply d/div {:className "frame_info" :id "frame-info"}
-           (CodeExcerpt debug-info)
-           (when (:message debug-info)
-             (d/h2 {:className "sub-heading"} (:message debug-info)))
+           (CodeExcerpt src-loc)
+           (when heading (d/h2 {:className "sub-heading"} heading))
            (map #(d/div {:className "sub"}
                         (MapBrowser {:data (:data %)
                                      :path (get paths %)
                                      :name (:name %)}
-                                    (map> (fn [v] [% v]) (:navigate-data chans))))
-                (concat (:browsables debug-info) browsables)))))
-
-(q/defcomponent Body
-  [data chans]
-  (if (= :debug (:frame-selection data))
-    (DebugBody data chans)
-    (ErrorBody data chans)))
+                                    (map> (fn [v] [% v]) navigate-data)))
+                (concat (:browsables src-loc) browsables)))))
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
