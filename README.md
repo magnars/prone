@@ -9,7 +9,7 @@ Add it as a middleware to your Ring stack:
 
 ```clj
 (ns example
-  (:require [prone.core :as prone]))
+  (:require [prone.middleware :as prone]))
 
 (def app
   (-> my-app
