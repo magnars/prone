@@ -37,7 +37,7 @@
 
 (defn- to-string
   "Create a string representation of a class, prefering ones that does not include
-   type information - since we already display that next to it."
+  type information - since we already display that next to it."
   [val]
   (let [s (pr-str val)]
     (if (.startsWith s "#<")
@@ -101,13 +101,13 @@
         file-name (and resource (.getPath resource))]
     (-> debug
         (merge {:lang :clj
-                   :file-name (when file-name (str/replace file-name root-dir ""))
-                   :method-name "[unknown]"
-                   :package (and class-path-url (-> class-path-url
-                                                    (str/replace #"\.[^/]*$" "")
-                                                    (str/replace "/" ".")
-                                                    (str/replace "_" "-")))
-                   :source (load-source debug)})
+                :file-name (when file-name (str/replace file-name root-dir ""))
+                :method-name "[unknown]"
+                :package (and class-path-url (-> class-path-url
+                                                 (str/replace #"\.[^/]*$" "")
+                                                 (str/replace "/" ".")
+                                                 (str/replace "_" "-")))
+                :source (load-source debug)})
         add-browsable-debug)))
 
 (defn- prep-debug [debug-data]
