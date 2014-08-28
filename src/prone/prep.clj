@@ -23,12 +23,6 @@
     (assoc frame :application? true)
     frame))
 
-(defn select-starting-frame [frames]
-  (if-let [first-frame (or (first (filter :application? frames))
-                           (first frames))]
-    (update-in frames [(:id first-frame)] assoc :selected? true)
-    frames))
-
 (defn- get-type [val]
   (-> val
       type
@@ -83,10 +77,8 @@
         error)
       (update-in [:frames]
                  #(->> %
-                       (map-indexed (fn [idx f] (assoc f :id idx)))
                        (map (partial set-application-frame application-name))
                        (mapv add-source)))
-      (update-in [:frames] select-starting-frame)
       (update-in [:data] prepare-for-serialization)
       add-browsable-data))
 
@@ -115,8 +107,7 @@
 (defn- prep-debug [debug-data]
   (when (seq debug-data)
    (-> (mapv prep-debug-1 debug-data)
-       prepare-for-serialization
-       (update-in [0] assoc :selected? true))))
+       prepare-for-serialization)))
 
 (defn prep-error-page [error debug-data request application-name]
   (let [prepped-error (prep-error error application-name)

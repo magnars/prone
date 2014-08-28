@@ -7,32 +7,28 @@
             [prone.ui.utils :refer [update-in*]]
             [quiescent :as q :include-macros true]))
 
-(defn update-selected-frame [data frame-id]
-  (let [path (concat [:error] (-> data :paths :error) [:frames []])]
-    (update-in* data path
-                #(if (= (:id %) frame-id)
-                   (assoc % :selected? true)
-                   (dissoc % :selected?)))))
-
-(defn update-selected-debug [data id]
-  (update-in* data [:debug-data []]
-              #(if (= (:id %) id)
-                 (assoc % :selected? true)
-                 (dissoc % :selected?))))
-
-(defn update-selected-src-loc [data {:keys [id type]}]
-  (case type
-    :frame (swap! data update-selected-frame id)
-    :debug (swap! data update-selected-debug id)))
-
 (defn code-excerpt-changed? [old new]
-  (not (and (= (:error new) (:error old))
-            (= (-> new :paths :error) (-> old :paths :error))
-            (= (filter :selected? (-> new :debug-data))
-               (filter :selected? (-> old :debug-data))))))
+  (or (not= (:selected-src-locs new) (:selected-src-locs old))
+      (not= (:frame-selection new) (:frame-selection old))))
+
+(defn filter-frames [frame-selection frames]
+  (case frame-selection
+    :all frames
+    :application (filter :application? frames)))
+
+(defn get-active-frames [{:keys [error frame-selection debug-data]}]
+  (if (= :debug frame-selection)
+    debug-data
+    (filter-frames frame-selection (:frames error))))
+
+(defn select-current-error-in-chain [data]
+  (update-in data [:error] #(get-in % (-> data :paths :error))))
 
 (defn prepare-data-for-display [data]
-  (update-in data [:error] #(get-in % (-> data :paths :error))))
+  (let [data (select-current-error-in-chain data)]
+    (-> data
+        (assoc :active-frames (get-active-frames data))
+        (assoc :selected-src-loc (get-in data [:selected-src-locs (:frame-selection data)])))))
 
 (defn handle-data-change [chans key ref old new]
   (q/render (ProneUI (prepare-data-for-display new) chans)
@@ -52,20 +48,37 @@
       (handler msg)
       (recur))))
 
+(defn select-src-loc [data selection]
+  (assoc-in data [:selected-src-locs (:frame-selection data)] selection))
+
+(defn ensure-selected-src-loc [data]
+  (if (get-in data [:selected-src-locs (:frame-selection data)])
+    data
+    (select-src-loc data (first (get-active-frames data)))))
+
+(defn change-frame-selection [data selection]
+  (-> data
+      (assoc :frame-selection selection)
+      ensure-selected-src-loc))
+
+(defn initialize-data [data]
+  (-> data
+      ensure-selected-src-loc))
+
 (defn bootstrap! [data]
-  (let [chans {:select-frame (chan)
-               :change-frame-selection (chan)
+  (let [chans {:change-frame-selection (chan)
+               :select-src-loc (chan)
                :navigate-request (chan)
                :navigate-data (chan)
                :navigate-error (chan)}
         prone-data (atom nil)]
 
-    (on-msg (:select-frame chans) #(update-selected-src-loc prone-data %))
-    (on-msg (:change-frame-selection chans) #(swap! prone-data assoc :frame-selection %))
+    (on-msg (:select-src-loc chans) #(swap! prone-data select-src-loc %))
+    (on-msg (:change-frame-selection chans) #(swap! prone-data change-frame-selection %))
     (on-msg (:navigate-data chans) #(swap! prone-data navigate-data %))
 
     (add-watch prone-data :state-change (partial handle-data-change chans))
-    (reset! prone-data data)))
+    (reset! prone-data (initialize-data data))))
 
 (defn unescape-script-tags [s]
   "Script tags must be escaped on the server, or the browser is properly confused.

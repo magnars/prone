@@ -7,11 +7,6 @@
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
-(defn filter-frames [frame-selection frames]
-  (case frame-selection
-    :all frames
-    :application (filter :application? frames)))
-
 (q/defcomponent ErrorHeader
   [{:keys [error request paths]} chans]
   (d/header {:className "exception"}
@@ -56,7 +51,7 @@
        name))
 
 (q/defcomponent Sidebar
-  [{:keys [error frame-selection debug-data]} chans]
+  [{:keys [error frame-selection selected-src-loc debug-data active-frames]} chans]
   (d/nav {:className "sidebar"}
          (d/nav {:className "tabs"}
                 (when error
@@ -71,26 +66,19 @@
                   (StackFrameLink {:frame-selection frame-selection
                                    :target :debug
                                    :name "Debug Calls"} chans)))
-
          (apply d/ul {:className "frames" :id "frames"}
-                (cond
-                 (and error (#{:application :all} frame-selection))
-                 (map #(StackFrame % (:select-frame chans) :frame)
-                      (filter-frames frame-selection (:frames error)))
-
-                 (= :debug frame-selection)
-                 (map #(StackFrame % (:select-frame chans) :debug)
-                      debug-data)))))
+                (map #(StackFrame {:frame %
+                                   :selected? (= % selected-src-loc)}
+                                  (:select-src-loc chans))
+                     active-frames))))
 
 (q/defcomponent Body
-  [{:keys [frame-selection debug-data error paths browsables] :as data} {:keys [navigate-data]}]
+  [{:keys [frame-selection selected-src-loc debug-data error paths browsables] :as data} {:keys [navigate-data]}]
   (let [debugging? (= :debug frame-selection)
-        src-locs (if debugging? debug-data (:frames error))
-        src-loc (first (filter :selected? src-locs))
-        local-browsables (:browsables (if debugging? src-loc error))
+        local-browsables (:browsables (if debugging? selected-src-loc error))
         heading (when (= :debug frame-selection) (:message debug-data))]
     (apply d/div {:className "frame_info" :id "frame-info"}
-           (CodeExcerpt src-loc)
+           (CodeExcerpt selected-src-loc)
            (when heading (d/h2 {:className "sub-heading"} heading))
            (map #(d/div {:className "sub"}
                         (MapBrowser {:data (:data %)

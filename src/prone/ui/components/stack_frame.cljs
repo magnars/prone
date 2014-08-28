@@ -4,10 +4,9 @@
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
-(q/defcomponent StackFrame [frame select-frame type]
-  (d/li {:className (when (:selected? frame) "selected")
-         :onClick (action #(put! select-frame {:id (:id frame)
-                                               :type type}))}
+(q/defcomponent StackFrame [{:keys [frame selected?]} select-src-loc]
+  (d/li {:className (when selected? "selected")
+         :onClick (action #(put! select-src-loc frame))}
         (d/span {:className "stroke"}
                 (d/span {:className (if (:application? frame)
                                       "icon application"

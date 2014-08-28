@@ -8,9 +8,6 @@
   (-> (prep-error-page {:frames frames} {} {} application-name)
       :error :frames))
 
-(deftest ids-for-frames
-  (is (= [0 1 2] (map :id (prep-frames [{} {} {}])))))
-
 (deftest source-for-frames
   (is (re-find #"prone.prep-test"
                (:code (:source (first (prep-frames [{:class-path-url "prone/prep_test.clj"}]))))))
@@ -24,18 +21,6 @@
                                   {:name "b" :package "plone.plep-test"}]
                                  "prone")
                     (filter :application?)
-                    (map :name)))))
-
-(deftest selection-for-first-frame
-  (is (= ["a"] (->> (prep-frames [{:name "a"} {:name "b"} {:name "c"}])
-                    (filter :selected?)
-                    (map :name)))))
-
-(deftest selection-for-first-application-frame
-  (is (= ["b"] (->> (prep-frames [{:name "a", :package "core.main"}
-                                  {:name "b", :package "prone.middleware"}
-                                  {:name "c", :package "prone.plone"}] "prone")
-                    (filter :selected?)
                     (map :name)))))
 
 (deftest frame-filter
@@ -68,8 +53,6 @@
   (let [class-path-url "prone/debug_test.clj"]
 
     (is (= :clj (:lang (first (:debug-data (prep-debug [{}]))))))
-
-    (is (:selected? (first (:debug-data (prep-debug [{}])))))
 
     (is (= "test/prone/debug_test.clj"
            (:file-name (first (:debug-data (prep-debug [{:class-path-url class-path-url}]))))))
