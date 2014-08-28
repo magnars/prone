@@ -1,4 +1,4 @@
-(ns prone.core
+(ns prone.middleware
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [prone.debug :as debug]

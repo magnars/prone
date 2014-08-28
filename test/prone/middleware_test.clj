@@ -1,5 +1,5 @@
-(ns prone.core-test
-  (:require [prone.core :refer :all]
+(ns prone.middleware-test
+  (:require [prone.middleware :refer :all]
             [prone.debug :refer [debug *debug-data*]]
             [clojure.test :refer :all]))
 

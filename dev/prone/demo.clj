@@ -1,6 +1,6 @@
 (ns prone.demo
   (:require [clojure.java.io :as io]
-            [prone.core :refer [wrap-exceptions]]
+            [prone.middleware :refer [wrap-exceptions]]
             [prone.debug :refer [debug]]
             [schema.core :refer [optional-key either validate Str Num Keyword]])
   (:import [java.io ByteArrayInputStream]))

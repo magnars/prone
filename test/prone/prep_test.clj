@@ -33,7 +33,7 @@
 
 (deftest selection-for-first-application-frame
   (is (= ["b"] (->> (prep-frames [{:name "a", :package "core.main"}
-                                  {:name "b", :package "prone.core"}
+                                  {:name "b", :package "prone.middleware"}
                                   {:name "c", :package "prone.plone"}] "prone")
                     (filter :selected?)
                     (map :name)))))
