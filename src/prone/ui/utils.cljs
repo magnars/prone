@@ -18,11 +18,11 @@
 (defn- get-in* [data path]
   "Like get-in, but looks up indexed values in lists too."
   (loop [data data
-         [head & tail] path]
-    (if head
+         path path]
+    (if (seq path)
       (recur (if (and (list? data)
-                      (number? head))
-               (nth data head)
-               (get data head))
-             tail)
+                      (number? (first path)))
+               (nth data (first path))
+               (get data (first path)))
+             (rest path))
       data)))
