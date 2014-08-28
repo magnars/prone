@@ -95,8 +95,7 @@
 
 (q/defcomponent DebugBody
   [{:keys [debug-data request paths browsables]} chans]
-  (let [debug-info (first (filter :selected? debug-data))
-        id (:id debug-info)]
+  (let [debug-info (first (filter :selected? debug-data))]
     (apply d/div {:className "frame_info" :id "frame-info"}
            (CodeExcerpt debug-info)
            (when (:message debug-info)
@@ -109,10 +108,10 @@
                 (concat (:browsables debug-info) browsables)))))
 
 (q/defcomponent Body
-  [{:keys [error debug-data] :as data} chans]
-  (if error
-    (ErrorBody data chans)
-    (DebugBody data chans)))
+  [data chans]
+  (if (= :debug (:frame-selection data))
+    (DebugBody data chans)
+    (ErrorBody data chans)))
 
 (q/defcomponent ProneUI
   "Prone's main UI component - the page's frame"
