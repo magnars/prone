@@ -1,10 +1,10 @@
-(ns prone.ui.components.stack-frame
+(ns prone.ui.components.source-location
   (:require [cljs.core.async :refer [put!]]
             [prone.ui.utils :refer [action]]
             [quiescent :as q :include-macros true]
             [quiescent.dom :as d]))
 
-(q/defcomponent StackFrame [{:keys [frame selected?]} select-src-loc]
+(q/defcomponent SourceLocation [{:keys [frame selected?]} select-src-loc]
   (d/li {:className (when selected? "selected")
          :onClick (action #(put! select-src-loc frame))}
         (d/span {:className "stroke"}

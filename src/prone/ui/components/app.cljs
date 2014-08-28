@@ -1,7 +1,7 @@
 (ns prone.ui.components.app
   (:require [cljs.core.async :refer [put! map>]]
             [prone.ui.components.map-browser :refer [MapBrowser]]
-            [prone.ui.components.stack-frame :refer [StackFrame]]
+            [prone.ui.components.source-location :refer [SourceLocation]]
             [prone.ui.components.code-excerpt :refer [CodeExcerpt]]
             [prone.ui.utils :refer [action]]
             [quiescent :as q :include-macros true]
@@ -43,8 +43,8 @@
     (ErrorHeader data chans)
     (DebugHeader data chans)))
 
-(q/defcomponent StackFrameLink
-  [{:keys [frame-selection target name]} chans]
+(q/defcomponent SourceLocLink
+  [frame-selection target name chans]
   (d/a {:href "#"
         :className (when (= target frame-selection) "selected")
         :onClick (action #(put! (:change-frame-selection chans) target))}
@@ -55,19 +55,13 @@
   (d/nav {:className "sidebar"}
          (d/nav {:className "tabs"}
                 (when error
-                  (StackFrameLink {:frame-selection frame-selection
-                                   :target :application
-                                   :name "Application Frames"} chans))
+                  (SourceLocLink frame-selection :application "Application Frames" chans))
                 (when error
-                  (StackFrameLink {:frame-selection frame-selection
-                                   :target :all
-                                   :name "All Frames"} chans))
+                  (SourceLocLink frame-selection :all "All Frames" chans))
                 (when (seq debug-data)
-                  (StackFrameLink {:frame-selection frame-selection
-                                   :target :debug
-                                   :name "Debug Calls"} chans)))
+                  (SourceLocLink frame-selection :debug "Debug Calls" chans)))
          (apply d/ul {:className "frames" :id "frames"}
-                (map #(StackFrame {:frame %
+                (map #(SourceLocation {:frame %
                                    :selected? (= % selected-src-loc)}
                                   (:select-src-loc chans))
                      active-frames))))
