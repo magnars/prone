@@ -72,7 +72,9 @@
 
 (defn- add-browsable-data [error]
   (if-let [data (:data error)]
-    (assoc error :browsables [{:name "Exception data", :data data}])
+    (-> error
+        (assoc :browsables [{:name "Exception data", :data data}])
+        (dissoc :data))
     error))
 
 (defn- prep-error [error application-name]
