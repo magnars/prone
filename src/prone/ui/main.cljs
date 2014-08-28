@@ -11,15 +11,11 @@
   (or (not= (:selected-src-locs new) (:selected-src-locs old))
       (not= (:frame-selection new) (:frame-selection old))))
 
-(defn filter-frames [frame-selection frames]
-  (case frame-selection
-    :all frames
-    :application (filter :application? frames)))
-
 (defn get-active-frames [{:keys [error frame-selection debug-data]}]
-  (if (= :debug frame-selection)
-    debug-data
-    (filter-frames frame-selection (:frames error))))
+  (case frame-selection
+    :all (:frames error)
+    :application (filter :application? (:frames error))
+    :debug debug-data))
 
 (defn select-current-error-in-chain [data]
   (update-in data [:error] #(get-in % (-> data :paths :error))))
