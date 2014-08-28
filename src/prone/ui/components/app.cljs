@@ -44,22 +44,22 @@
     (DebugHeader data chans)))
 
 (q/defcomponent SourceLocLink
-  [frame-selection target name chans]
+  [src-loc-selection target name chans]
   (d/a {:href "#"
-        :className (when (= target frame-selection) "selected")
-        :onClick (action #(put! (:change-frame-selection chans) target))}
+        :className (when (= target src-loc-selection) "selected")
+        :onClick (action #(put! (:change-src-loc-selection chans) target))}
        name))
 
 (q/defcomponent Sidebar
-  [{:keys [error frame-selection selected-src-loc debug-data active-frames]} chans]
+  [{:keys [error src-loc-selection selected-src-loc debug-data active-frames]} chans]
   (d/nav {:className "sidebar"}
          (d/nav {:className "tabs"}
                 (when error
-                  (SourceLocLink frame-selection :application "Application Frames" chans))
+                  (SourceLocLink src-loc-selection :application "Application Frames" chans))
                 (when error
-                  (SourceLocLink frame-selection :all "All Frames" chans))
+                  (SourceLocLink src-loc-selection :all "All Frames" chans))
                 (when (seq debug-data)
-                  (SourceLocLink frame-selection :debug "Debug Calls" chans)))
+                  (SourceLocLink src-loc-selection :debug "Debug Calls" chans)))
          (apply d/ul {:className "frames" :id "frames"}
                 (map #(SourceLocation {:frame %
                                    :selected? (= % selected-src-loc)}
@@ -67,10 +67,10 @@
                      active-frames))))
 
 (q/defcomponent Body
-  [{:keys [frame-selection selected-src-loc debug-data error paths browsables] :as data} {:keys [navigate-data]}]
-  (let [debugging? (= :debug frame-selection)
+  [{:keys [src-loc-selection selected-src-loc debug-data error paths browsables] :as data} {:keys [navigate-data]}]
+  (let [debugging? (= :debug src-loc-selection)
         local-browsables (:browsables (if debugging? selected-src-loc error))
-        heading (when (= :debug frame-selection) (:message debug-data))]
+        heading (when (= :debug src-loc-selection) (:message debug-data))]
     (apply d/div {:className "frame_info" :id "frame-info"}
            (CodeExcerpt selected-src-loc)
            (when heading (d/h2 {:className "sub-heading"} heading))

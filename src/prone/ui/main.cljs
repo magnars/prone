@@ -9,10 +9,10 @@
 
 (defn code-excerpt-changed? [old new]
   (or (not= (:selected-src-locs new) (:selected-src-locs old))
-      (not= (:frame-selection new) (:frame-selection old))))
+      (not= (:src-loc-selection new) (:src-loc-selection old))))
 
-(defn get-active-frames [{:keys [error frame-selection debug-data]}]
-  (case frame-selection
+(defn get-active-frames [{:keys [error src-loc-selection debug-data]}]
+  (case src-loc-selection
     :all (:frames error)
     :application (filter :application? (:frames error))
     :debug debug-data))
@@ -24,7 +24,7 @@
   (let [data (select-current-error-in-chain data)]
     (-> data
         (assoc :active-frames (get-active-frames data))
-        (assoc :selected-src-loc (get-in data [:selected-src-locs (:frame-selection data)])))))
+        (assoc :selected-src-loc (get-in data [:selected-src-locs (:src-loc-selection data)])))))
 
 (defn handle-data-change [chans key ref old new]
   (q/render (ProneUI (prepare-data-for-display new) chans)
@@ -45,16 +45,16 @@
       (recur))))
 
 (defn select-src-loc [data selection]
-  (assoc-in data [:selected-src-locs (:frame-selection data)] selection))
+  (assoc-in data [:selected-src-locs (:src-loc-selection data)] selection))
 
 (defn ensure-selected-src-loc [data]
-  (if (get-in data [:selected-src-locs (:frame-selection data)])
+  (if (get-in data [:selected-src-locs (:src-loc-selection data)])
     data
     (select-src-loc data (first (get-active-frames data)))))
 
-(defn change-frame-selection [data selection]
+(defn change-src-loc-selection [data selection]
   (-> data
-      (assoc :frame-selection selection)
+      (assoc :src-loc-selection selection)
       ensure-selected-src-loc))
 
 (defn initialize-data [data]
@@ -62,7 +62,7 @@
       ensure-selected-src-loc))
 
 (defn bootstrap! [data]
-  (let [chans {:change-frame-selection (chan)
+  (let [chans {:change-src-loc-selection (chan)
                :select-src-loc (chan)
                :navigate-request (chan)
                :navigate-data (chan)
@@ -70,7 +70,7 @@
         prone-data (atom nil)]
 
     (on-msg (:select-src-loc chans) #(swap! prone-data select-src-loc %))
-    (on-msg (:change-frame-selection chans) #(swap! prone-data change-frame-selection %))
+    (on-msg (:change-src-loc-selection chans) #(swap! prone-data change-src-loc-selection %))
     (on-msg (:navigate-data chans) #(swap! prone-data navigate-data %))
 
     (add-watch prone-data :state-change (partial handle-data-change chans))

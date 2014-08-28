@@ -116,7 +116,7 @@
      :error prepped-error
      :debug-data (prep-debug debug-data)
      :request prepped-request
-     :frame-selection :application
+     :src-loc-selection :application
      :browsables [{:name "Request map", :data prepped-request}]}))
 
 (defn prep-debug-page [debug-data request]
@@ -124,5 +124,5 @@
     {:title "Debug halt"
      :request prepped-request
      :debug-data (prep-debug debug-data)
-     :frame-selection :debug
+     :src-loc-selection :debug
      :browsables [{:name "Request map", :data prepped-request}]}))
