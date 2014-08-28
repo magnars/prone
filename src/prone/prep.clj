@@ -111,9 +111,10 @@
         add-browsable-debug)))
 
 (defn- prep-debug [debug-data]
-  (-> (mapv prep-debug-1 debug-data)
-      prepare-for-serialization
-      (update-in [0] assoc :selected? true)))
+  (when (seq debug-data)
+   (-> (mapv prep-debug-1 debug-data)
+       prepare-for-serialization
+       (update-in [0] assoc :selected? true))))
 
 (defn prep-error-page [error debug-data request application-name]
   (let [prepped-error (prep-error error application-name)
