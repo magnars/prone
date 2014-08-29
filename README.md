@@ -3,6 +3,13 @@
 Better exception reporting middleware for Ring. Heavily inspired by
 [better_errors for Rails](https://github.com/charliesome/better_errors).
 
+Prone presents your stack traces in a consumable form, optionally filters out
+stack frames that did not originate in your application, allowing you to focus
+on your code. It also allows you to browse environment data, such as the request
+map and exception data (when using `ex-info`). Prone also provides a debug
+function that enables you to visually browse local bindings and any piece of
+data you pass to `debug`.
+
 ## Usage
 
 Add it as a middleware to your Ring stack:
@@ -16,10 +23,55 @@ Add it as a middleware to your Ring stack:
       prone/wrap-exceptions))
 ```
 
-## Known problems
+## Debugging
+
+Whether you've tripped on an exception or not, you can use Prone to debug your
+application:
+
+```clj
+(ns example
+  (:require [prone.debug :refer [debug]]))
+
+(defn myhandler [req]
+  ;; ...
+  (let [person (lookup-person (:id (:params req)))]
+    (debug)))
+```
+
+Calling `debug` without any arguments like this will cause Prone to render the
+exception page with information about your environment: the request map, and any
+local bindings (`req` and `person` in the above example).
+
+You can call `debug` multiple times. To differentiate calls, you can pass a
+message as the first argument, but Prone will also indicate the source location
+that triggered debugging.
+
+`debug` accepts any number of forms to present in a value browser on the
+error/debug page:
+
+```clj
+(debug) ;; Inspect locals
+        ;; Halts the page if there are no exceptions
+
+(debug "Here be trouble") ;; Same as above, with a message
+
+(debug {:id 42) ;; Inspect locals and the specific map
+                ;; Halts the page if there are no exceptions
+
+(debug person project) ;; Same as above, with multiple values
+
+(debug "What's this?" person project) ;; Same as above, with message
+;;;
+
+## Known problems / planned features
 
 - We have not yet found a way to differentiate `some-name` and `some_name`
   function names by inspecting the stack trace. Currently, we assume kebab case.
+- Using a middleware to always load the Austin `browser-connected-repl` for
+  ClojureScript causes JavaScript errors that partly trips up Prone
+- Libraries like prismatic schema can benefit from some kind of plugin
+  functionality, using domain knowledge of schemas to format error messages and
+  exception data in a more helpful way
 
 ## Contribute
 
