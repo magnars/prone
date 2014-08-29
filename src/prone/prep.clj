@@ -71,12 +71,20 @@
         (dissoc :data))
     error))
 
+(defn- set-frame-id
+  "Sometimes an exception will have multiple frames with the same location.
+   In order to tell these apart in the UI, they cannot be (= a b). Adding an
+   id to each achieves this."
+  [idx frame]
+  (assoc frame :id idx))
+
 (defn- prep-error [error application-name]
   (-> (if (:caused-by error)
         (update-in error [:caused-by] #(prep-error % application-name))
         error)
       (update-in [:frames]
                  #(->> %
+                       (map-indexed set-frame-id)
                        (map (partial set-application-frame application-name))
                        (mapv add-source)))
       (update-in [:data] prepare-for-serialization)

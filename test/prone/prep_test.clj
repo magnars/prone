@@ -16,6 +16,11 @@
   (is (= "(could not locate source file on class path)"
          (:failure (:source (first (prep-frames [{:class-path-url "plone/plep_test.clj"}])))))))
 
+(deftest id-for-frames
+  (is (= [0 1]
+         (map :id (prep-frames [{:class-path-url "prone/prep_test.clj"}
+                                {:class-path-url "prone/prep_test.clj"}])))))
+
 (deftest application-frames
   (is (= ["a"] (->> (prep-frames [{:name "a" :package "prone.prep-test"}
                                   {:name "b" :package "plone.plep-test"}]
@@ -24,7 +29,7 @@
                     (map :name)))))
 
 (deftest frame-selection
-  (is (= :application (:frame-selection (prep-error-page {:frames []} {} {} "")))))
+  (is (= :application (:src-loc-selection (prep-error-page {:frames []} {} {} "")))))
 
 (defrecord DefLeppard [num-hands])
 
