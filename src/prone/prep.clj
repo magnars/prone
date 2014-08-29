@@ -107,7 +107,7 @@
   "Add locals and debugged data as browsable data - data to render with the
   MapBrowser in the lower right corner of the Prone UI"
   [{:keys [forms locals] :as debug}]
-  (let [browsables (concat (when locals [{:name "Local var", :data locals}])
+  (let [browsables (concat (when locals [{:name "Local bindings", :data locals}])
                            (map #(array-map :name "Debugged data", :data %) forms))]
     (if (seq browsables)
       (assoc debug :browsables browsables)
