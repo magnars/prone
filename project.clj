@@ -1,4 +1,4 @@
-(defproject prone "0.3.0"
+(defproject prone "0.3.1"
   :description "Better exception reporting middleware for Ring."
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :profiles {:dev {:dependencies [[flare "0.1.1"]
