@@ -1,6 +1,7 @@
 (ns prone.ui.run
   "Start the fun!"
-  (:require [prone.ui.main :refer [bootstrap! unescape-script-tags]]))
+  (:require [cljs.reader :as reader]
+            [prone.ui.main :refer [bootstrap! unescape-script-tags]]))
 
 (bootstrap! (-> js/document
                 (.getElementById "prone-data")

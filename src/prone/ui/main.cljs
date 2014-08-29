@@ -1,7 +1,6 @@
 (ns prone.ui.main
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [chan <!]]
-            [cljs.reader :as reader]
             [clojure.string :as str]
             [prone.ui.components.app :refer [ProneUI]]
             [prone.ui.utils :refer [update-in*]]
