@@ -23,7 +23,7 @@
                     (filter :application?)
                     (map :name)))))
 
-(deftest frame-filter
+(deftest frame-selection
   (is (= :application (:frame-selection (prep-error-page {:frames []} {} {} "")))))
 
 (defrecord DefLeppard [num-hands])
