@@ -81,9 +81,3 @@
    Get the server-mandated replacement string, and put those script tags back in."
   (let [script-replacement-string (-> js/document (.getElementById "script-replacement-string") .-value)]
     (str/replace s script-replacement-string "script")))
-
-(bootstrap! (-> js/document
-                (.getElementById "prone-data")
-                .-innerHTML
-                unescape-script-tags
-                reader/read-string))

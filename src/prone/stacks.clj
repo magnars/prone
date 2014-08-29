@@ -1,8 +1,9 @@
 (ns prone.stacks
+  "Extract data from stack traces and represent them with plain maps"
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(defn find-loaded-from [url]
+(defn- find-loaded-from [url]
   (when-let [path (and (io/resource url)
                        (.getPath (io/resource url)))]
     (or (second (re-find #"/([^/]+)\.jdk/" path))
@@ -77,7 +78,11 @@
     (assoc normalized :caused-by (normalize-exception cause))
     normalized))
 
-(defn normalize-exception [exception]
+(defn normalize-exception
+  "Convert an exception object to a map. Unify the stack trace elements, so that
+  frames from Java sources and frames from Clojure sources are represented with
+  the same data structure."
+  [exception]
   (let [type (.getName (type exception))]
     (-> {:message (.getMessage exception)
          :type type

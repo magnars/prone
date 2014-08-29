@@ -85,6 +85,8 @@
 
    ;; basic case
    :else (do
+           ;; A map with nil as key, that is too big to render inline
+           ;; (Used to cause a bug in the MapBrowser)
            (debug {nil [1 2 3 4 5 6 7 8 9 10
                         1 2 3 4 5 6 7 8 9 10
                         1 2 3 4 5 6 7 8 9 10
