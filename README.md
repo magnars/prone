@@ -3,6 +3,9 @@
 Better exception reporting middleware for Ring. Heavily inspired by
 [better_errors for Rails](https://github.com/charliesome/better_errors).
 
+See it to believe it:
+[a quick video demoing Prone](https://dl.dropboxusercontent.com/u/3378230/prone-demo.mp4).
+
 Prone presents your stack traces in a consumable form, optionally filters out
 stack frames that did not originate in your application, allowing you to focus
 on your code. It also allows you to browse environment data, such as the request
@@ -12,7 +15,8 @@ data you pass to `debug`.
 
 ## Usage
 
-Add it as a middleware to your Ring stack:
+Install via [Clojars](https://clojars.org/prone). Add it as a middleware to your
+Ring stack:
 
 ```clj
 (ns example
