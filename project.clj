@@ -1,6 +1,8 @@
 (defproject prone "0.4.0-SNAPSHOT"
   :description "Better exception reporting middleware for Ring."
   :dependencies [[org.clojure/clojure "1.5.1"]]
+  :plugins [[lein-shell "0.3.0"]]
+  :prep-tasks [["shell" "./build-js-sources.sh"]]
   :profiles {:dev {:dependencies [[flare "0.1.1"]
                                   [ring "1.2.1"]
                                   [hiccup-find  "0.4.0"]

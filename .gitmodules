@@ -1,0 +1,6 @@
+[submodule "resources/prismjs"]
+	path = resources/prismjs
+	url = https://github.com/LeaVerou/prism.git
+[submodule "resources/prism-clojure"]
+	path = resources/prism-clojure
+	url = https://github.com/jeluard/prism-clojure.git
