@@ -65,17 +65,16 @@ error/debug page:
 (debug person project) ;; Same as above, with multiple values
 
 (debug "What's this?" person project) ;; Same as above, with message
-;;;
+```
 
-## Known problems / planned features
+## Known problems
 
+- Compile-time errors renders the original ring error page, since our middleware
+  is never called.
 - We have not yet found a way to differentiate `some-name` and `some_name`
   function names by inspecting the stack trace. Currently, we assume kebab case.
 - Using a middleware to always load the Austin `browser-connected-repl` for
   ClojureScript causes JavaScript errors that partly trips up Prone
-- Libraries like prismatic schema can benefit from some kind of plugin
-  functionality, using domain knowledge of schemas to format error messages and
-  exception data in a more helpful way
 
 ## Contribute
 
