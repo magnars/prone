@@ -48,14 +48,14 @@
          (normalize-frame clj-frame)))
 
   (is (= {:class-path-url "java/lang/reflect/Constructor.java"
-          :loaded-from "jdk1.7.0_45"
           :file-name "Constructor.java"
           :method-name "newInstance"
           :line-number 526
           :class-name "Constructor"
           :package "java.lang.reflect"
           :lang :java}
-         (normalize-frame java-frame)))
+         (-> (normalize-frame java-frame)
+             (dissoc :loaded-from)))) ;; we can't control which jdk you've got installed
 
   (is (= "[fn]" (:method-name (normalize-frame clj-anon-frame)))))
 
