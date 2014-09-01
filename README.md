@@ -13,6 +13,8 @@ map and exception data (when using `ex-info`). Prone also provides a debug
 function that enables you to visually browse local bindings and any piece of
 data you pass to `debug`.
 
+<img src="screenshot.png">
+
 ## Usage
 
 Install via [Clojars](https://clojars.org/prone). Add it as a middleware to your
