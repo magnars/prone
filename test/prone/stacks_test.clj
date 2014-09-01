@@ -21,7 +21,7 @@
                          second))
 
 (def java-frame (->> (.getStackTrace ex)
-                     (filter #(re-find #"^java.lang" (.getClassName %)))
+                     (filter #(re-find #"^clojure.lang" (.getClassName %)))
                      first))
 
 (deftest check-assumptions-about-exception
@@ -32,10 +32,10 @@
   (is (= "stacks_test.clj" (.getFileName clj-frame)))
   (is (= 5 (.getLineNumber clj-frame)))
 
-  (is (= "java.lang.reflect.Constructor" (.getClassName java-frame)))
-  (is (= "newInstance" (.getMethodName java-frame)))
-  (is (= "Constructor.java" (.getFileName java-frame)))
-  (is (= 526 (.getLineNumber java-frame))))
+  (is (= "clojure.lang.Reflector" (.getClassName java-frame)))
+  (is (= "invokeConstructor" (.getMethodName java-frame)))
+  (is (= "Reflector.java" (.getFileName java-frame)))
+  (is (= 180 (.getLineNumber java-frame))))
 
 (deftest normalize-frame-test
   (is (= {:class-path-url "prone/stacks_test.clj"
@@ -47,15 +47,15 @@
           :lang :clj}
          (normalize-frame clj-frame)))
 
-  (is (= {:class-path-url "java/lang/reflect/Constructor.java"
-          :file-name "Constructor.java"
-          :method-name "newInstance"
-          :line-number 526
-          :class-name "Constructor"
-          :package "java.lang.reflect"
+  (is (= {:class-path-url "clojure/lang/Reflector.java"
+          :loaded-from "clojure-1.5.1"
+          :file-name "Reflector.java"
+          :method-name "invokeConstructor"
+          :line-number 180
+          :class-name "Reflector"
+          :package "clojure.lang"
           :lang :java}
-         (-> (normalize-frame java-frame)
-             (dissoc :loaded-from)))) ;; we can't control which jdk you've got installed
+         (normalize-frame java-frame)))
 
   (is (= "[fn]" (:method-name (normalize-frame clj-anon-frame)))))
 
