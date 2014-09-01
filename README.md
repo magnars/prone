@@ -61,8 +61,8 @@ error/debug page:
 
 (debug "Here be trouble") ;; Same as above, with a message
 
-(debug {:id 42) ;; Inspect locals and the specific map
-                ;; Halts the page if there are no exceptions
+(debug {:id 42}) ;; Inspect locals and the specific map
+                 ;; Halts the page if there are no exceptions
 
 (debug person project) ;; Same as above, with multiple values
 
