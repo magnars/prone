@@ -6,12 +6,12 @@ Better exception reporting middleware for Ring. Heavily inspired by
 See it to believe it:
 [a quick video demoing Prone](https://dl.dropboxusercontent.com/u/3378230/prone-demo.mp4).
 
-Prone presents your stack traces in a consumable form, optionally filters out
+Prone presents your stack traces in a consumable form. It optionally filters out
 stack frames that did not originate in your application, allowing you to focus
-on your code. It also allows you to browse environment data, such as the request
-map and exception data (when using `ex-info`). Prone also provides a debug
-function that enables you to visually browse local bindings and any piece of
-data you pass to `debug`.
+on your code. It allows you to browse environment data, such as the request map
+and exception data (when using `ex-info`). Prone also provides a debug function
+that enables you to visually browse local bindings and any piece of data you
+pass to `debug`.
 
 <img src="screenshot.png">
 
