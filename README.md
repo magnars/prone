@@ -17,8 +17,8 @@ pass to `debug`.
 
 ## Usage
 
-Install via [Clojars](https://clojars.org/prone). Add it as a middleware to your
-Ring stack:
+Add `[prone "0.4.0"]` to `:dependencies` in your `project.clj`, then add it as
+a middleware to your Ring stack:
 
 ```clj
 (ns example
