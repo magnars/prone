@@ -1,5 +1,8 @@
 (defproject prone "0.6.0-SNAPSHOT"
   :description "Better exception reporting middleware for Ring."
+  :url "http://github.com/magnars/prone"
+  :license {:name "GNU General Public License v3"
+            :url "http://www.gnu.org/licenses/"}
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :plugins [[lein-shell "0.3.0"]]
   :prep-tasks [["shell" "./build-js-sources.sh"]]
