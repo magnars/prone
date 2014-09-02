@@ -1,4 +1,4 @@
-(defproject prone "0.4.0"
+(defproject prone "0.5.0"
   :description "Better exception reporting middleware for Ring."
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :plugins [[lein-shell "0.3.0"]]
