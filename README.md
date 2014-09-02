@@ -29,17 +29,6 @@ a middleware to your Ring stack:
       prone/wrap-exceptions))
 ```
 
-By default, Prone will use the application name from `project.clj` to decide if
-a stack frame belongs to your application or not. If this guess is not good
-enough, you can provide your own set of namespaces to consider "application
-frames":
-
-```clj
-(def app
-  (-> my-app
-      (prone/wrap-exceptions {:ns-list ["example" "ex-am"]})))
-```
-
 ## Debugging
 
 Whether you've tripped on an exception or not, you can use Prone to debug your
@@ -79,6 +68,25 @@ error/debug page:
 
 (debug "What's this?" person project) ;; Same as above, with message
 ```
+
+## Q & A
+
+### How does Prone determine what parts of a stack trace belongs to the application?
+
+By default it reads your `project.clj` and looks for namespaces starting with
+the project name.
+
+You can change this behavior by passing in some options to `wrap-exceptions`,
+like so:
+
+```clj
+(def app
+  (-> my-app
+      (prone/wrap-exceptions {:ns-list ["our" "app" "namespace" "prefixes"]})))
+```
+
+All frames from namespaces prefixed with the names in the list will be marked as
+application frames.
 
 ## Known problems
 
