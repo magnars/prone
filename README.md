@@ -96,6 +96,12 @@ application frames.
 - Using a middleware to always load the Austin `browser-connected-repl` for
   ClojureScript causes JavaScript errors that partly trips up Prone
 
+## Contributors
+
+- [Andrew Mcveigh](https://github.com/andrewmcveigh) added the `:app-namespaces` option.
+
+Thanks!
+
 ## Contribute
 
 Yes, please do. And add tests for your feature or fix, or we'll certainly break
