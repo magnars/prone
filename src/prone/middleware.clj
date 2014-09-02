@@ -65,7 +65,7 @@
    stack trace, errors will give you a nice interactive page where you can browse
    data, filter the stack trace and generally get a good grip of what is
    happening."
-  [handler & [ns-list]]
+  [handler & [{:keys [ns-list] :as opts}]]
   (fn [req]
     (binding [debug/*debug-data* (atom [])]
       (try
