@@ -1,4 +1,4 @@
-# prone
+# prone [![Build Status](https://secure.travis-ci.org/magnars/prone.png)](http://travis-ci.org/magnars/prone)
 
 Better exception reporting middleware for Ring. Heavily inspired by
 [better_errors for Rails](https://github.com/charliesome/better_errors).
