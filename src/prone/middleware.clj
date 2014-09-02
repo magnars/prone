@@ -65,7 +65,7 @@
    stack trace, errors will give you a nice interactive page where you can browse
    data, filter the stack trace and generally get a good grip of what is
    happening."
-  [handler]
+  [handler & [ns-list]]
   (fn [req]
     (binding [debug/*debug-data* (atom [])]
       (try
@@ -80,6 +80,8 @@
           (.printStackTrace e)
           (-> e
               normalize-exception
-              (prep-error-page @debug/*debug-data* req (get-application-name))
+              (prep-error-page @debug/*debug-data*
+                               req
+                               (or ns-list [(get-application-name)]))
               render-page
               serve))))))

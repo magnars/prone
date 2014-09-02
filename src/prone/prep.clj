@@ -27,9 +27,9 @@
 (defn- set-application-frame
   "If the namespace of an exception frame starts with the application name,
   consider the frame to be an application frame."
-  [application-name frame]
+  [ns-list frame]
   (if (and (:package frame)
-           (.startsWith (:package frame) (str application-name ".")))
+           (some #(.startsWith (:package frame) (str % ".")) ns-list))
     (assoc frame :application? true)
     frame))
 
@@ -91,14 +91,14 @@
   [idx frame]
   (assoc frame :id idx))
 
-(defn- prep-error [error application-name]
+(defn- prep-error [error ns-list]
   (-> (if (:caused-by error)
-        (update-in error [:caused-by] #(prep-error % application-name))
+        (update-in error [:caused-by] #(prep-error % ns-list))
         error)
       (update-in [:frames]
                  #(->> %
                        (map-indexed set-frame-id)
-                       (map (partial set-application-frame application-name))
+                       (map (partial set-application-frame ns-list))
                        (mapv add-source)))
       (update-in [:data] prepare-for-serialization)
       add-browsable-data))
@@ -114,7 +114,7 @@
       debug)))
 
 (defn- prep-debug-1 [{:keys [class-path-url] :as debug}]
-  (let [root-dir (str/replace (.getAbsolutePath (File. ".")) #"\.$" "")
+  (let [root-dir (str (.getCanonicalPath (File. ".")) "/")
         resource (and class-path-url (io/resource class-path-url))
         file-name (and resource (.getPath resource))]
     (-> debug
@@ -133,8 +133,8 @@
     (-> (mapv prep-debug-1 debug-data)
         prepare-for-serialization)))
 
-(defn prep-error-page [error debug-data request application-name]
-  (let [prepped-error (prep-error error application-name)
+(defn prep-error-page [error debug-data request ns-list]
+  (let [prepped-error (prep-error error ns-list)
         prepped-request (prepare-for-serialization request)]
     {:title (-> prepped-error :message)
      :error prepped-error

@@ -24,7 +24,7 @@
 (deftest application-frames
   (is (= ["a"] (->> (prep-frames [{:name "a" :package "prone.prep-test"}
                                   {:name "b" :package "plone.plep-test"}]
-                                 "prone")
+                                 ["prone"])
                     (filter :application?)
                     (map :name)))))
 
