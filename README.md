@@ -29,6 +29,17 @@ a middleware to your Ring stack:
       prone/wrap-exceptions))
 ```
 
+By default, Prone will use the application name from `project.clj` to decide if
+a stack frame belongs to your application or not. If this guess is not good
+enough, you can provide your own set of namespaces to consider "application
+frames":
+
+```clj
+(def app
+  (-> my-app
+      (prone/wrap-exceptions {:ns-list ["example" "ex-am"]})))
+```
+
 ## Debugging
 
 Whether you've tripped on an exception or not, you can use Prone to debug your
