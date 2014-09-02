@@ -85,12 +85,17 @@ it later.
 
 #### Up and running
 
+Prerequisites:
+
+- NPM: https://www.npmjs.org/
+
 To start the server:
 
 - run `lein cljsbuild auto` in one terminal
 - run `lein ring server-headless` in another.
 
-`lein test` will run all tests.
+`lein test` will run all tests. (run `lein cljsbuild once` to generate
+required js files)
 
 ## License
 
