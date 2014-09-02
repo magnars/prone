@@ -64,7 +64,11 @@
   "Let Prone handle exeptions instead of Ring. This way, instead of a centered
    stack trace, errors will give you a nice interactive page where you can browse
    data, filter the stack trace and generally get a good grip of what is
-   happening."
+   happening.
+
+   Optionally, supply a opts map to specify namespaces to include, E.G.,
+
+   => (wrap-exceptions handler {:ns-list ['your-ns-1 'my.ns.to-show]})"
   [handler & [{:keys [ns-list] :as opts}]]
   (fn [req]
     (binding [debug/*debug-data* (atom [])]
