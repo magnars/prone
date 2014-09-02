@@ -27,9 +27,9 @@
 (defn- set-application-frame
   "If the namespace of an exception frame starts with the application name,
   consider the frame to be an application frame."
-  [ns-list frame]
+  [app-namespaces frame]
   (if (and (:package frame)
-           (some #(.startsWith (:package frame) (str % ".")) ns-list))
+           (some #(.startsWith (:package frame) (str % ".")) app-namespaces))
     (assoc frame :application? true)
     frame))
 
@@ -91,14 +91,14 @@
   [idx frame]
   (assoc frame :id idx))
 
-(defn- prep-error [error ns-list]
+(defn- prep-error [error app-namespaces]
   (-> (if (:caused-by error)
-        (update-in error [:caused-by] #(prep-error % ns-list))
+        (update-in error [:caused-by] #(prep-error % app-namespaces))
         error)
       (update-in [:frames]
                  #(->> %
                        (map-indexed set-frame-id)
-                       (map (partial set-application-frame ns-list))
+                       (map (partial set-application-frame app-namespaces))
                        (mapv add-source)))
       (update-in [:data] prepare-for-serialization)
       add-browsable-data))
@@ -133,8 +133,8 @@
     (-> (mapv prep-debug-1 debug-data)
         prepare-for-serialization)))
 
-(defn prep-error-page [error debug-data request ns-list]
-  (let [prepped-error (prep-error error ns-list)
+(defn prep-error-page [error debug-data request app-namespaces]
+  (let [prepped-error (prep-error error app-namespaces)
         prepped-request (prepare-for-serialization request)]
     {:title (-> prepped-error :message)
      :error prepped-error

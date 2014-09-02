@@ -80,9 +80,8 @@ You can change this behavior by passing in some options to `wrap-exceptions`,
 like so:
 
 ```clj
-(def app
-  (-> my-app
-      (prone/wrap-exceptions {:ns-list ["our" "app" "namespace" "prefixes"]})))
+(-> app
+    (prone/wrap-exceptions {:app-namespaces ["our" "app" "namespace" "prefixes"]}))
 ```
 
 All frames from namespaces prefixed with the names in the list will be marked as

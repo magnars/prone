@@ -68,8 +68,8 @@
 
    Optionally, supply a opts map to specify namespaces to include, E.G.,
 
-   => (wrap-exceptions handler {:ns-list ['your-ns-1 'my.ns.to-show]})"
-  [handler & [{:keys [ns-list] :as opts}]]
+   => (wrap-exceptions handler {:app-namespaces ['your-ns-1 'my.ns.to-show]})"
+  [handler & [{:keys [app-namespaces] :as opts}]]
   (fn [req]
     (binding [debug/*debug-data* (atom [])]
       (try
@@ -86,6 +86,6 @@
               normalize-exception
               (prep-error-page @debug/*debug-data*
                                req
-                               (or ns-list [(get-application-name)]))
+                               (or app-namespaces [(get-application-name)]))
               render-page
               serve))))))
