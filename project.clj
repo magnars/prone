@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :plugins [[lein-shell "0.3.0"]]
   :prep-tasks [["shell" "./build-js-sources.sh"]]
-  :profiles {:dev {:dependencies [[flare "0.1.1"]
+  :profiles {:dev {:dependencies [[flare "0.2.2"]
                                   [ring "1.2.1"]
                                   [hiccup-find  "0.4.0"]
                                   [org.clojure/clojurescript "0.0-2202"]
