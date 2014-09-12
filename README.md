@@ -29,6 +29,8 @@ a middleware to your Ring stack:
       prone/wrap-exceptions))
 ```
 
+Please note, you should [only enable Prone in development](#should-i-use-prone-in-production).
+
 ## Debugging
 
 Whether you've tripped on an exception or not, you can use Prone to debug your
@@ -70,6 +72,23 @@ error/debug page:
 ```
 
 ## Q & A
+
+### Should I use Prone in production?
+
+No. You would be exposing your innards to customers, and maybe even to someone with
+nefarious purposes.
+
+Here's one way to avoid it:
+
+```clj
+(def prone-enabled? (= "true" (System.getProperty "prone.enable")))
+
+(def app
+  (cond-> my-app
+          prone-enabled? prone/wrap-exceptions))
+```
+
+You can chain more optional middlewares in this `cond->` too. Pretty nifty.
 
 ### How does Prone determine what parts of a stack trace belongs to the application?
 
