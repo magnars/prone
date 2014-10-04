@@ -24,9 +24,10 @@
   []
   (second (edn/read-string (slurp "project.clj"))))
 
-(defn- random-string-not-present-in [haystack length]
+(defn- random-string-not-present-in
   "Look for a random string that is not present in haystack, increasing the
    length for each failed attempt."
+  [haystack length]
   (let [needle (->> #(rand-nth "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
                     repeatedly
                     (take length)
