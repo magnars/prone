@@ -25,3 +25,17 @@
   (is (= 203 (:status ((wrap-exceptions (fn [req]
                                           (debug "I need help")
                                           {:status 200})) {})))))
+
+(deftest excludes-unwanted-clients
+  (are [status headers] (= status (:status
+                                   ((wrap-exceptions
+                                     (fn [req]
+                                       (debug "I need help")
+                                       {:status 200})
+                                     {:skip-prone? (fn [req]
+                                                     (contains? (:headers req) "postman-token"))})
+                                    {:headers headers})))
+       200 {"postman-token" "12345"
+            "other" "value"}
+       203 {"random" "string"}
+       203 {}))
