@@ -6,6 +6,8 @@ pre[class*="language-"] {margin-top: 0; background: #fff; padding-bottom: 1.75em
 .code_linenums {padding-top: 11px;}
 .line-highlight {background: rgba(220, 30, 30, 0.1); -webkit-animation: highlight 400ms linear 1; -moz-animation: highlight 400ms linear 1; animation: highlight 400ms linear 1;}
 
+.code {border-top-left-radius: 0;}
+
 .map-path a {color: #28b;}
 
 .caused-by {float: right;}
