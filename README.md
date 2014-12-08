@@ -109,7 +109,7 @@ application frames.
 ## Known problems
 
 - Compile-time errors renders the original ring error page, since our middleware
-  is never called.
+  is never called. (see [this issue](https://github.com/magnars/prone/issues/10))
 - We have not yet found a way to differentiate `some-name` and `some_name`
   function names by inspecting the stack trace. Currently, we assume kebab case.
 - Using a middleware to always load the Austin `browser-connected-repl` for
