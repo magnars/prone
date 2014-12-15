@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Usage
 
-Add `[prone "0.6.1"]` to `:dependencies` in your `project.clj`, then add it as
+Add `[prone "0.7.0"]` to `:dependencies` in your `project.clj`, then add it as
 a middleware to your Ring stack:
 
 ```clj
