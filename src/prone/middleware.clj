@@ -67,26 +67,30 @@
    data, filter the stack trace and generally get a good grip of what is
    happening.
 
-   Optionally, supply a opts map to specify namespaces to include, E.G.,
+   Optionally, supply a opts map to specify namespaces to include and
+   a predicate function to exclude certain requests from prone e.g.:
 
-   => (wrap-exceptions handler {:app-namespaces ['your-ns-1 'my.ns.to-show]})"
-  [handler & [{:keys [app-namespaces] :as opts}]]
+   => (wrap-exceptions handler {:app-namespaces ['your-ns-1 'my.ns.to-show]
+                                :skip-prone? (fn [req] (not-browser? req)})"
+  [handler & [{:keys [app-namespaces skip-prone?] :as opts}]]
   (fn [req]
     (binding [debug/*debug-data* (atom [])]
-      (try
-        (let [result (handler req)]
-          (if (< 0 (count @debug/*debug-data*))
-            (-> @debug/*debug-data*
-                (prep-debug-page req)
+      (if (and skip-prone? (skip-prone? req))
+        (handler req)
+        (try
+          (let [result (handler req)]
+            (if (< 0 (count @debug/*debug-data*))
+              (-> @debug/*debug-data*
+                  (prep-debug-page req)
+                  render-page
+                  (serve 203))
+              result))
+          (catch Exception e
+            (.printStackTrace e)
+            (-> e
+                normalize-exception
+                (prep-error-page @debug/*debug-data*
+                                 req
+                                 (or app-namespaces [(get-application-name)]))
                 render-page
-                (serve 203))
-            result))
-        (catch Exception e
-          (.printStackTrace e)
-          (-> e
-              normalize-exception
-              (prep-error-page @debug/*debug-data*
-                               req
-                               (or app-namespaces [(get-application-name)]))
-              render-page
-              serve))))))
+                serve)))))))

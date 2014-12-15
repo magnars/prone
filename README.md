@@ -106,6 +106,17 @@ like so:
 All frames from namespaces prefixed with the names in the list will be marked as
 application frames.
 
+### How do I skip prone for certain requests?
+
+Pass a predicate function to `skip-prone?`. For example, to exclude
+Postman requests check for `postman-token` in the headers:
+
+```clj
+(-> app
+    (prone/wrap-exceptions {:skip-prone? (fn [req]
+                                           (contains? (:headers req) "postman-token"))}))
+```
+
 ## Known problems
 
 - Compile-time errors renders the original ring error page, since our middleware
