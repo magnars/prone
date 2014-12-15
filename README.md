@@ -100,7 +100,8 @@ like so:
 
 ```clj
 (-> app
-    (prone/wrap-exceptions {:app-namespaces ["our" "app" "namespace" "prefixes"]}))
+    (prone/wrap-exceptions 
+      {:app-namespaces ["our" "app" "namespace" "prefixes"]}))
 ```
 
 All frames from namespaces prefixed with the names in the list will be marked as
@@ -108,13 +109,13 @@ application frames.
 
 ### How do I skip prone for certain requests?
 
-Pass a predicate function to `skip-prone?`. For example, to exclude
-Postman requests check for `postman-token` in the headers:
+Pass a predicate function `skip-prone?` to `wrap-exceptions`. For example, to
+exclude Postman requests check for `postman-token` in the headers:
 
 ```clj
 (-> app
-    (prone/wrap-exceptions {:skip-prone? (fn [req]
-                                           (contains? (:headers req) "postman-token"))}))
+    (prone/wrap-exceptions 
+      {:skip-prone? (fn [req] (contains? (:headers req) "postman-token"))}))
 ```
 
 ## Known problems
