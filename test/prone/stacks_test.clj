@@ -99,3 +99,25 @@
                                             e)))]
     (is (= (normalize-exception ex)
            (:caused-by normalized)))))
+
+(deftest adding-frames-from-exception-message
+  (let [normalized (normalize-exception (try
+                                          (throw (Exception. "java.lang.RuntimeException: No such var: foo, compiling:(prone/stacks_test.clj:105:145)"))
+                                          (catch Exception e
+                                            e)))]
+    (is (= {:lang :clj
+            :package "prone.stacks-test"
+            :method-name nil
+            :loaded-from nil
+            :class-path-url "prone/stacks_test.clj"
+            :file-name "stacks_test.clj"
+            :line-number 105}
+           (first (:frames normalized))))))
+
+(deftest don-t-add-frames-from-non-existent-files
+  (let [normalized (normalize-exception (try
+                                          (throw (Exception. "java.lang.RuntimeException: No such var: foo, compiling:(foo.clj:105:145)"))
+                                          (catch Exception e
+                                            e)))]
+    (is (not= "foo"
+              (-> normalized :frames first :package)))))

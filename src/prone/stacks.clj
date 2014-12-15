@@ -9,6 +9,12 @@
     (or (second (re-find #"/([^/]+)\.jdk/" path))
         (second (re-find #"/([^/]+)\.jar!" path)))))
 
+(defn- file-name-to-namespace [s]
+  (-> s
+      (str/replace "_" "-")
+      (str/replace "/" ".")
+      (str/replace ".clj" "")))
+
 (defn- normalize-frame-clj [frame]
   (let [fn-name (-> frame
                     .getClassName
@@ -78,6 +84,21 @@
     (assoc normalized :caused-by (normalize-exception cause))
     normalized))
 
+(defn- add-frame-from-message [ex]
+  (if-let [data (re-find #"\(([^(]+.clj):(\d+):\d+\)" (:message ex))]
+    (let [[_ path line] data]
+      (if (io/resource path)
+        (update-in ex [:frames]
+                   #(conj % {:lang :clj
+                             :package (file-name-to-namespace path)
+                             :method-name nil
+                             :loaded-from nil
+                             :class-path-url path
+                             :file-name (re-find #"[^/]+.clj" path)
+                             :line-number (Integer. line)}))
+        ex))
+    ex))
+
 (defn normalize-exception
   "Convert an exception object to a map. Unify the stack trace elements, so that
   frames from Java sources and frames from Clojure sources are represented with
@@ -89,4 +110,5 @@
          :class-name (last (str/split type #"\."))
          :frames (->> exception .getStackTrace (map normalize-frame))}
         (add-data exception)
-        (add-cause exception))))
+        (add-cause exception)
+        (add-frame-from-message))))
