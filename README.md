@@ -129,6 +129,7 @@ Postman requests check for `postman-token` in the headers:
 ## Contributors
 
 - [Andrew Mcveigh](https://github.com/andrewmcveigh) added the `:app-namespaces` option.
+- [Chris McDevitt](https://github.com/minimal) added the `:skip-prone?` option.
 
 Thanks!
 
