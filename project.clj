@@ -4,7 +4,8 @@
   :license {:name "GNU General Public License v3"
             :url "http://www.gnu.org/licenses/"}
   :dependencies [[org.clojure/clojure "1.5.1"]]
-  :plugins [[lein-shell "0.3.0"]]
+  :plugins [[lein-shell "0.3.0"]
+            [com.jakemccrary/lein-test-refresh "0.5.5"]]
   :prep-tasks [["shell" "./build-js-sources.sh"]]
   :profiles {:dev {:dependencies [[flare "0.2.2"]
                                   [ring "1.2.1"]

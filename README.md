@@ -153,6 +153,8 @@ To start the server:
 `lein test` will run all tests. (run `lein cljsbuild once` to generate
 required js files)
 
+To run tests continuously: `lein test-refresh`
+
 ## License
 
 Copyright © 2014 Christian Johansen & Magnar Sveen
