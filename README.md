@@ -131,6 +131,7 @@ exclude Postman requests check for `postman-token` in the headers:
 
 - [Andrew Mcveigh](https://github.com/andrewmcveigh) added the `:app-namespaces` option.
 - [Chris McDevitt](https://github.com/minimal) added the `:skip-prone?` option.
+- [Ryo Fukumuro](https://github.com/rkworks) fixed a bug with NullPointerExceptions.
 
 Thanks!
 
