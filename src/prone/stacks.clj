@@ -85,7 +85,8 @@
     normalized))
 
 (defn- add-frame-from-message [ex]
-  (if-let [data (re-find #"\(([^(]+.clj):(\d+):\d+\)" (:message ex))]
+  (if-let [data (and (:message ex)
+                     (re-find #"\(([^(]+.clj):(\d+):\d+\)" (:message ex)))]
     (let [[_ path line] data]
       (if (io/resource path)
         (update-in ex [:frames]
