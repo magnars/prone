@@ -121,3 +121,11 @@
                                             e)))]
     (is (not= "foo"
               (-> normalized :frames first :package)))))
+
+(deftest handle-null-message-exception
+  (let [normalized (normalize-exception (try
+                                          (.foo nil)
+                                          (catch NullPointerException e
+                                            e)))]
+    (is (nil?
+         (-> normalized :message)))))
