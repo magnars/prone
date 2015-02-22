@@ -19,29 +19,29 @@ pass to `debug`.
 
 Add `[prone "0.8.1"]` to `:dependencies` in your `project.clj`, then:
 
-### With lein-ring
+- **with lein-ring**
 
-Using `lein-ring` version `0.9.1` or above, add this to your `project.clj`:
+  Using `lein-ring` version `0.9.1` or above, add this to your `project.clj`:
 
-```clj
-{:profiles {:dev {:ring {:stacktrace-middleware prone.middleware/wrap-exceptions}}}
-```
+  ```clj
+  {:profiles {:dev {:ring {:stacktrace-middleware prone.middleware/wrap-exceptions}}}
+  ```
 
-### Without lein-ring
+- **without lein-ring**
 
-Add it as a middleware to your Ring stack:
+  Add it as a middleware to your Ring stack:
 
-```clj
-(ns example
-  (:require [prone.middleware :as prone]))
+  ```clj
+  (ns example
+    (:require [prone.middleware :as prone]))
 
-(def app
-  (-> my-app
-      prone/wrap-exceptions))
-```
+  (def app
+    (-> my-app
+        prone/wrap-exceptions))
+  ```
 
-Please note, with this configuration you should make sure to
-[only enable Prone in development](#should-i-use-prone-in-production).
+  Please note, with this configuration you should make sure to
+  [only enable Prone in development](#should-i-use-prone-in-production).
 
 ## Debugging
 
