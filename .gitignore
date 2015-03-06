@@ -9,3 +9,5 @@ pom.xml.asc
 /.nrepl-port
 /resources/prone/generated
 /resources/node_modules/
+/.idea
+/*.iml

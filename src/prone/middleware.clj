@@ -53,7 +53,6 @@
              [:div {:id "ui-root"}]
              [:input {:type "hidden" :id "script-replacement-string" :value script-replacement-string}]
              [:script {:type "text/json" :id "prone-data"} (str/replace data-str #"\bscript\b" script-replacement-string)]
-             [:script (slurp (io/resource "node_modules/react/dist/react.min.js"))]
              [:script (slurp (io/resource "prismjs/prism.js"))]
              [:script (slurp (io/resource "prismjs/plugins/line-numbers/prism-line-numbers.min.js"))]
              [:script (slurp (io/resource "prismjs/plugins/line-highlight/prism-line-highlight.min.js"))]
