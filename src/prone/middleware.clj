@@ -4,8 +4,7 @@
   be filtered to focus on your app's stack frames, and environment data is
   available for inspection, along with data passed to Prone via
   prone.debug/debug"
-  (:require [clojure.edn :as edn]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [prone.debug :as debug]
             [clojure.string :as str]
             [prone.hiccough :refer [render]]
@@ -22,7 +21,10 @@
   application name from project.clj - this allows prone to differentiate
   application frames from libraries/runtime frames."
   []
-  (second (edn/read-string (slurp "project.clj"))))
+  ; A project.clj file isn't valid EDN, so parsing it as such can and will throw
+  ; sometimes, and there's no point slurping the whole file when we only need one line.
+  (with-open [project (io/reader "project.clj")]
+    (second (str/split (.readLine project) #"\s"))))
 
 (defn- random-string-not-present-in
   "Look for a random string that is not present in haystack, increasing the
@@ -44,21 +46,13 @@
            [:html
             [:head
              [:title (:title data)]
-             [:style (slurp (io/resource "prone/better-errors.css"))]
-             [:style (slurp (io/resource "prismjs/themes/prism.css"))]
-             [:style (slurp (io/resource "prismjs/plugins/line-highlight/prism-line-highlight.css"))]
-             [:style (slurp (io/resource "prismjs/plugins/line-numbers/prism-line-numbers.css"))]
-             [:style (slurp (io/resource "prone/styles.css"))]]
+             [:style (slurp (io/resource "css/prone.css"))]]
             [:body
              [:div {:id "ui-root"}]
              [:input {:type "hidden" :id "script-replacement-string" :value script-replacement-string}]
              [:script {:type "text/json" :id "prone-data"} (str/replace data-str #"\bscript\b" script-replacement-string)]
-             [:script (slurp (io/resource "prismjs/prism.js"))]
-             [:script (slurp (io/resource "prismjs/plugins/line-numbers/prism-line-numbers.min.js"))]
-             [:script (slurp (io/resource "prismjs/plugins/line-highlight/prism-line-highlight.min.js"))]
-             [:script (slurp (io/resource "prone/prism-line-numbers.js"))]
-             [:script (slurp (io/resource "prism-clojure/prism.clojure.js"))]
-             [:script (slurp (io/resource "prone/generated/prone.js"))]]]))))
+             [:script (slurp (io/resource "js/support.js"))]
+             [:script (slurp (io/resource "js/prone.js"))]]]))))
 
 (defn wrap-exceptions
   "Let Prone handle exeptions instead of Ring. This way, instead of a centered
