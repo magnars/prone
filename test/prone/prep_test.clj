@@ -40,6 +40,8 @@
                 :prone.prep/original-type "java.net.URL"}
           :body {:prone.prep/value "Hello"
                  :prone.prep/original-type "java.io.ByteArrayInputStream"}
+          :closed-stream {:prone.prep/value nil
+                          :prone.prep/original-type "java.io.BufferedInputStream"}
           :lazy '(2 3 4)
           :record {:prone.prep/value {:num-hands 1}
                    :prone.prep/original-type "prone.prep_test.DefLeppard"}}
@@ -47,6 +49,7 @@
                                                :age 37
                                                :url (java.net.URL. "http://example.com")
                                                :body (ByteArrayInputStream. (.getBytes "Hello"))
+                                               :closed-stream (doto (io/input-stream "http://example.com") .close)
                                                :lazy (map inc [1 2 3])
                                                :record (DefLeppard. 1)}} "")
              :request :session))))

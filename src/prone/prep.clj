@@ -5,7 +5,7 @@
             [clojure.string :as str]
             [clojure.walk :as walk]
             [prone.code-trunc :as clj-code])
-  (:import [java.io InputStream File]))
+  (:import [java.io InputStream File IOException]))
 
 (def max-source-lines
   "Source code files longer than this will need to be truncated in order for the
@@ -55,7 +55,9 @@
                                     ::original-type "java.lang.Class"}
    (instance? clojure.lang.IRecord val) {::value (into {} val)
                                          ::original-type (.getName (type val))}
-   (instance? InputStream val) {::value (slurp val)
+   (instance? InputStream val) {::value (try
+                                          (slurp val)
+                                          (catch IOException _ nil))
                                 ::original-type (get-type val)}
    (map? val) val
    (vector? val) val
