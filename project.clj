@@ -1,4 +1,4 @@
-(defproject prone "0.8.1"
+(defproject prone "0.8.2"
   :description "Better exception reporting middleware for Ring."
   :url "http://github.com/magnars/prone"
   :license {:name "GNU General Public License v3"

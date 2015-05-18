@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Usage
 
-Add `[prone "0.8.1"]` to `:dependencies` in your `project.clj`, then:
+Add `[prone "0.8.2"]` to `:dependencies` in your `project.clj`, then:
 
 - **with lein-ring**
 
@@ -142,7 +142,7 @@ exclude Postman requests check for `postman-token` in the headers:
 - [Andrew Mcveigh](https://github.com/andrewmcveigh) added the `:app-namespaces` option.
 - [Chris McDevitt](https://github.com/minimal) added the `:skip-prone?` option.
 - [Malcolm Sparks](https://github.com/malcolmsparks) sorted map entries by keyword.
-- [Ryo Fukumuro](https://github.com/rkworks) fixed a bug with NullPointerExceptions.
+- [Ryo Fukumuro](https://github.com/rkworks) fixed several bugs.
 
 Thanks!
 
