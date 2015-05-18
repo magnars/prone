@@ -7,5 +7,5 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
-/resources/prone/generated
-/resources/node_modules/
+/.idea
+/*.iml

@@ -153,19 +153,21 @@ it later.
 
 #### Up and running
 
-Prerequisites:
-
-- NPM: https://www.npmjs.org/
-
 To start the server:
 
-- run `lein cljsbuild auto` in one terminal
+- run `lein build-auto` in one terminal to watch for css/js changes
 - run `lein ring server-headless` in another.
 
-`lein test` will run all tests. (run `lein cljsbuild once` to generate
-required js files)
+Other commands:
 
-To run tests continuously: `lein test-refresh`
+* `lein test` will run all tests
+* `lein test-refresh` will run tests continuously
+* `lein minify-assets` will assets concatenate all vendor js files into `js/support.js`
+and concatenate all css into `cs/prone.css`
+* `lein build` is an alias for `lein do minify-assets, cljsbuild once`
+* `lein build-auto` is an alias for `lein pdo minify-assets watch, cljsbuild auto` (pdo runs
+in parallel)
+* `lein release` will clean build everything from scratch, ready for packaging.
 
 ## License
 

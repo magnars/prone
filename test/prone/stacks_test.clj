@@ -48,7 +48,7 @@
          (normalize-frame clj-frame)))
 
   (is (= {:class-path-url "clojure/lang/Reflector.java"
-          :loaded-from "clojure-1.5.1"
+          :loaded-from "clojure-1.6.0"
           :file-name "Reflector.java"
           :method-name "invokeConstructor"
           :line-number 180
@@ -60,13 +60,13 @@
   (is (= "[fn]" (:method-name (normalize-frame clj-anon-frame)))))
 
 (deftest loaded-from-test
-  (is (= "clojure-1.5.1"
+  (is (= "clojure-1.6.0"
          (->> (.getStackTrace ex)
               (filter #(re-find #"^clojure.lang" (.getClassName %)))
               first
               normalize-frame
               :loaded-from)))
-  (is (= "clojure-1.5.1"
+  (is (= "clojure-1.6.0"
          (->> (.getStackTrace ex)
               (filter #(re-find #"^clojure.core" (.getClassName %)))
               first
