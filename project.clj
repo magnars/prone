@@ -1,8 +1,8 @@
 (defproject prone "0.8.2"
   :description "Better exception reporting middleware for Ring."
   :url "http://github.com/magnars/prone"
-  :license {:name "GNU General Public License v3"
-            :url "http://www.gnu.org/licenses/"}
+  :license {:name "BSD-3-Clause"
+            :url "http://opensource.org/licenses/BSD-3-Clause"}
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :plugins [[lein-shell "0.3.0"]
             [com.jakemccrary/lein-test-refresh "0.5.5"]]
