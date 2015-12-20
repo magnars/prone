@@ -42,7 +42,9 @@
 
 (deftest finds-application-name
   (is (= 'prone (find-application-name-in-project-clj "(defproject prone ...)")))
+  (is (= 'parens-of-the-dead (find-application-name-in-project-clj "(defproject parens-of-the-dead ...)")))
   (is (= 'prone (find-application-name-in-project-clj "
                                                         (defproject
                                                           prone ...)")))
-  (is (= nil (find-application-name-in-project-clj "(def prone ...)"))))
+  (is (= nil (find-application-name-in-project-clj "(def prone ...)")))
+  (is (= nil (find-application-name-in-project-clj "(defprojectprone ...)"))))

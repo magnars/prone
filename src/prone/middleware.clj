@@ -17,7 +17,7 @@
    :headers {"Content-Type" "text/html"}})
 
 (defn find-application-name-in-project-clj [s]
-  (when-let [n (second (re-find #"\s*\(defproject\s*([^\s]+)" s))]
+  (when-let [n (second (re-find #"\s*\(defproject\s+([^\s]+)" s))]
     (symbol n)))
 
 (defn- get-application-name
