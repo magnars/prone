@@ -4,12 +4,11 @@
   be filtered to focus on your app's stack frames, and environment data is
   available for inspection, along with data passed to Prone via
   prone.debug/debug"
-  (:require [clojure.edn :as edn]
-            [clojure.java.io :as io]
-            [prone.debug :as debug]
+  (:require [clojure.java.io :as io]
             [clojure.string :as str]
+            [prone.debug :as debug]
             [prone.hiccough :refer [render]]
-            [prone.prep :refer [prep-error-page prep-debug-page]]
+            [prone.prep :refer [prep-debug-page prep-error-page]]
             [prone.stacks :refer [normalize-exception]]))
 
 (defn- serve [html & [status]]
@@ -17,12 +16,16 @@
    :body html
    :headers {"Content-Type" "text/html"}})
 
+(defn find-application-name-in-project-clj [s]
+  (when-let [n (second (re-find #"\s*\(defproject\s*([^\s]+)" s))]
+    (symbol n)))
+
 (defn- get-application-name
   "Assume that prone is being used from a leiningen project, and fetch the
   application name from project.clj - this allows prone to differentiate
   application frames from libraries/runtime frames."
   []
-  (second (edn/read-string (slurp "project.clj"))))
+  (find-application-name-in-project-clj (slurp "project.clj")))
 
 (defn- random-string-not-present-in
   "Look for a random string that is not present in haystack, increasing the
@@ -94,3 +97,4 @@
                                  (or app-namespaces [(get-application-name)]))
                 render-page
                 serve)))))))
+

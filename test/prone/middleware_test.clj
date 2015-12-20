@@ -1,7 +1,7 @@
 (ns prone.middleware-test
-  (:require [prone.middleware :refer :all]
+  (:require [clojure.test :refer :all]
             [prone.debug :refer [debug *debug-data*]]
-            [clojure.test :refer :all]))
+            [prone.middleware :refer :all]))
 
 (deftest resets-debug-on-every-request-test
 
@@ -35,7 +35,14 @@
                                      {:skip-prone? (fn [req]
                                                      (contains? (:headers req) "postman-token"))})
                                     {:headers headers})))
-       200 {"postman-token" "12345"
-            "other" "value"}
-       203 {"random" "string"}
-       203 {}))
+    200 {"postman-token" "12345"
+         "other" "value"}
+    203 {"random" "string"}
+    203 {}))
+
+(deftest finds-application-name
+  (is (= 'prone (find-application-name-in-project-clj "(defproject prone ...)")))
+  (is (= 'prone (find-application-name-in-project-clj "
+                                                        (defproject
+                                                          prone ...)")))
+  (is (= nil (find-application-name-in-project-clj "(def prone ...)"))))
