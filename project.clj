@@ -1,4 +1,4 @@
-(defproject prone "0.8.2"
+(defproject prone "0.8.3"
   :description "Better exception reporting middleware for Ring."
   :url "http://github.com/magnars/prone"
   :license {:name "BSD-3-Clause"
