@@ -11,11 +11,6 @@
             [prone.prep :refer [prep-debug-page prep-error-page]]
             [prone.stacks :refer [normalize-exception]]))
 
-(defn- serve [html & [status]]
-  {:status (or status 500)
-   :body html
-   :headers {"Content-Type" "text/html"}})
-
 (defn find-application-name-in-project-clj [s]
   (when-let [n (second (re-find #"\s*\(defproject\s+([^\s]+)" s))]
     (symbol n)))
@@ -55,13 +50,26 @@
              [:script (slurp (io/resource "prone-lib.js"))]
              [:script (slurp (io/resource "prone/generated/prone.js"))]]]))))
 
+(defonce pages (atom {}))
+
+(defn- store-page [page]
+  (let [uri (str "/prone/" (.toString (java.util.UUID/randomUUID)))]
+    (swap! pages assoc uri page)
+    (assoc page :uri uri)))
+
+(defn- serve-page [page & [status]]
+  {:status (or status 500)
+   :body (render-page page)
+   :headers (cond-> {"Content-Type" "text/html"}
+              (:uri page) (assoc "Link" (str "<" (:uri page) ">; rel=help")))})
+
 (defn debug-response
   "Ring Response for prone debug data."
   [req data]
   (-> data
       (prep-debug-page req)
-      render-page
-      (serve 203)))
+      store-page
+      (serve-page 203)))
 
 (defn exceptions-response
   "Ring Response for prone exceptions data."
@@ -71,8 +79,8 @@
       (prep-error-page @debug/*debug-data*
                        req
                        (or app-namespaces [(get-application-name)]))
-      render-page
-      serve))
+      store-page
+      serve-page))
 
 (defn wrap-exceptions
   "Let Prone handle exeptions instead of Ring. This way, instead of a centered
@@ -87,15 +95,16 @@
                                 :skip-prone? (fn [req] (not-browser? req)})"
   [handler & [{:keys [app-namespaces skip-prone?] :as opts}]]
   (fn [req]
-    (binding [debug/*debug-data* (atom [])]
-      (if (and skip-prone? (skip-prone? req))
-        (handler req)
-        (try
-          (let [result (handler req)]
-            (if (< 0 (count @debug/*debug-data*))
-              (debug-response req @debug/*debug-data*)
-              result))
-          (catch Exception e
-            (.printStackTrace e)
-            (exceptions-response req e app-namespaces)))))))
-
+    (if-let [page (get @pages (:uri req))]
+      (serve-page page)
+      (binding [debug/*debug-data* (atom [])]
+        (if (and skip-prone? (skip-prone? req))
+          (handler req)
+          (try
+            (let [result (handler req)]
+              (if (< 0 (count @debug/*debug-data*))
+                (debug-response req @debug/*debug-data*)
+                result))
+            (catch Exception e
+              (.printStackTrace e)
+              (exceptions-response req e app-namespaces))))))))

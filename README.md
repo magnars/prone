@@ -130,6 +130,39 @@ exclude Postman requests check for `postman-token` in the headers:
       {:skip-prone? (fn [req] (contains? (:headers req) "postman-token"))}))
 ```
 
+### What about AJAX requests?
+
+Yeah, that's a bit trickier. There's no point in serving a beautiful exception
+page when you have to inspect it in devtools.
+
+The prone response includes a `Link` header with a `rel=help` attribute. Like this:
+
+```
+Link:</prone/d97fa078-7638-4fd1-8e4a-9a22576a321f>; rel=help
+```
+
+Use this in your frontend code to display the page. Here's an example from one
+of our sites:
+
+```clj
+(def rel-help-regex #"<(.+)>; rel=help")
+
+(defn check-err [result]
+  (if-let [url (->> (get-in result [:headers "link"] "")
+                    (re-find rel-help-regex)
+                    second)]
+    (set! js/location url)
+    (do (js/alert "fail")
+        (prn result))))
+
+(defn GET [url params topic]
+  (go
+    (let [result (<! (http/get url {:query-params params}))]
+      (if (:success result)
+        ;; do some successful stuff
+        (check-err result)))))
+```
+
 ## Known problems
 
 - We have not yet found a way to differentiate `some-name` and `some_name`
