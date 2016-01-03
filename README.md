@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Usage
 
-Add `[prone "0.8.3"]` to `:dependencies` in your `project.clj`, then:
+Add `[prone "0.9.0"]` to `:dependencies` in your `project.clj`, then:
 
 - **with lein-ring**
 
