@@ -47,41 +47,32 @@
            [:html
             [:head
              [:title (:title data)]
-             [:style (slurp (io/resource "prone/better-errors.css"))]
-             [:style (slurp (io/resource "prismjs/themes/prism.css"))]
-             [:style (slurp (io/resource "prismjs/plugins/line-highlight/prism-line-highlight.css"))]
-             [:style (slurp (io/resource "prismjs/plugins/line-numbers/prism-line-numbers.css"))]
-             [:style (slurp (io/resource "prone/styles.css"))]]
+             [:style (slurp (io/resource "prone.css"))]]
             [:body
              [:div {:id "ui-root"}]
              [:input {:type "hidden" :id "script-replacement-string" :value script-replacement-string}]
              [:script {:type "text/json" :id "prone-data"} (str/replace data-str #"\bscript\b" script-replacement-string)]
-             [:script (slurp (io/resource "node_modules/react/dist/react.min.js"))]
-             [:script (slurp (io/resource "prismjs/prism.js"))]
-             [:script (slurp (io/resource "prismjs/plugins/line-numbers/prism-line-numbers.min.js"))]
-             [:script (slurp (io/resource "prismjs/plugins/line-highlight/prism-line-highlight.min.js"))]
-             [:script (slurp (io/resource "prone/prism-line-numbers.js"))]
-             [:script (slurp (io/resource "prism-clojure/prism.clojure.js"))]
+             [:script (slurp (io/resource "prone-lib.js"))]
              [:script (slurp (io/resource "prone/generated/prone.js"))]]]))))
 
 (defn debug-response
   "Ring Response for prone debug data."
   [req data]
   (-> data
-    (prep-debug-page req)
-    render-page
-    (serve 203)))
+      (prep-debug-page req)
+      render-page
+      (serve 203)))
 
 (defn exceptions-response
   "Ring Response for prone exceptions data."
   [req e app-namespaces]
   (-> e
-    normalize-exception
-    (prep-error-page @debug/*debug-data*
-      req
-      (or app-namespaces [(get-application-name)]))
-    render-page
-    serve))
+      normalize-exception
+      (prep-error-page @debug/*debug-data*
+                       req
+                       (or app-namespaces [(get-application-name)]))
+      render-page
+      serve))
 
 (defn wrap-exceptions
   "Let Prone handle exeptions instead of Ring. This way, instead of a centered

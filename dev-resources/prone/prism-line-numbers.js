@@ -36,7 +36,7 @@
     var container = pre.parentNode;
     
     if (highlightEl && (container.offsetHeight - highlightEl.offsetTop < (highlightEl.offsetHeight * 3))) {
-      container.scrollTop = highlightEl.offsetTop - (highlightEl.offsetHeight * 5)
+      container.scrollTop = highlightEl.offsetTop - (highlightEl.offsetHeight * 5);
     } else {
       container.scrollTop = 0;
     }

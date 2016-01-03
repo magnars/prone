@@ -7,5 +7,8 @@ pom.xml.asc
 *.class
 /.lein-*
 /.nrepl-port
-/resources/prone/generated
-/resources/node_modules/
+/dev-resources/prone/generated
+/dev-resources/node_modules/
+/*-init.clj
+/resources/prone-lib.js
+/resources/prone.css

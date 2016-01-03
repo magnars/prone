@@ -167,6 +167,9 @@ required js files)
 
 To run tests continuously: `lein test-refresh`
 
+After making changes to static files in `dev-resources`, run
+`./build-js-sources.sh` again to update the concatenated files.
+
 ## License: BSD
 
 Copyright © 2014-2015 Christian Johansen & Magnar Sveen. All rights reserved.
