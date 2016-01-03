@@ -64,6 +64,25 @@
              [:script (slurp (io/resource "prism-clojure/prism.clojure.js"))]
              [:script (slurp (io/resource "prone/generated/prone.js"))]]]))))
 
+(defn debug-response
+  "Ring Response for prone debug data."
+  [req data]
+  (-> data
+    (prep-debug-page req)
+    render-page
+    (serve 203)))
+
+(defn exceptions-response
+  "Ring Response for prone exceptions data."
+  [req e app-namespaces]
+  (-> e
+    normalize-exception
+    (prep-error-page @debug/*debug-data*
+      req
+      (or app-namespaces [(get-application-name)]))
+    render-page
+    serve))
+
 (defn wrap-exceptions
   "Let Prone handle exeptions instead of Ring. This way, instead of a centered
    stack trace, errors will give you a nice interactive page where you can browse
@@ -83,18 +102,9 @@
         (try
           (let [result (handler req)]
             (if (< 0 (count @debug/*debug-data*))
-              (-> @debug/*debug-data*
-                  (prep-debug-page req)
-                  render-page
-                  (serve 203))
+              (debug-response req @debug/*debug-data*)
               result))
           (catch Exception e
             (.printStackTrace e)
-            (-> e
-                normalize-exception
-                (prep-error-page @debug/*debug-data*
-                                 req
-                                 (or app-namespaces [(get-application-name)]))
-                render-page
-                serve)))))))
+            (exceptions-response req e app-namespaces)))))))
 
