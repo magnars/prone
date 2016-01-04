@@ -155,11 +155,11 @@ of our sites:
     (do (js/alert "fail")
         (prn result))))
 
-(defn GET [url params topic]
+(defn GET [url params]
   (go
     (let [result (<! (http/get url {:query-params params}))]
       (if (:success result)
-        ;; do some successful stuff
+        (do-some-successful-stuff)
         (check-err result)))))
 ```
 
