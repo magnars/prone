@@ -34,6 +34,19 @@
       (recur haystack (inc length))
       needle)))
 
+(defn- load-asset [name path]
+  (let [contents (slurp (io/resource path))]
+    {:name name
+     :contents contents
+     :url (str "/" (hash contents) "/" path)}))
+
+(defonce assets [(load-asset :styles "prone.css")
+                 (load-asset :libs "prone-lib.js")
+                 (load-asset :code "prone/generated/prone.js")])
+
+(defonce asset-name->url (into {} (map (juxt :name :url) assets)))
+(defonce asset-url->contents (into {} (map (juxt :url :contents) assets)))
+
 (defn- render-page [data]
   (render
    (let [data-str (prn-str data)
@@ -42,13 +55,13 @@
            [:html
             [:head
              [:title (:title data)]
-             [:style (slurp (io/resource "prone.css"))]]
+             [:link {:rel "stylesheet" :href (asset-name->url :styles)}]]
             [:body
              [:div {:id "ui-root"}]
              [:input {:type "hidden" :id "script-replacement-string" :value script-replacement-string}]
              [:script {:type "text/json" :id "prone-data"} (str/replace data-str #"\bscript\b" script-replacement-string)]
-             [:script (slurp (io/resource "prone-lib.js"))]
-             [:script (slurp (io/resource "prone/generated/prone.js"))]]]))))
+             [:script {:src (asset-name->url :libs)}]
+             [:script {:src (asset-name->url :code)}]]]))))
 
 (defonce pages (atom {}))
 
@@ -96,15 +109,17 @@
   [handler & [{:keys [app-namespaces skip-prone?] :as opts}]]
   (fn [req]
     (if-let [page (get @pages (:uri req))]
-      (serve-page page)
-      (binding [debug/*debug-data* (atom [])]
-        (if (and skip-prone? (skip-prone? req))
-          (handler req)
-          (try
-            (let [result (handler req)]
-              (if (< 0 (count @debug/*debug-data*))
-                (debug-response req @debug/*debug-data*)
-                result))
-            (catch Exception e
-              (.printStackTrace e)
-              (exceptions-response req e app-namespaces))))))))
+      (serve-page page 200)
+      (if-let [asset (asset-url->contents (:uri req))]
+        {:body asset :status 200 :headers {"Cache-Control" "max-age=315360000"}}
+        (binding [debug/*debug-data* (atom [])]
+          (if (and skip-prone? (skip-prone? req))
+            (handler req)
+            (try
+              (let [result (handler req)]
+                (if (< 0 (count @debug/*debug-data*))
+                  (debug-response req @debug/*debug-data*)
+                  result))
+              (catch Exception e
+                (.printStackTrace e)
+                (exceptions-response req e app-namespaces)))))))))
