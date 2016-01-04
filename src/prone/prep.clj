@@ -12,6 +12,11 @@
   client-side syntax highlighter to finish in a timely fashion."
   500)
 
+(def max-string-length
+  "While it's nice to have all the data available in the UI, some strings are
+  just too long for performance and display purposes. Truncate them down."
+  10000)
+
 (defn- load-source
   "Attempt to load source code from the classpath"
   [{:keys [class-path-url line-number] :as src-loc}]
@@ -50,28 +55,32 @@
 
 (defn- prepare-for-serialization-1 [val]
   (cond
-   (nil? val) val
-   (instance? java.lang.Class val) {::value (symbol (.getName val))
-                                    ::original-type "java.lang.Class"}
-   (instance? clojure.lang.IRecord val) {::value (into {} val)
-                                         ::original-type (.getName (type val))}
-   (instance? InputStream val) {::value (try
-                                          (slurp val)
-                                          (catch IOException _ nil))
-                                ::original-type (get-type val)}
-   (map? val) val
-   (vector? val) val
-   (list? val) val
-   (set? val) val
-   (seq? val) val
-   (string? val) val
-   (number? val) val
-   (keyword? val) val
-   (symbol? val) val
-   (= true val) val
-   (= false val) val
-   :else {::value (to-string val)
-          ::original-type (get-type val)}))
+    (nil? val) val
+    (instance? java.lang.Class val) {::value (symbol (.getName val))
+                                     ::original-type "java.lang.Class"}
+    (instance? clojure.lang.IRecord val) {::value (into {} val)
+                                          ::original-type (.getName (type val))}
+    (instance? InputStream val) {::value (try
+                                           (slurp val)
+                                           (catch IOException _ nil))
+                                 ::original-type (get-type val)}
+    (string? val) (let [len (count val)]
+                    (if (< max-string-length len)
+                      {::value (str (subs val 0 60) "...")
+                       ::original-type (str "String with " len " chars")}
+                      val))
+    (map? val) val
+    (vector? val) val
+    (list? val) val
+    (set? val) val
+    (seq? val) val
+    (number? val) val
+    (keyword? val) val
+    (symbol? val) val
+    (= true val) val
+    (= false val) val
+    :else {::value (to-string val)
+           ::original-type (get-type val)}))
 
 (defn- prepare-for-serialization [m]
   (walk/prewalk prepare-for-serialization-1 m))

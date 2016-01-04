@@ -1,5 +1,6 @@
 (ns prone.prep-test
   (:require [clojure.java.io :as io]
+            [clojure.string :as str]
             [clojure.test :refer :all]
             [prone.prep :refer [prep-error-page prep-debug-page]])
   (:import [java.io ByteArrayInputStream]))
@@ -53,6 +54,12 @@
                                                :lazy (map inc [1 2 3])
                                                :record (DefLeppard. 1)}} "")
              :request :session))))
+
+(deftest avoid-really-long-strings
+  (is (= {:content {:prone.prep/value "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss..."
+                    :prone.prep/original-type "String with 20000 chars"}}
+         (-> (prep-error-page {} {} {:content (str/join (repeat 20000 "s"))} "")
+             :request))))
 
 (defn prep-debug [debug]
   (prep-debug-page debug {}))
