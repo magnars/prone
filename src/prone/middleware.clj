@@ -38,7 +38,7 @@
   (let [contents (slurp (io/resource path))]
     {:name name
      :contents contents
-     :url (str "/" (hash contents) "/" path)}))
+     :url (str "/prone/" (hash contents) "/" path)}))
 
 (defonce assets [(load-asset :styles "prone.css")
                  (load-asset :libs "prone-lib.js")
