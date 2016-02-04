@@ -2,6 +2,9 @@
   (:require [prone.stacks :refer :all]
             [clojure.test :refer :all]))
 
+(defn clj-version []
+  (str "clojure-" (clojure-version)))
+
 (defn- create-ex [msg]
   (try
     (throw (Exception. msg))
@@ -30,7 +33,7 @@
   (is (= "prone.stacks_test$create_ex" (.getClassName clj-frame)))
   (is (= "invoke" (.getMethodName clj-frame)))
   (is (= "stacks_test.clj" (.getFileName clj-frame)))
-  (is (= 5 (.getLineNumber clj-frame)))
+  (is (= 8 (.getLineNumber clj-frame)))
 
   (is (= "clojure.lang.Reflector" (.getClassName java-frame)))
   (is (= "invokeConstructor" (.getMethodName java-frame)))
@@ -42,13 +45,13 @@
           :loaded-from nil
           :file-name "stacks_test.clj"
           :method-name "create-ex"
-          :line-number 5
+          :line-number 8
           :package "prone.stacks-test"
           :lang :clj}
          (normalize-frame clj-frame)))
 
   (is (= {:class-path-url "clojure/lang/Reflector.java"
-          :loaded-from "clojure-1.5.1"
+          :loaded-from (clj-version)
           :file-name "Reflector.java"
           :method-name "invokeConstructor"
           :line-number 180
@@ -60,13 +63,13 @@
   (is (= "[fn]" (:method-name (normalize-frame clj-anon-frame)))))
 
 (deftest loaded-from-test
-  (is (= "clojure-1.5.1"
+  (is (= (clj-version)
          (->> (.getStackTrace ex)
               (filter #(re-find #"^clojure.lang" (.getClassName %)))
               first
               normalize-frame
               :loaded-from)))
-  (is (= "clojure-1.5.1"
+  (is (= (clj-version)
          (->> (.getStackTrace ex)
               (filter #(re-find #"^clojure.core" (.getClassName %)))
               first

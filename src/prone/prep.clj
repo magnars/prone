@@ -49,7 +49,8 @@
   include type information - since we already display that next to it."
   [val]
   (let [s (pr-str val)]
-    (if (.startsWith s "#<")
+    (if (or (.startsWith s "#<")
+            (.startsWith s "#object["))
       (.toString val)
       s)))
 

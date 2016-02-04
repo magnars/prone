@@ -13,7 +13,10 @@
   (-> s
       (str/replace "_" "-")
       (str/replace "/" ".")
-      (str/replace ".clj" "")))
+      (str/replace #"\.cljc?" "")))
+
+(defn cljc? [frame]
+  (re-find #"\.cljc$" (.getFileName frame)))
 
 (defn- normalize-frame-clj [frame]
   (let [fn-name (-> frame
@@ -23,7 +26,9 @@
         class-path-url (-> frame
                            .getClassName
                            (str/replace "." "/")
-                           (str/replace #"\$.*" ".clj"))]
+                           (str/replace #"\$.*" (if (cljc? frame)
+                                                  ".cljc"
+                                                  ".clj")))]
     {:class-path-url class-path-url
      :loaded-from (find-loaded-from class-path-url)
      :method-name (if (re-find #"^fn--\d+$" fn-name) "[fn]" fn-name)
@@ -57,7 +62,7 @@
   (if (.getFileName frame)
     (merge {:file-name (.getFileName frame)
             :line-number (.getLineNumber frame)}
-           (if (-> frame .getFileName (.endsWith ".clj"))
+           (if (re-find #"\.cljc?$" (.getFileName frame))
              (normalize-frame-clj frame)
              (normalize-frame-java frame)))
     {:method-name (.getMethodName frame)
@@ -86,7 +91,7 @@
 
 (defn- add-frame-from-message [ex]
   (if-let [data (and (:message ex)
-                     (re-find #"\(([^(]+.clj):(\d+):\d+\)" (:message ex)))]
+                     (re-find #"\(([^(]+.cljc?):(\d+):\d+\)" (:message ex)))]
     (let [[_ path line] data]
       (if (io/resource path)
         (update-in ex [:frames]
@@ -95,7 +100,7 @@
                              :method-name nil
                              :loaded-from nil
                              :class-path-url path
-                             :file-name (re-find #"[^/]+.clj" path)
+                             :file-name (re-find #"[^/]+.cljc?" path)
                              :line-number (Integer. line)}))
         ex))
     ex))
