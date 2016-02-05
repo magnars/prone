@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Usage
 
-Add `[prone "1.0.1"]` to `:dependencies` in your `project.clj`, then:
+Add `[prone "1.0.2"]` to `:dependencies` in your `project.clj`, then:
 
 - **with lein-ring**
 
@@ -176,6 +176,7 @@ of our sites:
 - [Chris McDevitt](https://github.com/minimal) added the `:skip-prone?` option.
 - [Malcolm Sparks](https://github.com/malcolmsparks) sorted map entries by keyword.
 - [Ryo Fukumuro](https://github.com/rkworks) fixed several bugs.
+- [Daniel Lebrero](https://github.com/dlebrero) added support for cljc files.
 
 Thanks!
 
