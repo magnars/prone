@@ -101,12 +101,14 @@
    data, filter the stack trace and generally get a good grip of what is
    happening.
 
-   Optionally, supply a opts map to specify namespaces to include and
-   a predicate function to exclude certain requests from prone e.g.:
+   Optionally, supply a opts map to specify namespaces to include,
+   a predicate function to exclude certain requests from prone, and a boolean
+   value to silence printing of exception stacktraces e.g.:
 
    => (wrap-exceptions handler {:app-namespaces ['your-ns-1 'my.ns.to-show]
-                                :skip-prone? (fn [req] (not-browser? req)})"
-  [handler & [{:keys [app-namespaces skip-prone?] :as opts}]]
+                                :skip-prone? (fn [req] (not-browser? req)
+                                :print-stacktraces? false})"
+  [handler & [{:keys [app-namespaces skip-prone? print-stacktraces?] :as opts}]]
   (fn [req]
     (if-let [page (get @pages (:uri req))]
       (serve-page page 200)
@@ -121,5 +123,6 @@
                   (debug-response req @debug/*debug-data*)
                   result))
               (catch Exception e
-                (.printStackTrace e)
+                (when (or print-stacktraces? (nil? print-stacktraces?))
+                  (.printStackTrace e))
                 (exceptions-response req e app-namespaces)))))))))
