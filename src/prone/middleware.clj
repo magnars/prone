@@ -67,7 +67,7 @@
 
 (defn- store-page [page]
   (let [uri (str "/prone/" (.toString (java.util.UUID/randomUUID)))]
-    (swap! pages assoc uri page)
+    (swap! pages assoc uri page "/prone/latest" page)
     (assoc page :uri uri)))
 
 (defn- serve-page [page & [status]]
