@@ -108,7 +108,8 @@
    => (wrap-exceptions handler {:app-namespaces ['your-ns-1 'my.ns.to-show]
                                 :skip-prone? (fn [req] (not-browser? req)
                                 :print-stacktraces? false})"
-  [handler & [{:keys [app-namespaces skip-prone? print-stacktraces?] :as opts}]]
+  [handler & [{:keys [app-namespaces skip-prone? print-stacktraces?]
+               :or {:print-stacktraces? true} :as opts}]]
   (fn [req]
     (if-let [page (get @pages (:uri req))]
       (serve-page page 200)
@@ -123,6 +124,6 @@
                   (debug-response req @debug/*debug-data*)
                   result))
               (catch Exception e
-                (when (or print-stacktraces? (nil? print-stacktraces?))
+                (when print-stacktraces?
                   (.printStackTrace e))
                 (exceptions-response req e app-namespaces)))))))))
