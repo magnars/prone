@@ -15,9 +15,15 @@ pass to `debug`.
 
 <img src="screenshot.png">
 
-## Usage
+## Install
 
-Add `[prone "1.0.2"]` to `:dependencies` in your `project.clj`, then:
+Add `[prone "1.1.0"]` to `:dependencies` in your `project.clj`.
+
+This project uses [Semantic Versioning](http://semver.org/). There will be no
+breaking changes without a major version increase. There's also a
+[change log](#change-log).
+
+## Usage
 
 - **with lein-ring**
 
@@ -163,6 +169,23 @@ of our sites:
         (check-err result)))))
 ```
 
+#### A little trick
+
+The latest prone error page can also be found under `/prone/latest`, so if you
+haven't fixed your frontend code to use the `rel=help` header quite yet, you can
+always go there to check it out.
+
+### I'm getting double printing of error messages
+
+Yeah, I guess you already have a logging framework to print errors for you? And
+then prone goes and prints them as well. Turn it off like so:
+
+```clj
+(-> app
+    (prone/wrap-exceptions 
+      {:print-stacktraces? false}))
+```
+
 ## Known problems
 
 - We have not yet found a way to differentiate `some-name` and `some_name`
@@ -170,13 +193,21 @@ of our sites:
 - Using a middleware to always load the Austin `browser-connected-repl` for
   ClojureScript causes JavaScript errors that partly trips up Prone
 
+## Change log
+
+#### From 1.0 to 1.1
+
+- Added option `:print-stacktraces?` (Max Ovsiankin)
+- Added latest prone error to `/prone/latest` (Daniel Lebrero)
+
 ## Contributors
 
 - [Andrew Mcveigh](https://github.com/andrewmcveigh) added the `:app-namespaces` option.
 - [Chris McDevitt](https://github.com/minimal) added the `:skip-prone?` option.
 - [Malcolm Sparks](https://github.com/malcolmsparks) sorted map entries by keyword.
 - [Ryo Fukumuro](https://github.com/rkworks) fixed several bugs.
-- [Daniel Lebrero](https://github.com/dlebrero) added support for cljc files.
+- [Daniel Lebrero](https://github.com/dlebrero) added support for cljc files and `/prone/latest`.
+- [Max Ovsiankin](https://github.com/gratimax) added the `:print-stacktraces?` option.
 
 Thanks!
 
