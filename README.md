@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.1.0"]` to `:dependencies` in your `project.clj`.
+Add `[prone "1.1.1"]` to `:dependencies` in your `project.clj`.
 
 This project uses [Semantic Versioning](http://semver.org/). There will be no
 breaking changes without a major version increase. There's also a
@@ -194,6 +194,10 @@ then prone goes and prints them as well. Turn it off like so:
   ClojureScript causes JavaScript errors that partly trips up Prone
 
 ## Change log
+
+#### From 1.1 to master
+
+- Don't crash on invalid or missing line-numbers
 
 #### From 1.0 to 1.1
 
