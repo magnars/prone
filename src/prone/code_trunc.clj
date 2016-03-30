@@ -12,14 +12,14 @@
   approach, but should provide a reasonable excerpt in many cases."
   [lines line-num]
   (cond
-   (= 0 line-num)
-   {:line 0 :lines lines}
+    (= 0 line-num)
+    {:line 0 :lines lines}
 
-   (and (not (indented? (nth lines line-num)))
-        (not (= "" (nth lines line-num))))
-   {:line line-num :lines (drop line-num lines)}
+    (and (not (indented? (nth lines line-num)))
+         (not (= "" (nth lines line-num))))
+    {:line line-num :lines (drop line-num lines)}
 
-   :else (recur lines (dec line-num))))
+    :else (recur lines (dec line-num))))
 
 (defn- find-first-form
   "Given a collection of lines, where the first one represents a top-level
@@ -51,6 +51,8 @@
   (let [lines (str/split code #"\n")]
     (if (> max-lines (count lines))
       {:code code :offset 0}
-      (let [top-level (find-top-level-form lines (dec focus-line))]
-        {:offset (:line top-level)
-         :code (find-first-form (:lines top-level))}))))
+      (if (or (not focus-line) (< focus-line 0))
+        {:failure "(invalid line number)"}
+        (let [top-level (find-top-level-form lines (dec focus-line))]
+          {:offset (:line top-level)
+           :code (find-first-form (:lines top-level))})))))
