@@ -20,11 +20,13 @@
 (defn- load-source
   "Attempt to load source code from the classpath"
   [{:keys [class-path-url line-number] :as src-loc}]
-  (if-not class-path-url
-    {:failure "(unknown source file)"}
-    (if-let [source (io/resource class-path-url)]
-      (clj-code/truncate (slurp source) line-number max-source-lines)
-      {:failure "(could not locate source file on class path)"})))
+  (if (or (not line-number) (< line-number 0))
+    {:failure "(invalid line number)"}
+    (if-not class-path-url
+      {:failure "(unknown source file)"}
+      (if-let [source (io/resource class-path-url)]
+        (clj-code/truncate (slurp source) line-number max-source-lines)
+        {:failure "(could not locate source file on class path)"}))))
 
 (defn- add-source [src-loc]
   (assoc src-loc :source (load-source src-loc)))
