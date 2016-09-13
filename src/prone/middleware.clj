@@ -109,7 +109,7 @@
                                 :skip-prone? (fn [req] (not-browser? req)
                                 :print-stacktraces? false})"
   [handler & [{:keys [app-namespaces skip-prone? print-stacktraces?]
-               :or {:print-stacktraces? true} :as opts}]]
+               :or {print-stacktraces? true} :as opts}]]
   (fn [req]
     (if-let [page (get @pages (:uri req))]
       (serve-page page 200)
