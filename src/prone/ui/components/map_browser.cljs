@@ -166,5 +166,5 @@
                    (apply d/tbody {}
                           (let [view (get-in* data path)]
                             (if (map? view)
-                              (map #(MapEntry % navigate-request) (sort view))
+                              (map #(MapEntry % navigate-request) (sort-by (comp str first) view))
                               (map-indexed #(MapEntry [%1 %2] navigate-request) view))))))))
