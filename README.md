@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.1.2"]` to `:dependencies` in your `project.clj`.
+Add `[prone "1.1.3"]` to `:dependencies` in your `project.clj`.
 
 This project uses [Semantic Versioning](http://semver.org/). There will be no
 breaking changes without a major version increase. There's also a
@@ -197,6 +197,7 @@ then prone goes and prints them as well. Turn it off like so:
 
 #### From 1.1 to master
 
+- Fix error when showing maps with complex keys
 - Fix compatibility Clojure 1.9 (lvh)
 - Don't crash on invalid or missing line-numbers
 
