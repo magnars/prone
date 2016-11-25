@@ -21,6 +21,19 @@
                       (def inner-debug-data @*debug-data*))) {})
   (is (= ["Oh noes" "Halp!"] (map :message inner-debug-data))))
 
+(defn test-handler [handler]
+  ((wrap-exceptions handler {:print-stacktraces? false}) {}))
+
+(deftest catches-exceptions-and-assertion-errors
+  (let [response (test-handler (fn [req] (/ 1 0)))]
+    (is (= 500 (:status response)))
+    (is (re-find #"prone-data" (:body response))))
+  (let [response (test-handler (fn [req] (assert false)))]
+    (is (= 500 (:status response)))
+    (is (re-find #"prone-data" (:body response))))
+  (is (thrown? Error
+               (test-handler (fn [req] (throw (Error.)))))))
+
 (deftest renders-debug-page-on-debug
   (is (= 203 (:status ((wrap-exceptions (fn [req]
                                           (debug "I need help")
