@@ -118,12 +118,14 @@
         (binding [debug/*debug-data* (atom [])]
           (if (and skip-prone? (skip-prone? req))
             (handler req)
-            (try
-              (let [result (handler req)]
-                (if (< 0 (count @debug/*debug-data*))
-                  (debug-response req @debug/*debug-data*)
-                  result))
-              (catch Exception e
-                (when print-stacktraces?
-                  (.printStackTrace e))
-                (exceptions-response req e app-namespaces)))))))))
+            (letfn [(handle-exception [e]
+                      (when print-stacktraces?
+                        (.printStackTrace e))
+                      (exceptions-response req e app-namespaces))]
+              (try
+                (let [result (handler req)]
+                  (if (< 0 (count @debug/*debug-data*))
+                    (debug-response req @debug/*debug-data*)
+                    result))
+                (catch Exception e (handle-exception e))
+                (catch AssertionError e (handle-exception e))))))))))
