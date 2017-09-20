@@ -45,9 +45,17 @@ breaking changes without a major version increase. There's also a
     (-> my-app
         prone/wrap-exceptions))
   ```
-
+  
   Please note, with this configuration you should make sure to
   [only enable Prone in development](#should-i-use-prone-in-production).
+
+- **with pedestal**
+
+  See [prone-pedestal](https://github.com/eunmin/prone-pedestal)
+
+- **with catacumba**
+
+  See [catacumba-prone](https://github.com/funcool/catacumba-prone)
 
 ## Debugging
 
