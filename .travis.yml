@@ -1,8 +1,8 @@
 language: clojure
-lein: lein2
+lein: lein
 script:
-  - lein2 cljsbuild once
-  - lein2 test
+  - lein cljsbuild once
+  - lein test
 jdk:
   - openjdk6
   - openjdk7
