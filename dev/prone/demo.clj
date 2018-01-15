@@ -21,6 +21,8 @@
              (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside,"
                                    "at" "least" "while" "staying" "on" "only" "a" "single" "line."
                                    "They need to be shortened somehow in the UI."])
+             (assoc :namespaced-maps #:my-ns{:are "supported"
+                                             :as "well"})
              (assoc :session {:name "John Doe"
                               :age 37
                               :url (java.net.URL. "http://example.com")
