@@ -10,7 +10,10 @@
 
 (def ex (create-ex "Message for you, Sir!"))
 
-(def anon-fn-ex ((fn [] (create-ex "Message for you, Sir!"))))
+(def anon-fn-ex (try
+                  (throw (Exception. "Message for you, Sir!"))
+                  (catch Exception e
+                    e)))
 
 (def clj-frame (->> (.getStackTrace ex)
                     (filter #(re-find #"^prone" (.getClassName %)))
@@ -24,7 +27,7 @@
   (is (= "Message for you, Sir!" (.getMessage ex)))
 
   (is (= "prone.stacks_test_cljc$create_ex" (.getClassName clj-frame)))
-  (is (= "invoke" (.getMethodName clj-frame)))
+  (is (= "invokeStatic" (.getMethodName clj-frame)))
   (is (= "stacks_test_cljc.cljc" (.getFileName clj-frame)))
   (is (= 5 (.getLineNumber clj-frame))))
 

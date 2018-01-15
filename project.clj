@@ -28,6 +28,4 @@
                    :cljsbuild {:builds [{:source-paths ["src" "dev"]
                                          :compiler {:output-to "dev-resources/prone/generated/prone.js"
                                                     :output-dir "dev-resources/prone/generated/out"
-                                                    :optimizations :whitespace}}]}}
-             :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]
-                   :test-paths ["test" "test-1.7"]}})
+                                                    :optimizations :whitespace}}]}}})
