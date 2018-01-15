@@ -4,7 +4,7 @@
             [prone.ui.components.source-location :refer [SourceLocation]]
             [prone.ui.components.code-excerpt :refer [CodeExcerpt]]
             [prone.ui.utils :refer [action]]
-            [quiescent :as q :include-macros true]
+            [quiescent.core :as q :include-macros true]
             [quiescent.dom :as d]))
 
 (q/defcomponent ErrorHeader

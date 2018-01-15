@@ -1,7 +1,7 @@
 (ns prone.ui.components.source-location
   (:require [cljs.core.async :refer [put!]]
             [prone.ui.utils :refer [action]]
-            [quiescent :as q :include-macros true]
+            [quiescent.core :as q :include-macros true]
             [quiescent.dom :as d]))
 
 (q/defcomponent SourceLocation [{:keys [src-loc selected?]} select-src-loc]

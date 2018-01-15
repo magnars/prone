@@ -1,10 +1,10 @@
 (ns prone.ui.main
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [chan <!]]
             [clojure.string :as str]
             [prone.ui.components.app :refer [ProneUI]]
             [prone.ui.utils :refer [update-in*]]
-            [quiescent :as q :include-macros true]))
+            [quiescent.core :as q :include-macros true])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn code-excerpt-changed? [old new]
   (or (not= (:selected-src-locs new) (:selected-src-locs old))
@@ -38,10 +38,11 @@
     :reset (assoc-in data [:paths path-key] path)))
 
 (defn on-msg [chan handler]
-  (go-loop []
-    (when-let [msg (<! chan)]
-      (handler msg)
-      (recur))))
+  (go
+    (loop []
+      (when-let [msg (<! chan)]
+        (handler msg)
+        (recur)))))
 
 (defn select-src-loc [data selection]
   (assoc-in data [:selected-src-locs (:src-loc-selection data)] selection))

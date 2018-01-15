@@ -1,5 +1,5 @@
 (ns prone.ui.components.code-excerpt
-  (:require [quiescent :as q :include-macros true]
+  (:require [quiescent.core :as q :include-macros true]
             [quiescent.dom :as d]))
 
 (def source-classes {:clj "language-clojure"

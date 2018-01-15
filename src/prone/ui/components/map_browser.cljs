@@ -3,7 +3,7 @@
             [clojure.string :as str]
             [clojure.walk :as walk]
             [prone.ui.utils :refer [action get-in*]]
-            [quiescent :as q :include-macros true]
+            [quiescent.core :as q :include-macros true]
             [quiescent.dom :as d]))
 
 (def inline-length-limit 120)

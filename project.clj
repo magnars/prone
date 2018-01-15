@@ -12,10 +12,10 @@
                                   [flare "0.2.2"]
                                   [ring "1.2.1"]
                                   [hiccup-find  "0.4.0"]
-                                  [org.clojure/clojurescript "0.0-2202"]
+                                  [org.clojure/clojurescript "0.0-3308"]
                                   [prismatic/schema "0.2.1"]
-                                  [quiescent "0.1.4"]
-                                  [org.clojure/core.async "0.1.338.0-5c5012-alpha"]]
+                                  [quiescent "0.3.2"]
+                                  [org.clojure/core.async "0.2.371"]]
                    :injections [(require 'flare.clojure-test)
                                 (flare.clojure-test/install!)]
                    :source-paths ["dev"]
