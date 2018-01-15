@@ -14,7 +14,7 @@
                                   [hiccup-find  "0.5.0"]
                                   [org.clojure/clojurescript "1.9.521"]
                                   [quiescent "0.3.2"]
-                                  [org.clojure/core.async "0.2.371"]]
+                                  [org.clojure/core.async "0.4.474"]]
                    :injections [(require 'flare.clojure-test)
                                 (flare.clojure-test/install!)]
                    :source-paths ["dev"]
@@ -22,7 +22,7 @@
                    :ring {:handler prone.demo/app
                           :port 3001}
                    :plugins [[lein-ring "0.12.3"]
-                             [lein-cljsbuild "1.1.6"]
+                             [lein-cljsbuild "1.1.7"]
                              [lein-shell "0.5.0"]
                              [com.jakemccrary/lein-test-refresh "0.22.0"]]
                    :cljsbuild {:builds [{:source-paths ["src" "dev"]
