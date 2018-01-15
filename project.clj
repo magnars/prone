@@ -12,7 +12,7 @@
                                   [flare "0.2.9"]
                                   [ring "1.6.3"]
                                   [hiccup-find  "0.5.0"]
-                                  [org.clojure/clojurescript "1.9.521"]
+                                  [org.clojure/clojurescript "1.9.946"]
                                   [quiescent "0.3.2"]
                                   [org.clojure/core.async "0.4.474"]]
                    :injections [(require 'flare.clojure-test)

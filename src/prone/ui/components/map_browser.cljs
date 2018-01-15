@@ -127,7 +127,7 @@
         (list? v) (d/pre {} "(" (count v) " items)")
         (vector? v) (d/pre {} "[" (count v) " items]"))))
 
-(q/defcomponent MapEntry
+(q/defcomponent ProneMapEntry
   "A map entry is one key/value pair, formatted appropriately for their types"
   [[k v] navigate-request]
   (d/tr {}
@@ -166,5 +166,5 @@
                    (apply d/tbody {}
                           (let [view (get-in* data path)]
                             (if (map? view)
-                              (map #(MapEntry % navigate-request) (sort-by (comp str first) view))
-                              (map-indexed #(MapEntry [%1 %2] navigate-request) view))))))))
+                              (map #(ProneMapEntry % navigate-request) (sort-by (comp str first) view))
+                              (map-indexed #(ProneMapEntry [%1 %2] navigate-request) view))))))))
