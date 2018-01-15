@@ -3,12 +3,13 @@
   :url "http://github.com/magnars/prone"
   :license {:name "BSD-3-Clause"
             :url "http://opensource.org/licenses/BSD-3-Clause"}
-  :dependencies [[org.clojure/clojure "1.5.1"]]
+  :dependencies []
   :filespecs [{:type :fn
                :fn (fn [_]
                      {:type :bytes :path "prone/generated/prone.js"
                       :bytes (slurp "dev-resources/prone/generated/prone.js")})}]
-  :profiles {:dev {:dependencies [[flare "0.2.2"]
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.8.0"]
+                                  [flare "0.2.2"]
                                   [ring "1.2.1"]
                                   [hiccup-find  "0.4.0"]
                                   [org.clojure/clojurescript "0.0-2202"]

@@ -1,6 +1,6 @@
 (ns prone.stacks-test
-  (:require [prone.stacks :refer :all]
-            [clojure.test :refer :all]))
+  (:require [clojure.test :refer :all]
+            [prone.stacks :refer :all]))
 
 (defn clj-version []
   (str "clojure-" (clojure-version)))
@@ -13,7 +13,10 @@
 
 (def ex (create-ex "Message for you, Sir!"))
 
-(def anon-fn-ex ((fn [] (create-ex "Message for you, Sir!"))))
+(def anon-fn-ex (try
+                  (throw (Exception. "Message for you, Sir!"))
+                  (catch Exception e
+                    e)))
 
 (def clj-frame (->> (.getStackTrace ex)
                     (filter #(re-find #"^prone" (.getClassName %)))
@@ -31,7 +34,7 @@
   (is (= "Message for you, Sir!" (.getMessage ex)))
 
   (is (= "prone.stacks_test$create_ex" (.getClassName clj-frame)))
-  (is (= "invoke" (.getMethodName clj-frame)))
+  (is (= "invokeStatic" (.getMethodName clj-frame)))
   (is (= "stacks_test.clj" (.getFileName clj-frame)))
   (is (= 8 (.getLineNumber clj-frame)))
 
