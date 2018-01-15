@@ -8,7 +8,7 @@
                :fn (fn [_]
                      {:type :bytes :path "prone/generated/prone.js"
                       :bytes (slurp "dev-resources/prone/generated/prone.js")})}]
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.8.0"]
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.9.0"]
                                   [flare "0.2.9"]
                                   [ring "1.6.3"]
                                   [hiccup-find  "0.5.0"]
