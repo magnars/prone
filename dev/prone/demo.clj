@@ -1,8 +1,7 @@
 (ns prone.demo
   (:require [clojure.java.io :as io]
-            [prone.middleware :refer [wrap-exceptions]]
             [prone.debug :refer [debug]]
-            [schema.core :refer [optional-key either validate Str Num Keyword]])
+            [prone.middleware :refer [wrap-exceptions]])
   (:import [java.io ByteArrayInputStream]))
 
 (defrecord MyRecord [num])
@@ -64,11 +63,6 @@
    ;; throw an exception with a cause
    (= (:uri req) "/caused-by")
    (throw (Exception. "It went wrong because of something else" (create-intermediate-cause)))
-
-   ;; prismatic/schema validation error
-   (= (:uri req) "/schema")
-   (validate {:name Str, (optional-key :age) Num, :id (either Str Keyword)}
-             {:name 17, :id 18})
 
    ;; use the debug function to halt rendering (and inspect data)
    (= (:uri req) "/debug")
