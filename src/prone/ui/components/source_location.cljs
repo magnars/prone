@@ -11,12 +11,12 @@
                 (d/span {:className (if (:application? src-loc)
                                       "icon application"
                                       "icon")})
-                (d/div {:className "info"}
+                (d/span {:className "info"}
                        (if (= (:lang src-loc) :clj)
-                         (d/div {:className "name"}
+                         (d/span {:className "name"}
                                 (d/strong {} (:package src-loc))
                                 (d/span {:className "method"} "/" (:method-name src-loc)))
-                         (d/div {:className "name"}
+                         (d/span {:className "name"}
                                 (d/strong {} (:package src-loc) "." (:class-name src-loc))
                                 (d/span {:className "method"} "$" (:method-name src-loc))))
                        (if (:file-name src-loc)
