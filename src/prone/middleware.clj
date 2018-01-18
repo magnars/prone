@@ -56,6 +56,7 @@
      (list "<!DOCTYPE html>"
            [:html
             [:head
+             [:meta {:charset "utf-8"}]
              [:title (:title data)]
              [:link {:rel "stylesheet" :href (asset-name->url :styles)}]]
             [:body
@@ -75,7 +76,7 @@
 (defn- serve-page [page & [status]]
   {:status (or status 500)
    :body (render-page page)
-   :headers (cond-> {"Content-Type" "text/html"}
+   :headers (cond-> {"Content-Type" "text/html; charset=utf-8"}
               (:uri page) (assoc "Link" (str "<" (:uri page) ">; rel=help")))})
 
 (defn debug-response
