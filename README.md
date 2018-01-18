@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.1.4"]` to `:dependencies` in your `project.clj`.
+Add `[prone "1.2.0"]` to `:dependencies` in your `project.clj`.
 
 This project uses [Semantic Versioning](http://semver.org/). There will be no
 breaking changes without a major version increase. There's also a
@@ -203,8 +203,11 @@ then prone goes and prints them as well. Turn it off like so:
 
 ## Change log
 
-#### From 1.1 to master
+#### From 1.1 to 1.2
 
+- Serve contents as UTF-8 - fixes occasional regexp error warning
+- Upgrade Prism.JS - fixes graphical glitch with highlighted line
+- Upgrade ClojureScript version - now supports namespaced keys.
 - Show error page for assertion errors as well (alephyud)
 - Fix error when showing maps with complex keys
 - Fix compatibility Clojure 1.9 (lvh)
