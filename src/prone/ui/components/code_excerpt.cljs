@@ -16,6 +16,7 @@
               (d/div {:className "code_block clearfix"}
                      (d/pre {:className "line-numbers code"
                              :data-line (:line-number source-loc)
+                             :data-start (inc (-> source-loc :source :offset))
                              :data-line-offset (-> source-loc :source :offset)}
                             (d/code {:className (source-classes (:lang source-loc))} source-code)))
               (d/div {:className "source-failure"}
