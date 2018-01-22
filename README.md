@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.2.0"]` to `:dependencies` in your `project.clj`.
+Add `[prone "1.3.0"]` to `:dependencies` in your `project.clj`.
 
 This project uses [Semantic Versioning](http://semver.org/). There will be no
 breaking changes without a major version increase. There's also a
@@ -202,6 +202,17 @@ then prone goes and prints them as well. Turn it off like so:
   ClojureScript causes JavaScript errors that partly trips up Prone
 
 ## Change log
+
+#### From 1.2 to 1.3
+
+- Add function to render self-contained page.
+
+  This can be used to store prone-pages for later perusal even when the prone
+  process is no longer running.
+
+  ```
+  (spit "my-error.html" (render-self-contained-page (create-exception-page e {})))
+  ```
 
 #### From 1.1 to 1.2
 
