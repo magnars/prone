@@ -8,11 +8,11 @@
             [quiescent.dom :as d]))
 
 (q/defcomponent ErrorHeader
-  [{:keys [error request paths]} chans]
+  [{:keys [error location paths]} chans]
   (d/header {:className "exception"}
             (d/h2 {}
                   (d/strong {} (:type error))
-                  (d/span {} " at " (:uri request))
+                  (d/span {} " at " location)
                   (when (or (:caused-by error) (seq (:error paths)))
                     (d/span {:className "caused-by"}
                             (when (seq (:error paths))
@@ -29,19 +29,16 @@
                         (d/span {} (:class-name error)
                                 (d/span {:className "subtle"} " [no message]"))))))
 
-(q/defcomponent DebugHeader
-  [{:keys [request]} chans]
+(q/defcomponent DebugHeader []
   (d/header {:className "exception"}
-            (d/h2 {}
-                  (d/span {} "Tired of seeing this page? Remove calls to "
-                          "prone.debug/debug - and stop causing exceptions"))
+            (d/h2 {} (d/span {} "Tired of seeing this page? Remove calls to prone.debug/debug"))
             (d/p {} "Halted for debugging")))
 
 (q/defcomponent Header
   [data chans]
   (if (:error data)
     (ErrorHeader data chans)
-    (DebugHeader data chans)))
+    (DebugHeader)))
 
 (q/defcomponent SourceLocLink
   [src-loc-selection target name chans]

@@ -53,13 +53,13 @@
                                                :closed-stream (doto (io/input-stream "http://example.com") .close)
                                                :lazy (map inc [1 2 3])
                                                :record (DefLeppard. 1)}} "")
-             :request :session))))
+             :browsables first :data :session))))
 
 (deftest avoid-really-long-strings
   (is (= {:content {:prone.prep/value "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss..."
                     :prone.prep/original-type "String with 20000 chars"}}
          (-> (prep-error-page {} {} {:content (str/join (repeat 20000 "s"))} "")
-             :request))))
+             :browsables first :data))))
 
 (defn prep-debug [debug]
   (prep-debug-page debug {}))

@@ -149,16 +149,16 @@
   (let [prepped-error (prep-error error app-namespaces)
         prepped-request (prepare-for-serialization request)]
     {:title (-> prepped-error :message)
+     :location (:uri prepped-request)
      :error prepped-error
      :debug-data (prep-debug debug-data)
-     :request prepped-request
      :src-loc-selection :application
      :browsables [{:name "Request map", :data prepped-request}]}))
 
 (defn prep-debug-page [debug-data request]
   (let [prepped-request (prepare-for-serialization request)]
     {:title "Debug halt"
-     :request prepped-request
+     :location (:uri prepped-request)
      :debug-data (prep-debug debug-data)
      :src-loc-selection :debug
      :browsables [{:name "Request map", :data prepped-request}]}))
