@@ -80,7 +80,8 @@
                    (d/td {:className "name"} (InlineVectorBrowser path nil))
                    (d/td {} (d/a {:href "#"
                                   :onClick (action #(put! navigate-data [:other-error [:reset [:exceptions-when-realizing path]]]))}
-                              (:message exception))))))))))
+                              (or (:message exception)
+                                  (:class-name exception)))))))))))
 
 (q/defcomponent Body
   [{:keys [src-loc-selection selected-src-loc debug-data error paths browsables exceptions-when-realizing] :as data} {:keys [navigate-data]}]

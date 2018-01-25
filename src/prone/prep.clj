@@ -72,8 +72,10 @@
                       {::value (str (subs val 0 60) "...")
                        ::original-type (str "String with " len " chars")}
                       val))
-    (and (map? val) (:realize.core/exception val)) {::value (.getMessage (:realize.core/exception val))
-                                                    ::original-type (str "thrown-when-realized: " (get-type (:realize.core/exception val)))}
+    (and (map? val) (:realize.core/exception val)) (let [exception (:realize.core/exception val)]
+                                                     {::value (or (.getMessage exception)
+                                                                  (symbol (last (str/split (.getName (type exception)) #"\."))))
+                                                      ::original-type (str "thrown-when-realized: " (get-type exception))})
     (map? val) val
     (vector? val) val
     (list? val) val
