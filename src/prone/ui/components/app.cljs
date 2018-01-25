@@ -1,6 +1,6 @@
 (ns prone.ui.components.app
   (:require [cljs.core.async :refer [put! map>]]
-            [prone.ui.components.map-browser :refer [MapBrowser]]
+            [prone.ui.components.map-browser :refer [MapBrowser InlineVectorBrowser ValueToken]]
             [prone.ui.components.source-location :refer [SourceLocation]]
             [prone.ui.components.code-excerpt :refer [CodeExcerpt]]
             [prone.ui.utils :refer [action]]
@@ -11,20 +11,27 @@
   [{:keys [error location paths]} chans]
   (d/header {:className "exception"}
             (d/h2 {}
-                  (d/strong {} (:type error))
-                  (d/span {} " at " location)
-                  (when (or (:caused-by error) (seq (:error paths)))
-                    (d/span {:className "caused-by"}
-                            (when (seq (:error paths))
-                              (d/a {:href "#"
-                                    :onClick (action #(put! (:navigate-data chans)
-                                                            [:error [:reset (butlast (:error paths))]]))}
-                                   "< back"))
-                            (when-let [caused-by (:caused-by error)]
-                              (d/span {} " Caused by " (d/a {:href "#"
-                                                             :onClick (action #(put! (:navigate-data chans)
-                                                                                     [:error [:concat [:caused-by]]]))}
-                                                            (:type caused-by)))))))
+              (d/strong {} (:type error))
+              (d/span {} " at " location)
+              (when (or (:caused-by error)
+                        (seq (:error paths))
+                        (:other-error paths))
+                (d/span {:className "caused-by"}
+                  (if (seq (:other-error paths))
+                    (d/a {:href "#"
+                          :onClick (action #(put! (:navigate-data chans)
+                                                  [:other-error [:reset nil]]))}
+                      "< back")
+                    (when (seq (:error paths))
+                      (d/a {:href "#"
+                            :onClick (action #(put! (:navigate-data chans)
+                                                    [:error [:reset (butlast (:error paths))]]))}
+                        "< back")))
+                  (when-let [caused-by (:caused-by error)]
+                    (d/span {} " Caused by " (d/a {:href "#"
+                                                   :onClick (action #(put! (:navigate-data chans)
+                                                                           [:error [:concat [:caused-by]]]))}
+                                               (:type caused-by)))))))
             (d/p {} (or (:message error)
                         (d/span {} (:class-name error)
                                 (d/span {:className "subtle"} " [no message]"))))))
@@ -62,19 +69,34 @@
                                   (:select-src-loc chans))
                      active-src-locs))))
 
+(q/defcomponent ExceptionsWhenRealizing [exceptions-when-realizing navigate-data]
+  (d/div {:className "sub"}
+    (d/h3 {:className "map-path"} "Exceptions while realizing request map")
+    (d/div {:className "inset variables"}
+      (d/table  {:className "var_table"}
+        (apply d/tbody {}
+               (for [[path exception] exceptions-when-realizing]
+                 (d/tr {}
+                   (d/td {:className "name"} (InlineVectorBrowser path nil))
+                   (d/td {} (d/a {:href "#"
+                                  :onClick (action #(put! navigate-data [:other-error [:reset [:exceptions-when-realizing path]]]))}
+                              (:message exception))))))))))
+
 (q/defcomponent Body
-  [{:keys [src-loc-selection selected-src-loc debug-data error paths browsables] :as data} {:keys [navigate-data]}]
+  [{:keys [src-loc-selection selected-src-loc debug-data error paths browsables exceptions-when-realizing] :as data} {:keys [navigate-data]}]
   (let [debugging? (= :debug src-loc-selection)
         local-browsables (:browsables (if debugging? selected-src-loc error))
         heading (when (= :debug src-loc-selection) (:message debug-data))]
     (apply d/div {:className "frame_info" :id "frame-info"}
            (CodeExcerpt selected-src-loc)
            (when heading (d/h2 {:className "sub-heading"} heading))
+           (when (seq exceptions-when-realizing)
+             (ExceptionsWhenRealizing exceptions-when-realizing navigate-data))
            (map #(d/div {:className "sub"}
-                        (MapBrowser {:data (:data %)
-                                     :path (get paths %)
-                                     :name (:name %)}
-                                    (map> (fn [v] [% v]) navigate-data)))
+                   (MapBrowser {:data (:data %)
+                                :path (get paths %)
+                                :name (:name %)}
+                               (map> (fn [v] [% v]) navigate-data)))
                 (concat local-browsables browsables)))))
 
 (q/defcomponent ProneUI

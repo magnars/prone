@@ -4,7 +4,9 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.walk :as walk]
-            [prone.code-trunc :as clj-code])
+            [prone.code-trunc :as clj-code]
+            [prone.stacks :refer [normalize-exception]]
+            [realize.core :as realize])
   (:import [java.io InputStream File IOException]))
 
 (def max-source-lines
@@ -70,6 +72,8 @@
                       {::value (str (subs val 0 60) "...")
                        ::original-type (str "String with " len " chars")}
                       val))
+    (and (map? val) (:realize.core/exception val)) {::value (.getMessage (:realize.core/exception val))
+                                                    ::original-type (str "thrown-when-realized: " (get-type (:realize.core/exception val)))}
     (map? val) val
     (vector? val) val
     (list? val) val
@@ -112,7 +116,7 @@
                        (map-indexed set-frame-id)
                        (map (partial set-application-frame app-namespaces))
                        (mapv add-source)))
-      (update-in [:data] prepare-for-serialization)
+      (update-in [:data] (comp prepare-for-serialization realize/realize))
       add-browsable-data))
 
 (defn- add-browsable-debug
@@ -147,12 +151,16 @@
 
 (defn prep-error-page [error debug-data request app-namespaces]
   (let [prepped-error (prep-error error app-namespaces)
-        prepped-request (prepare-for-serialization request)]
+        realized-request (realize/realize request)
+        prepped-request (prepare-for-serialization realized-request)
+        exceptions-in-request (realize/find-exceptions realized-request)]
     {:title (-> prepped-error :message)
      :location (:uri prepped-request)
      :error prepped-error
      :debug-data (prep-debug debug-data)
      :src-loc-selection :application
+     :exceptions-when-realizing (into {} (for [{:keys [path exception]} exceptions-in-request]
+                                           [path (prep-error (normalize-exception exception) app-namespaces)]))
      :browsables [{:name "Request map", :data prepped-request}]}))
 
 (defn prep-debug-page [debug-data request]

@@ -3,7 +3,7 @@
   :url "http://github.com/magnars/prone"
   :license {:name "BSD-3-Clause"
             :url "http://opensource.org/licenses/BSD-3-Clause"}
-  :dependencies []
+  :dependencies [[realize "1.0.0"]]
   :filespecs [{:type :fn
                :fn (fn [_]
                      {:type :bytes :path "prone/generated/prone.js"

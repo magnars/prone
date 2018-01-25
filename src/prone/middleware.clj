@@ -145,9 +145,10 @@
           (if (and skip-prone? (skip-prone? req))
             (handler req)
             (letfn [(handle-exception [e]
-                      (when print-stacktraces?
-                        (.printStackTrace e))
-                      (exceptions-response req e app-namespaces))]
+                      (let [result (exceptions-response req e app-namespaces)]
+                        (when print-stacktraces?
+                          (try (.printStackTrace e) (catch Throwable t :ignore)))
+                        result))]
               (try
                 (let [result (handler req)]
                   (if (< 0 (count @debug/*debug-data*))

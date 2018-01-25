@@ -17,6 +17,7 @@
              They need to be shortened somehow in the UI."}}}})
              (assoc :vectors [:are "Also" "supported" 13])
              (assoc :lists '(:are "Also" "supported" 13))
+             (assoc :exceptions {:inside {:lazy-lists (map (fn [_] (throw (Exception. "Surprise!"))) [1 2 3])}})
              (assoc :sets #{:are "Also" "supported" 13})
              (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside,"
                                    "at" "least" "while" "staying" "on" "only" "a" "single" "line."
@@ -46,55 +47,59 @@
 (defn handler [req]
   (cond
 
-   ;; serve source maps
-   (re-find #"prone.js.map$" (:uri req))
-   {:status 200
-    :headers {"Content-Type" "application/octet-stream"}
-    :body (slurp (io/resource "prone/generated/prone.js.map"))}
+    ;; serve source maps
+    (re-find #"prone.js.map$" (:uri req))
+    {:status 200
+     :headers {"Content-Type" "application/octet-stream"}
+     :body (slurp (io/resource "prone/generated/prone.js.map"))}
 
-   ;; throw exception in dependency (outside of app)
-   (= (:uri req) "/external-throw") (re-find #"." nil)
+    ;; throw exception in dependency (outside of app)
+    (= (:uri req) "/external-throw") (re-find #"." nil)
 
-   ;; throw an ex-info with data attached
-   (= (:uri req) "/ex-info")
-   (throw (ex-info "This will be informative" {:authors [:magnars :cjohansen]
-                                               :deep {:dark {:scary {:nested {:data "Structure"
-                                                                              :of "Doom"
-                                                                              :fruits ["Apple" "Orange" "Pear" "Banana" "Peach" "Watermelon" "Guava"]}}}}}))
+    ;; throw an ex-info with data attached
+    (= (:uri req) "/ex-info")
+    (throw (ex-info "This will be informative" {:authors [:magnars :cjohansen]
+                                                :deep {:dark {:scary {:nested {:data "Structure"
+                                                                               :of "Doom"
+                                                                               :fruits ["Apple" "Orange" "Pear" "Banana" "Peach" "Watermelon" "Guava"]}}}}}))
 
-   ;; throw an exception with a cause
-   (= (:uri req) "/caused-by")
-   (throw (Exception. "It went wrong because of something else" (create-intermediate-cause)))
+    (= (:uri req) "/lazy")
+    (throw (ex-info "This lazy seq has an exception in store"
+                    {:dangerously {:lazy (map (fn [_] (throw (Exception. "Exception inside a lazy list"))) [1 2 3])}}))
 
-   ;; use the debug function to halt rendering (and inspect data)
-   (= (:uri req) "/debug")
-   (do
-     (debug "How's this work?" {:id (rand)})
-     (debug {:id (rand)})
+    ;; throw an exception with a cause
+    (= (:uri req) "/caused-by")
+    (throw (Exception. "It went wrong because of something else" (create-intermediate-cause)))
 
-     (let [team "America"]
-       (debug "Look at them locals"))
+    ;; use the debug function to halt rendering (and inspect data)
+    (= (:uri req) "/debug")
+    (do
+      (debug "How's this work?" {:id (rand)})
+      (debug {:id (rand)})
 
-     {:status 200
-      :headers {"content-type" "text/html"}
-      :body "<h1>Hello, bittersweet and slightly tangy world</h1>"})
+      (let [team "America"]
+        (debug "Look at them locals"))
 
-   ;; basic case
-   :else (do
-           ;; A map with nil as key, that is too big to render inline
-           ;; (Used to cause a bug in the MapBrowser)
-           (debug {nil [1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10
-                        1 2 3 4 5 6 7 8 9 10]})
-           (debug "What's this" {:id 42 :req req})
-           (throw (Exception. "Oh noes!")))))
+      {:status 200
+       :headers {"content-type" "text/html"}
+       :body "<h1>Hello, bittersweet and slightly tangy world</h1>"})
+
+    ;; basic case
+    :else (do
+            ;; A map with nil as key, that is too big to render inline
+            ;; (Used to cause a bug in the MapBrowser)
+            (debug {nil [1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10
+                         1 2 3 4 5 6 7 8 9 10]})
+            (debug "What's this" {:id 42 :req req})
+            (throw (Exception. "Oh noes!")))))
 
 (def app
   (-> handler

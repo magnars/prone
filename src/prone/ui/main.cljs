@@ -1,5 +1,5 @@
 (ns prone.ui.main
-  (:require [cljs.core.async :refer [chan <!]]
+  (:require [cljs.core.async :refer [<! chan]]
             [clojure.string :as str]
             [prone.ui.components.app :refer [ProneUI]]
             [prone.ui.utils :refer [update-in*]]
@@ -17,7 +17,9 @@
     :debug debug-data))
 
 (defn select-current-error-in-chain [data]
-  (update-in data [:error] #(get-in % (-> data :paths :error))))
+  (if-let [other-error-path (get-in data [:paths :other-error])]
+    (assoc data :error (get-in data other-error-path))
+    (update-in data [:error] #(get-in % (-> data :paths :error)))))
 
 (defn prepare-data-for-display [data]
   (let [data (select-current-error-in-chain data)]
