@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.4.1"]` to `:dependencies` in your `project.clj`.
+Add `[prone "1.5.0"]` to `:dependencies` in your `project.clj`.
 
 This project uses [Semantic Versioning](http://semver.org/). There will be no
 breaking changes without a major version increase. There's also a
@@ -202,6 +202,12 @@ then prone goes and prints them as well. Turn it off like so:
   ClojureScript causes JavaScript errors that partly trips up Prone
 
 ## Change log
+
+#### From 1.4 to 1.5
+
+- Avoid expanding Datomic databases
+- Don't show too many extra exceptions
+- Always select the first source location when switching between exceptions
 
 #### From 1.3 to 1.4
 
