@@ -34,11 +34,6 @@
     (.highlightAll js/Prism)
     (set! (-> js/document (.getElementById "frame-info") .-scrollTop) 0)))
 
-(defn navigate-data [data [path-key [nav-type path]]]
-  (case nav-type
-    :concat (update-in data [:paths path-key] #(concat % path))
-    :reset (assoc-in data [:paths path-key] path)))
-
 (defn on-msg [chan handler]
   (go
     (loop []
@@ -50,9 +45,18 @@
   (assoc-in data [:selected-src-locs (:src-loc-selection data)] selection))
 
 (defn ensure-selected-src-loc [data]
-  (if (get-in data [:selected-src-locs (:src-loc-selection data)])
-    data
-    (select-src-loc data (first (get-active-src-locs data)))))
+  (let [view (select-current-error-in-chain data)
+        active-src-locs (get-active-src-locs view)
+        currently-selected (get-in view [:selected-src-locs (:src-loc-selection view)])]
+    (if (some #{currently-selected} active-src-locs)
+      data
+      (select-src-loc data (first active-src-locs)))))
+
+(defn navigate-data [data [path-key [nav-type path]]]
+  (-> (case nav-type
+        :concat (update-in data [:paths path-key] #(concat % path))
+        :reset (assoc-in data [:paths path-key] path))
+      ensure-selected-src-loc))
 
 (defn change-src-loc-selection [data selection]
   (-> data
