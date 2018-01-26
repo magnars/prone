@@ -3,7 +3,7 @@
   :url "http://github.com/magnars/prone"
   :license {:name "BSD-3-Clause"
             :url "http://opensource.org/licenses/BSD-3-Clause"}
-  :dependencies [[realize "1.0.0"]]
+  :dependencies [[realize "1.1.0"]]
   :filespecs [{:type :fn
                :fn (fn [_]
                      {:type :bytes :path "prone/generated/prone.js"
@@ -14,7 +14,8 @@
                                   [hiccup-find  "0.5.0"]
                                   [org.clojure/clojurescript "1.9.946"]
                                   [quiescent "0.3.2"]
-                                  [org.clojure/core.async "0.4.474"]]
+                                  [org.clojure/core.async "0.4.474"]
+                                  [com.datomic/datomic-free "0.9.5544" :exclusions [joda-time commons-codec com.google.guava/guava]]]
                    :injections [(require 'flare.clojure-test)
                                 (flare.clojure-test/install!)]
                    :source-paths ["dev"]

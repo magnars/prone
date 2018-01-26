@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.test :refer :all]
+            [datomic.api :as d]
             [prone.prep :refer [prep-error-page prep-debug-page]])
   (:import [java.io ByteArrayInputStream]))
 
@@ -34,6 +35,9 @@
 
 (defrecord DefLeppard [num-hands])
 
+(def conn (do (d/create-database "datomic:mem://test-db")
+              (d/connect "datomic:mem://test-db")))
+
 (deftest no-unreadable-forms
   (is (= {:name "John Doe"
           :age 37
@@ -45,14 +49,23 @@
                           :prone.prep/original-type "java.io.BufferedInputStream"}
           :lazy '(2 3 4)
           :record {:prone.prep/value {:num-hands 1}
-                   :prone.prep/original-type "prone.prep_test.DefLeppard"}}
+                   :prone.prep/original-type "prone.prep_test.DefLeppard"}
+          :datomic {:conn {:prone.prep/original-type "datomic.peer.LocalConnection",
+                           :prone.prep/value (str conn)}
+                    :db {:prone.prep/original-type "datomic.db.Db",
+                         :prone.prep/value 'Db}
+                    :entity {:prone.prep/original-type "datomic.query.EntityMap",
+                             :prone.prep/value "#:db{:id 1}"}}}
          (-> (prep-error-page {} {} {:session {:name "John Doe"
                                                :age 37
                                                :url (java.net.URL. "http://example.com")
                                                :body (ByteArrayInputStream. (.getBytes "Hello"))
                                                :closed-stream (doto (io/input-stream "http://example.com") .close)
                                                :lazy (map inc [1 2 3])
-                                               :record (DefLeppard. 1)}} "")
+                                               :record (DefLeppard. 1)
+                                               :datomic (let [db (d/db conn)]
+                                                          {:conn conn :db db :entity (d/entity db 1)})}}
+                              "")
              :browsables first :data :session))))
 
 (deftest avoid-really-long-strings

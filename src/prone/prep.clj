@@ -56,12 +56,18 @@
       (.toString val)
       s)))
 
-(defn- prepare-for-serialization-1 [val]
+(def irecords-to-avoid-expanding
+  #{"datomic.db.Db"})
+
+(defn prepare-for-serialization-1 [val]
   (cond
     (nil? val) val
     (instance? java.lang.Class val) {::value (symbol (.getName val))
                                      ::original-type "java.lang.Class"}
-    (instance? clojure.lang.IRecord val) {::value (into {} val)
+    (instance? clojure.lang.IRecord val) {::value (let [t (get-type val)]
+                                                    (if (irecords-to-avoid-expanding t)
+                                                      (symbol (last (str/split t #"\.")))
+                                                      (into {} val)))
                                           ::original-type (.getName (type val))}
     (instance? InputStream val) {::value (try
                                            (slurp val)

@@ -1,5 +1,6 @@
 (ns prone.demo
   (:require [clojure.java.io :as io]
+            [datomic.api :as d]
             [prone.debug :refer [debug]]
             [prone.middleware :refer [wrap-exceptions]])
   (:import [java.io ByteArrayInputStream]))
@@ -7,6 +8,9 @@
 (defrecord MyRecord [num])
 
 (deftype MyType [num])
+
+(def conn (do (d/create-database "datomic:mem://test-db")
+              (d/connect "datomic:mem://test-db")))
 
 (defn piggie-backer [app]
   (fn [req]
@@ -25,6 +29,8 @@
                                    "They need to be shortened somehow in the UI."])
              (assoc :namespaced-maps #:my-ns{:are "supported"
                                              :as "well"})
+             (assoc :datomic (let [db (d/db conn)]
+                               {:conn conn :db db :entity (d/entity db 1)}))
              (assoc :session {:name "John Doe"
                               :age 37
                               :url (java.net.URL. "http://example.com")
