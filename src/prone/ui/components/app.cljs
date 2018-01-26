@@ -69,17 +69,19 @@
                                   (:select-src-loc chans))
                      active-src-locs))))
 
-(q/defcomponent ExceptionsWhenRealizing [exceptions-when-realizing navigate-data]
+(q/defcomponent ExceptionsWhenRealizing [{:keys [total bounded? selection]} navigate-data]
   (d/div {:className "sub"}
     (d/h3 {:className "map-path"} "Exceptions while realizing request map")
+    (when (< (count selection) total)
+      (d/div {:style {:fontSize 11 :marginBottom 15}} "Showing " (count selection) " out of " (when bounded? "at least ") total " exceptions."))
     (d/div {:className "inset variables"}
       (d/table  {:className "var_table"}
         (apply d/tbody {}
-               (for [[path exception] exceptions-when-realizing]
+               (for [[path exception] selection]
                  (d/tr {}
                    (d/td {:className "name"} (InlineVectorBrowser path nil))
                    (d/td {} (d/a {:href "#"
-                                  :onClick (action #(put! navigate-data [:other-error [:reset [:exceptions-when-realizing path]]]))}
+                                  :onClick (action #(put! navigate-data [:other-error [:reset [:exceptions-when-realizing :selection path]]]))}
                               (or (:message exception)
                                   (:class-name exception)))))))))))
 
