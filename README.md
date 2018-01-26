@@ -4,7 +4,7 @@ Better exception reporting middleware for Ring. Heavily inspired by
 [better_errors for Rails](https://github.com/charliesome/better_errors).
 
 See it to believe it:
-[a quick video demoing Prone](https://dl.dropboxusercontent.com/u/3378230/prone-demo.mp4).
+[a quick video demoing Prone](https://youtu.be/Fgv6bxmxxpM).
 
 Prone presents your stack traces in a consumable form. It optionally filters out
 stack frames that did not originate in your application, allowing you to focus
