@@ -34,6 +34,7 @@
                                              :as "well"})
              (assoc :datomic (let [db (d/db conn)]
                                {:conn conn :db db :entity (d/entity db 1)}))
+             (assoc :now (java.util.Date.))
              (assoc :session {:name "John Doe"
                               :age 37
                               :url (java.net.URL. "http://example.com")

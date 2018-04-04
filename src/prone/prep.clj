@@ -82,6 +82,7 @@
                                                      {::value (or (.getMessage exception)
                                                                   (symbol (last (str/split (.getName (type exception)) #"\."))))
                                                       ::original-type (str "thrown-when-realized: " (get-type exception))})
+    (inst? val) {::value (symbol (to-string val)) ::original-type (get-type val)}
     (map? val) val
     (vector? val) val
     (list? val) val
