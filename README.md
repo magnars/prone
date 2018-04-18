@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.5.1"]` to `:dependencies` in your `project.clj`.
+Add `[prone "1.5.2"]` to `:dependencies` in your `project.clj`.
 
 This project uses [Semantic Versioning](http://semver.org/). There will be no
 breaking changes without a major version increase. There's also a
