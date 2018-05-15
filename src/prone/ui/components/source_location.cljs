@@ -25,6 +25,8 @@
                                 (d/span {:className "filename"}
                                         (:file-name src-loc))
                                 ", line "
-                                (d/span {:className "line"} (:line-number src-loc)))
+                                (d/span {:className "line"} (:line-number src-loc))
+                                (when-let [column (:column src-loc)]
+                                  (str ", column " column)))
                          (d/div {:className "location"}
                                 "(unknown file)"))))))

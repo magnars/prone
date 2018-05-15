@@ -91,8 +91,8 @@
 
 (defn- add-frame-from-message [ex]
   (if-let [data (and (:message ex)
-                     (re-find #"\(([^(]+.cljc?):(\d+):\d+\)" (:message ex)))]
-    (let [[_ path line] data]
+                     (re-find #"\(([^(]+.cljc?):(\d+):(\d+)\)" (:message ex)))]
+    (let [[_ path line column] data]
       (if (io/resource path)
         (update-in ex [:frames]
                    #(conj % {:lang :clj
@@ -101,7 +101,8 @@
                              :loaded-from nil
                              :class-path-url path
                              :file-name (re-find #"[^/]+.cljc?" path)
-                             :line-number (Integer. line)}))
+                             :line-number (Integer. line)
+                             :column (Integer. column)}))
         ex))
     ex))
 
