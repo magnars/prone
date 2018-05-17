@@ -5,33 +5,47 @@
             [prone.ui.components.code-excerpt :refer [CodeExcerpt]]
             [prone.ui.utils :refer [action]]
             [quiescent.core :as q :include-macros true]
-            [quiescent.dom :as d]))
+            [quiescent.dom :as d]
+            [clojure.string :as str]))
+
+(defn chain-type-name [k]
+  (str/capitalize (str/replace-all (name k) #"-" " ")))
+
+(defn exception-chain [chain-type error chans]
+  (when-let [child (get error chain-type)]
+    (d/span {}
+            (str " " (chain-type-name chain-type) " ")
+            (d/a {:href "#"
+                  :onClick (action #(put! (:navigate-data chans)
+                                          [:error [:concat [chain-type]]]))}
+                 (:type child)))))
+
+(defn chain-back-nav [paths chans]
+  (if (seq (:other-error paths))
+    (d/a {:href "#"
+          :onClick (action #(put! (:navigate-data chans)
+                                  [:other-error [:reset nil]]))}
+         "< back")
+    (when (seq (:error paths))
+      (d/a {:href "#"
+            :onClick (action #(put! (:navigate-data chans)
+                                    [:error [:reset (butlast (:error paths))]]))}
+           "< back"))))
 
 (q/defcomponent ErrorHeader
   [{:keys [error location paths]} chans]
   (d/header {:className "exception"}
             (d/h2 {}
-              (d/strong {} (:type error))
-              (d/span {} " at " location)
-              (when (or (:caused-by error)
-                        (seq (:error paths))
-                        (:other-error paths))
-                (d/span {:className "caused-by"}
-                  (if (seq (:other-error paths))
-                    (d/a {:href "#"
-                          :onClick (action #(put! (:navigate-data chans)
-                                                  [:other-error [:reset nil]]))}
-                      "< back")
-                    (when (seq (:error paths))
-                      (d/a {:href "#"
-                            :onClick (action #(put! (:navigate-data chans)
-                                                    [:error [:reset (butlast (:error paths))]]))}
-                        "< back")))
-                  (when-let [caused-by (:caused-by error)]
-                    (d/span {} " Caused by " (d/a {:href "#"
-                                                   :onClick (action #(put! (:navigate-data chans)
-                                                                           [:error [:concat [:caused-by]]]))}
-                                               (:type caused-by)))))))
+                  (d/strong {} (:type error))
+                  (d/span {} " at " location)
+                  (when (or (get error :caused-by)
+                            (get error :next)
+                            (seq (:error paths))
+                            (:other-error paths))
+                    (d/span {:className "caused-by"}
+                            (chain-back-nav paths chans)
+                            (exception-chain :caused-by error chans)
+                            (exception-chain :next error chans))))
             (d/p {} (or (:message error)
                         (d/span {} (:class-name error)
                                 (d/span {:className "subtle"} " [no message]"))))))

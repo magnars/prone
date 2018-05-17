@@ -116,16 +116,21 @@
   [idx frame]
   (assoc frame :id idx))
 
+(defn maybe-update [m k f & args]
+  (if (contains? m k)
+    (apply update m k f args)
+    m))
+
 (defn- prep-error [error app-namespaces]
-  (-> (if (:caused-by error)
-        (update-in error [:caused-by] #(prep-error % app-namespaces))
-        error)
-      (update-in [:frames]
-                 #(->> %
-                       (map-indexed set-frame-id)
-                       (map (partial set-application-frame app-namespaces))
-                       (mapv add-source)))
-      (update-in [:data] (comp prepare-for-serialization realize/realize))
+  (-> error
+      (maybe-update :caused-by prep-error app-namespaces)
+      (maybe-update :next prep-error app-namespaces)
+      (update :frames
+              #(->> %
+                    (map-indexed set-frame-id)
+                    (map (partial set-application-frame app-namespaces))
+                    (mapv add-source)))
+      (update :data (comp prepare-for-serialization realize/realize))
       add-browsable-data))
 
 (defn- add-browsable-debug
