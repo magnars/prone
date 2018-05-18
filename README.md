@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.5.2"]` to `:dependencies` in your `project.clj`.
+Add `[prone "1.6.0"]` to `:dependencies` in your `project.clj`.
 
 This project uses [Semantic Versioning](http://semver.org/). There will be no
 breaking changes without a major version increase. There's also a
@@ -203,6 +203,12 @@ then prone goes and prints them as well. Turn it off like so:
 
 ## Change log
 
+#### From 1.5 to 1.6
+
+- Support SQLException getNextException (timothypratley)
+- Add column in addition to line number (timothypratley)
+- Display `java.util.Date` like `#inst`
+
 #### From 1.4 to 1.5
 
 - Avoid expanding Datomic databases
@@ -247,6 +253,7 @@ then prone goes and prints them as well. Turn it off like so:
 - [Ryo Fukumuro](https://github.com/rkworks) fixed several bugs.
 - [Daniel Lebrero](https://github.com/dlebrero) added support for cljc files and `/prone/latest`.
 - [Max Ovsiankin](https://github.com/gratimax) added the `:print-stacktraces?` option.
+- [Timothy Pratley](https://github.com/timothypratley) added support for `SQLException getNextException`
 
 Thanks!
 
