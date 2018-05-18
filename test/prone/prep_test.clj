@@ -60,7 +60,7 @@
                                                :age 37
                                                :url (java.net.URL. "http://example.com")
                                                :body (ByteArrayInputStream. (.getBytes "Hello"))
-                                               :closed-stream (doto (io/input-stream "http://example.com") .close)
+                                               :closed-stream (doto (io/input-stream "http://google.com") .close)
                                                :lazy (map inc [1 2 3])
                                                :record (DefLeppard. 1)
                                                :datomic (let [db (d/db conn)]
