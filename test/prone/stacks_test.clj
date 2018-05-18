@@ -117,7 +117,8 @@
             :loaded-from nil
             :class-path-url "prone/stacks_test.clj"
             :file-name "stacks_test.clj"
-            :line-number 105}
+            :line-number 105
+            :column 145}
            (first (:frames normalized))))))
 
 (deftest don-t-add-frames-from-non-existent-files

@@ -54,5 +54,6 @@
             :loaded-from nil
             :class-path-url "prone/stacks_test_cljc.cljc"
             :file-name "stacks_test_cljc.cljc"
-            :line-number 105}
+            :line-number 105
+            :column 145}
            (first (:frames normalized))))))
