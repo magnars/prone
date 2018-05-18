@@ -1,7 +1,8 @@
 (ns prone.stacks
   "Extract data from stack traces and represent them with plain maps"
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]))
+            [clojure.string :as str])
+  (:import (java.sql SQLException)))
 
 (defn- find-loaded-from [url]
   (when-let [path (and (io/resource url)
@@ -89,6 +90,12 @@
     (assoc normalized :caused-by (normalize-exception cause))
     normalized))
 
+(defn- add-next [normalized exception]
+  (if-let [n (when (instance? SQLException exception)
+               (.getNextException exception))]
+    (assoc normalized :next (normalize-exception n))
+    normalized))
+
 (defn- add-frame-from-message [ex]
   (if-let [data (and (:message ex)
                      (re-find #"\(([^(]+.cljc?):(\d+):(\d+)\)" (:message ex)))]
@@ -118,4 +125,5 @@
          :frames (->> exception .getStackTrace (map normalize-frame))}
         (add-data exception)
         (add-cause exception)
+        (add-next exception)
         (add-frame-from-message))))

@@ -2,8 +2,10 @@
   (:require [clojure.java.io :as io]
             [datomic.api :as d]
             [prone.debug :refer [debug]]
-            [prone.middleware :refer [wrap-exceptions]])
-  (:import [java.io ByteArrayInputStream]))
+            [prone.middleware :refer [wrap-exceptions]]
+            [hiccup.core :as h])
+  (:import [java.io ByteArrayInputStream]
+           (java.sql SQLException)))
 
 (defrecord MyRecord [num])
 
@@ -57,13 +59,6 @@
 
 (defn handler [req]
   (cond
-
-    ;; serve source maps
-    (re-find #"prone.js.map$" (:uri req))
-    {:status 200
-     :headers {"Content-Type" "application/octet-stream"}
-     :body (slurp (io/resource "prone/generated/prone.js.map"))}
-
     ;; throw exception in dependency (outside of app)
     (= (:uri req) "/external-throw") (re-find #"." nil)
 
@@ -82,6 +77,15 @@
     (= (:uri req) "/caused-by")
     (throw (Exception. "It went wrong because of something else" (create-intermediate-cause)))
 
+    ;; throw an SQLException with a cause
+    (= (:uri req) "/sql")
+    (throw (doto (SQLException. "Has a next exception")
+             (.initCause (create-intermediate-cause))
+             (.setNextException
+               (doto (SQLException. "Next exception!")
+                 (.setNextException (SQLException. "Next next exception!!"))))))
+
+
     ;; use the debug function to halt rendering (and inspect data)
     (= (:uri req) "/debug")
     (do
@@ -96,21 +100,37 @@
        :body "<h1>Hello, bittersweet and slightly tangy world</h1>"})
 
     ;; basic case
-    :else (do
-            ;; A map with nil as key, that is too big to render inline
-            ;; (Used to cause a bug in the MapBrowser)
-            (debug {nil [1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10
-                         1 2 3 4 5 6 7 8 9 10]})
-            (debug "What's this" {:id 42 :req req})
-            (throw (Exception. "Oh noes!")))))
+    (= (:uri req) "/basic")
+    (do
+      ;; A map with nil as key, that is too big to render inline
+      ;; (Used to cause a bug in the MapBrowser)
+      (debug {nil [1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10
+                   1 2 3 4 5 6 7 8 9 10]})
+      (debug "What's this" {:id 42 :req req})
+      (throw (Exception. "Oh noes!")))
+
+    ;; serve source maps
+    (re-find #"prone.js.map$" (:uri req))
+    {:status 200
+     :headers {"Content-Type" "application/octet-stream"}
+     :body (slurp (io/resource "prone/generated/prone.js.map"))}
+
+    :else
+    {:status 200
+     :headers {"content-type" "text/html"}
+     :body (h/html
+             [:h2 "Examples:"]
+             (into [:ul]
+                   (for [x ["external-throw" "ex-info" "lazy" "caused-by" "sql" "debug" "basic"]]
+                     [:li [:a {:href x} x]])))}))
 
 (def app
   (-> handler
