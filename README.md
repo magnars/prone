@@ -283,7 +283,7 @@ After making changes to static files in `dev-resources`, run
 
 ## License: BSD
 
-Copyright © 2014-2015 Christian Johansen & Magnar Sveen. All rights reserved.
+Copyright © 2014-2018 Christian Johansen & Magnar Sveen. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
