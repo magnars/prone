@@ -20,7 +20,10 @@
   application name from project.clj - this allows prone to differentiate
   application frames from libraries/runtime frames."
   []
-  (find-application-name-in-project-clj (slurp "project.clj")))
+  (try
+    (find-application-name-in-project-clj (slurp "project.clj"))
+    (catch java.io.FileNotFoundException e
+      nil)))
 
 (defn- random-string-not-present-in
   "Look for a random string that is not present in haystack, increasing the
@@ -110,7 +113,10 @@
   (prep-error-page (normalize-exception e)
                    debug-data
                    request
-                   (or app-namespaces [(get-application-name)])))
+                   (or app-namespaces
+                       (when-let [app-name (get-application-name)]
+                         [app-name])
+                       [])))
 
 (defn exceptions-response
   "Ring Response for prone exceptions data."
