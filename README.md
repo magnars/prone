@@ -277,10 +277,10 @@ To start the server:
 - run `lein cljsbuild auto` in one terminal
 - run `lein ring server-headless` in another.
 
-`lein test` will run all tests. (run `lein cljsbuild once` to generate
+`./bin/kaocha` will run all tests. (run `lein cljsbuild once` to generate
 required js files)
 
-To run tests continuously: `lein test-refresh`
+To run tests continuously: `./bin/kaocha --watch`
 
 After making changes to static files in `dev-resources`, run
 `./build-js-sources.sh` again to update the concatenated files.
