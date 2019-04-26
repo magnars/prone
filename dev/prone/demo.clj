@@ -24,11 +24,15 @@
              (assoc :vectors [:are "Also" "supported" 13])
              (assoc :lists '(:are "Also" "supported" 13))
              #_(assoc :lots-and-lots (into {}
-                                         (for [i (range 2000)]
-                                           [i (map (fn [_] (throw (Exception. (str "Surprise #" i "!")))) [1 2 3])])))
+                                           (for [i (range 2000)]
+                                             [i (map (fn [_] (throw (Exception. (str "Surprise #" i "!")))) [1 2 3])])))
              (assoc :exceptions {:inside {:lazy-lists (map (fn [_] (throw (Exception. "Surprise!"))) [1 2 3])
                                           :are-handled (map name [:foo :bar nil])}})
              (assoc :sets #{:are "Also" "supported" 13})
+             (assoc :really-big-sets #{:can :be :navigated :into :because :they "are" "simply" "too" "long" "to" "peek" "inside"
+                                       :here :is :a :nested-list ["are" "simply" "too" "long" "to" "peek" "inside,"
+                                                                  "at" "least" "while" "staying" "on" "only" "a" "single" "line."
+                                                                  "They need to be shortened somehow in the UI."]})
              (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside,"
                                    "at" "least" "while" "staying" "on" "only" "a" "single" "line."
                                    "They need to be shortened somehow in the UI."])

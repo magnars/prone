@@ -74,6 +74,29 @@
          (-> (prep-error-page {} {} {:content (str/join (repeat 20000 "s"))} "")
              :browsables first :data))))
 
+(deftype SillyPrintString [i])
+
+(defmethod clojure.core/print-method SillyPrintString [x writer]
+  (.write writer "#my/silly-print-string ")
+  (.write writer (str (mod (.i x) 10))))
+
+(deftest properly-handle-sets
+  (is (= {:content [{:prone.prep/original-type "prone.prep_test.SillyPrintString"
+                     :prone.prep/value "#my/silly-print-string 7"}
+                    :prone.prep/set?]}
+         (-> (prep-error-page {} {} {:content #{(SillyPrintString. 7)}} "")
+             :browsables first :data)))
+
+  (testing "two items in a set that look the same after pr-str, are still both kept"
+    (is (= {:content [{:prone.prep/original-type "prone.prep_test.SillyPrintString"
+                       :prone.prep/value "#my/silly-print-string 7"}
+                      {:prone.prep/original-type "prone.prep_test.SillyPrintString"
+                       :prone.prep/value "#my/silly-print-string 7"}
+                      :prone.prep/set?]}
+           (-> (prep-error-page {} {} {:content #{(SillyPrintString. 7)
+                                                  (SillyPrintString. 17)}} "")
+               :browsables first :data)))))
+
 (defn prep-debug [debug]
   (prep-debug-page debug {}))
 

@@ -86,7 +86,7 @@
     (map? val) val
     (vector? val) val
     (list? val) val
-    (set? val) val
+    (set? val) (conj (into [] val) :prone.prep/set?)
     (seq? val) val
     (number? val) val
     (keyword? val) val

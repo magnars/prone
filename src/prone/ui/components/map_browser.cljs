@@ -67,7 +67,9 @@
 (q/defcomponent InlineVectorBrowser
   "Display a vector in one line"
   [v navigate-request]
-  (format-list v "[" "]"))
+  (if (= :prone.prep/set? (peek v))
+    (format-list (butlast v) "#{" "}")
+    (format-list v "[" "]")))
 
 (q/defcomponent InlineListBrowser
   "Display a list in one line"
@@ -84,12 +86,12 @@
    map, it will be browsable as well"
   [t navigate-request]
   (cond
-   (serialized-value? t) (SerializedValueToken t)
-   (map? t) (InlineMapBrowser t navigate-request)
-   (vector? t) (InlineVectorBrowser t navigate-request)
-   (list? t) (InlineListBrowser t navigate-request)
-   (set? t) (InlineSetBrowser t navigate-request)
-   :else (ValueToken t)))
+    (serialized-value? t) (SerializedValueToken t)
+    (map? t) (InlineMapBrowser t navigate-request)
+    (vector? t) (InlineVectorBrowser t navigate-request)
+    (list? t) (InlineListBrowser t navigate-request)
+    (set? t) (InlineSetBrowser t navigate-request)
+    :else (ValueToken t)))
 
 (defn browseworthy-map?
   "Maps are only browseworthy if it is inconvenient to just look at the inline
@@ -123,19 +125,30 @@
   [k v navigate-request]
   (d/a {:href "#"
         :onClick (action #(put! navigate-request [:concat [k]]))}
-       (cond
-        (list? v) (d/pre {} "(" (count v) " items)")
-        (vector? v) (d/pre {} "[" (count v) " items]"))))
+    (cond
+      (list? v) (d/pre {} "(" (count v) " items)")
+      (vector? v) (if (= :prone.prep/set? (peek v))
+                    (d/pre {} "#{" (count v) " items}")
+                    (d/pre {} "[" (count v) " items]")))))
 
 (q/defcomponent ProneMapEntry
   "A map entry is one key/value pair, formatted appropriately for their types"
   [[k v] navigate-request]
   (d/tr {}
-        (d/td {:className "name"} (InlineToken k navigate-request))
-        (d/td {} (cond
-                  (browseworthy-map? v) (MapSummary k (keys v) navigate-request)
-                  (browseworthy-list? v) (ListSummary k v navigate-request)
-                  :else (InlineToken v navigate-request)))))
+    (d/td {:className "name"} (InlineToken k navigate-request))
+    (d/td {} (cond
+               (browseworthy-map? v) (MapSummary k (keys v) navigate-request)
+               (browseworthy-list? v) (ListSummary k v navigate-request)
+               :else (InlineToken v navigate-request)))))
+
+(q/defcomponent ProneSetEntry
+  "A set entry is keyed by index, but does not show it: formats values appropriately for their types"
+  [[k v] navigate-request]
+  (d/tr {}
+    (d/td {} (cond
+               (browseworthy-map? v) (MapSummary k (keys v) navigate-request)
+               (browseworthy-list? v) (ListSummary k v navigate-request)
+               :else (InlineToken v navigate-request)))))
 
 (q/defcomponent MapPath
   "The heading and current path in the map. When browsing nested maps and lists,
@@ -148,23 +161,28 @@
                       (conj
                        (mapv #(d/a {:href "#"
                                     :onClick (action (fn [] (put! navigate-request [:reset %])))}
-                                   (to-str (last %)))
+                                (to-str (last %)))
                              (butlast paths))
                        (when-let [curr (last (last paths))]
                          (to-str curr)))))))
 
 (q/defcomponent MapBrowser [{:keys [name data path]} navigate-request]
   (d/div
-   {}
-   (d/h3 {:className "map-path"}
-         (if (empty? path) name (d/a {:href "#"
-                                      :onClick (action #(put! navigate-request [:reset []]))} name))
-         " "
-         (MapPath path navigate-request))
-   (d/div {:className "inset variables"}
-          (d/table {:className "var_table"}
-                   (apply d/tbody {}
-                          (let [view (get-in* data path)]
-                            (if (map? view)
-                              (map #(ProneMapEntry % navigate-request) (sort-by (comp str first) view))
-                              (map-indexed #(ProneMapEntry [%1 %2] navigate-request) view))))))))
+      {}
+    (d/h3 {:className "map-path"}
+      (if (empty? path) name (d/a {:href "#"
+                                   :onClick (action #(put! navigate-request [:reset []]))} name))
+      " "
+      (MapPath path navigate-request))
+    (d/div {:className "inset variables"}
+      (d/table {:className "var_table"}
+        (apply d/tbody {}
+               (let [view (get-in* data path)]
+                 (cond (map? view)
+                       (map #(ProneMapEntry % navigate-request) (sort-by (comp str first) view))
+
+                       (and (vector? view) (= :prone.prep/set? (peek view)))
+                       (map-indexed #(ProneSetEntry [%1 %2] navigate-request) (butlast view))
+
+                       :else
+                       (map-indexed #(ProneMapEntry [%1 %2] navigate-request) view))))))))
