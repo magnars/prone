@@ -166,19 +166,12 @@
 (defn prep-error-page [error debug-data request app-namespaces]
   (let [prepped-error (prep-error error app-namespaces)
         realized-request (realize/realize request)
-        prepped-request (prepare-for-serialization realized-request)
-        exceptions-in-request (realize/find-exceptions realized-request)
-        total (count (take 100 exceptions-in-request))]
+        prepped-request (prepare-for-serialization realized-request)]
     {:title (-> prepped-error :message)
      :location (:uri prepped-request)
      :error prepped-error
      :debug-data (prep-debug debug-data)
      :src-loc-selection :application
-     :exceptions-when-realizing (when (< 0 total)
-                                  {:total total
-                                   :bounded? (= total 100)
-                                   :selection (into {} (for [{:keys [path exception]} (take 5 exceptions-in-request)]
-                                                         [path (prep-error (normalize-exception exception) app-namespaces)]))})
      :browsables [{:name "Request map", :data prepped-request}]}))
 
 (defn prep-debug-page [debug-data request]
