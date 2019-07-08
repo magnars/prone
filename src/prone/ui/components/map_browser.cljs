@@ -20,14 +20,20 @@
     v))
 
 (defn- serialized-value-with-type [v]
-  (if (serialized-value? v)
+  (cond
+    (and (vector? v)
+         (= :prone.prep/set? (peek v)))
+    (into #{} (butlast v))
+
+    (serialized-value? v)
     (let [value (:prone.prep/value v)
           original-type (:prone.prep/original-type v)]
       (if (and (string? value)
                (str/starts-with? value "#"))
         (symbol value)
         (symbol (str value "<" original-type ">"))))
-    v))
+
+    :else v))
 
 (defn- to-str [v]
   (pr-str (walk/prewalk serialized-value-shorthand v)))
