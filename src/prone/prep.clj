@@ -50,10 +50,13 @@
   "Create a string representation of a class, preferring ones that does not
   include type information - since we already display that next to it."
   [val]
-  (let [s (pr-str val)]
-    (if (or (.startsWith s "#<")
-            (.startsWith s "#object["))
-      (.toString val)
+  (let [s (pr-str val)
+        s (if (or (.startsWith s "#<")
+                  (.startsWith s "#object["))
+            (.toString val)
+            s)]
+    (if (.startsWith s (str (get-type val) "@"))
+      ""
       s)))
 
 (def irecords-to-avoid-expanding
@@ -66,7 +69,7 @@
                                      ::original-type "java.lang.Class"}
     (instance? clojure.lang.IRecord val) {::value (let [t (get-type val)]
                                                     (if (irecords-to-avoid-expanding t)
-                                                      (last (str/split t #"\."))
+                                                      ""
                                                       (into {} val)))
                                           ::original-type (.getName (type val))}
     (instance? InputStream val) {::value (try

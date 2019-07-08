@@ -51,9 +51,9 @@
           :record {:prone.prep/value {:num-hands 1}
                    :prone.prep/original-type "prone.prep_test.DefLeppard"}
           :datomic {:conn {:prone.prep/original-type "datomic.peer.LocalConnection",
-                           :prone.prep/value (str conn)}
+                           :prone.prep/value ""}
                     :db {:prone.prep/original-type "datomic.db.Db",
-                         :prone.prep/value "Db"}
+                         :prone.prep/value ""}
                     :entity {:prone.prep/original-type "datomic.query.EntityMap",
                              :prone.prep/value "#:db{:id 1}"}}}
          (-> (prep-error-page {} {} {:session {:name "John Doe"
