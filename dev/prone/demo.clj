@@ -40,6 +40,10 @@
       (assoc :datomic (let [db (d/db conn)]
                         {:conn conn :db db :entity (d/entity db 1)}))
       (assoc :now (java.util.Date.))
+      (assoc :functions {:core identity
+                         :core-w-odd-pr-str string?
+                         :named add-test-data
+                         :anonymous (fn [] "Shh!")})
       (assoc :session {:name "John Doe"
                        :age 37
                        :url (java.net.URL. "http://example.com")

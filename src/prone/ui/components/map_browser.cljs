@@ -29,7 +29,8 @@
     (let [value (:prone.prep/value v)
           original-type (:prone.prep/original-type v)]
       (if (and (string? value)
-               (str/starts-with? value "#"))
+               (or (str/starts-with? value "#")
+                   (= "fn" original-type)))
         (symbol value)
         (symbol (str value "<" original-type ">"))))
 

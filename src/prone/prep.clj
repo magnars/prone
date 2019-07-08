@@ -55,13 +55,17 @@
                   (.startsWith s "#object["))
             (.toString val)
             s)]
-    (if (.startsWith s (str (get-type val) "@"))
-      ""
-      s)))
+    (cond
+      (.startsWith s "#function[clojure.core/") (second (re-find #"#function\[clojure.core/(.*?)(--\d+)?\]" s))
+      (.startsWith s "#function[") (subs s 10 (dec (count s)))
+      (.startsWith s (str (get-type val) "@")) ""
+      :else s)))
 
 (defn prepare-for-serialization-1 [val]
   (cond
     (nil? val) val
+    (fn? val) {::value (to-string val)
+               ::original-type "fn"}
     (instance? java.lang.Class val) {::value (.getName val)
                                      ::original-type "java.lang.Class"}
     (instance? clojure.lang.IRecord val) {::value (let [t (get-type val)]
