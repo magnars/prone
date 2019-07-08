@@ -43,15 +43,15 @@
      :contents contents
      :url (str "/prone/" (hash contents) "/" path)}))
 
-(defonce assets ;; these are loaded when compiling clojurescript as well - it's a dumb pattern, but keep for now while trying to upgrade
+(def assets ;; these are loaded when compiling clojurescript as well - it's a dumb pattern, but keep for now while trying to upgrade
   (try [(load-asset :styles "prone.css")
         (load-asset :libs "prone-lib.js")
         (load-asset :code "prone/generated/prone.js")]
        (catch Exception e)))
 
-(defonce asset-name->url (into {} (map (juxt :name :url) assets)))
-(defonce asset-name->contents (into {} (map (juxt :name :contents) assets)))
-(defonce asset-url->contents (into {} (map (juxt :url :contents) assets)))
+(def asset-name->url (into {} (map (juxt :name :url) assets)))
+(def asset-name->contents (into {} (map (juxt :name :contents) assets)))
+(def asset-url->contents (into {} (map (juxt :url :contents) assets)))
 
 (defn- render-page [data]
   (render

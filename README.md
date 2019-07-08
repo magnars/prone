@@ -17,11 +17,10 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "1.6.4"]` to `:dependencies` in your `project.clj`.
+Add `[prone "2019-07-08"]` to `:dependencies` in your `project.clj`.
 
-This project uses [Semantic Versioning](http://semver.org/). There will be no
-breaking changes without a major version increase. There's also a
-[change log](#change-log).
+This project no longer uses Semantic Versioning. Instead we're aiming to never
+break the API. Feel free to check out the [change log](#change-log).
 
 ## Usage
 
@@ -202,6 +201,13 @@ then prone goes and prints them as well. Turn it off like so:
   ClojureScript causes JavaScript errors that partly trips up Prone
 
 ## Change log
+
+#### From 1.6.3 to 2019-07-08
+
+- Add ability to copy values into clipboard
+- Navigation now starts directly at the root cause exception
+- Serialized values are now displayed better and more consistently
+- Improved display of functions
 
 #### From 1.6.1 to 1.6.3
 
