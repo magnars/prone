@@ -13,12 +13,20 @@
 
 (defn- serialized-value-shorthand [v]
   (if (serialized-value? v)
-    (:prone.prep/value v)
+    (let [value (:prone.prep/value v)]
+      (if (string? value)
+        (symbol value)
+        value))
     v))
 
 (defn- serialized-value-with-type [v]
   (if (serialized-value? v)
-    (symbol (str (:prone.prep/value v) "<" (:prone.prep/original-type v) ">"))
+    (let [value (:prone.prep/value v)
+          original-type (:prone.prep/original-type v)]
+      (if (and (string? value)
+               (str/starts-with? value "#"))
+        (symbol value)
+        (symbol (str value "<" original-type ">"))))
     v))
 
 (defn- to-str [v]
