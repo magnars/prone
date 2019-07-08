@@ -18,7 +18,7 @@
 
 (defn- serialized-value-with-type [v]
   (if (serialized-value? v)
-    (str (:prone.prep/value v) "<" (:prone.prep/original-type v) ">")
+    (symbol (str (:prone.prep/value v) "<" (:prone.prep/original-type v) ">"))
     v))
 
 (defn- to-str [v]
@@ -134,24 +134,42 @@
                     (d/pre {} "#{" (count v) " items}")
                     (d/pre {} "[" (count v) " items]")))))
 
+(defn to-clipboard [text]
+  (let [text-area (js/document.createElement "textarea")]
+    (set! (.-textContent text-area) text)
+    (js/document.body.appendChild text-area)
+    (.select text-area)
+    (js/document.execCommand "copy")
+    (.blur text-area)
+    (js/document.body.removeChild text-area)))
+
+(q/defcomponent CopyLink [v]
+  (d/td {:style {:width "20px"}
+         :onClick (action #(to-clipboard (pr-str (walk/prewalk serialized-value-with-type v))))}
+    "✂"))
+
 (q/defcomponent ProneMapEntry
   "A map entry is one key/value pair, formatted appropriately for their types"
   [[k v] navigate-request]
   (d/tr {}
     (d/td {:className "name"} (InlineToken k navigate-request))
-    (d/td {} (cond
-               (browseworthy-map? v) (MapSummary k (keys v) navigate-request)
-               (browseworthy-list? v) (ListSummary k v navigate-request)
-               :else (InlineToken v navigate-request)))))
+    (d/td {:style {:width "auto"}}
+      (cond
+        (browseworthy-map? v) (MapSummary k (keys v) navigate-request)
+        (browseworthy-list? v) (ListSummary k v navigate-request)
+        :else (InlineToken v navigate-request)))
+    (CopyLink v)))
 
 (q/defcomponent ProneSetEntry
   "A set entry is keyed by index, but does not show it: formats values appropriately for their types"
   [[k v] navigate-request]
   (d/tr {}
-    (d/td {} (cond
-               (browseworthy-map? v) (MapSummary k (keys v) navigate-request)
-               (browseworthy-list? v) (ListSummary k v navigate-request)
-               :else (InlineToken v navigate-request)))))
+    (d/td {:style {:width "auto"}}
+      (cond
+        (browseworthy-map? v) (MapSummary k (keys v) navigate-request)
+        (browseworthy-list? v) (ListSummary k v navigate-request)
+        :else (InlineToken v navigate-request)))
+    (CopyLink v)))
 
 (q/defcomponent MapPath
   "The heading and current path in the map. When browsing nested maps and lists,
