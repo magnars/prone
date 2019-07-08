@@ -47,7 +47,7 @@
 
 (q/defcomponent SerializedValueToken
   [t]
-  (d/span {}
+  (d/span {:style {:white-space "nowrap"}}
     (InlineToken (let [v (:prone.prep/value t)]
                    (if (string? v)
                      (symbol v)
