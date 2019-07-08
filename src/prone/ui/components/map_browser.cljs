@@ -149,19 +149,23 @@
                     (d/pre {} "#{" (count v) " items}")
                     (d/pre {} "[" (count v) " items]")))))
 
-(defn to-clipboard [text]
-  (let [text-area (js/document.createElement "textarea")]
+(defn to-clipboard [e text]
+  (.preventDefault e)
+  (let [dom-node (.-target e)
+        text-area (js/document.createElement "textarea")]
     (set! (.-textContent text-area) text)
     (js/document.body.appendChild text-area)
     (.select text-area)
     (js/document.execCommand "copy")
     (.blur text-area)
-    (js/document.body.removeChild text-area)))
+    (js/document.body.removeChild text-area)
+    (set! (.-innerText dom-node) "✓")
+    (js/setTimeout (fn [] (set! (.-innerText dom-node) "✂")) 300)))
 
 (q/defcomponent CopyLink [v]
   (d/td {:style {:width "20px"}
-         :onClick (action #(to-clipboard (pr-str (walk/prewalk serialized-value-with-type v))))}
-    "✂"))
+         :onClick #(to-clipboard % (pr-str (walk/prewalk serialized-value-with-type v)))}
+    (d/span {:style {:cursor "pointer"}} "✂")))
 
 (q/defcomponent ProneMapEntry
   "A map entry is one key/value pair, formatted appropriately for their types"
