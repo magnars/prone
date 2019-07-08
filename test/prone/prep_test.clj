@@ -41,9 +41,9 @@
 (deftest no-unreadable-forms
   (is (= {:name "John Doe"
           :age 37
-          :url {:prone.prep/value "http://example.com"
+          :url {:prone.prep/value "\"http://example.com\""
                 :prone.prep/original-type "java.net.URL"}
-          :body {:prone.prep/value "Hello"
+          :body {:prone.prep/value "\"Hello\""
                  :prone.prep/original-type "java.io.ByteArrayInputStream"}
           :closed-stream {:prone.prep/value nil
                           :prone.prep/original-type "java.io.BufferedInputStream"}

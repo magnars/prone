@@ -71,9 +71,11 @@
                                                       (into {} val)))
                                           ::original-type (.getName (type val))}
     (instance? InputStream val) {::value (try
-                                           (slurp val)
+                                           (pr-str (slurp val))
                                            (catch IOException _ nil))
                                  ::original-type (get-type val)}
+    (instance? java.net.URL val) {::value (pr-str (to-string val))
+                                  ::original-type (get-type val)}
     (string? val) (let [len (count val)]
                     (if (< max-string-length len)
                       {::value (str (subs val 0 60) "...")
