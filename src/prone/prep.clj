@@ -62,11 +62,11 @@
 (defn prepare-for-serialization-1 [val]
   (cond
     (nil? val) val
-    (instance? java.lang.Class val) {::value (symbol (.getName val))
+    (instance? java.lang.Class val) {::value (.getName val)
                                      ::original-type "java.lang.Class"}
     (instance? clojure.lang.IRecord val) {::value (let [t (get-type val)]
                                                     (if (irecords-to-avoid-expanding t)
-                                                      (symbol (last (str/split t #"\.")))
+                                                      (last (str/split t #"\."))
                                                       (into {} val)))
                                           ::original-type (.getName (type val))}
     (instance? InputStream val) {::value (try
@@ -80,9 +80,8 @@
                       val))
     (and (map? val) (:realize.core/exception val)) (let [exception (:realize.core/exception val)]
                                                      {::value (or (.getMessage exception)
-                                                                  (symbol (last (str/split (.getName (type exception)) #"\."))))
+                                                                  (last (str/split (.getName (type exception)) #"\.")))
                                                       ::original-type (str "thrown-when-realized: " (get-type exception))})
-    (instance? java.util.Date val) {::value (symbol (to-string val)) ::original-type (get-type val)}
     (map? val) val
     (vector? val) val
     (list? val) val

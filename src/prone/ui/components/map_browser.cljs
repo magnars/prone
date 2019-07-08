@@ -48,8 +48,11 @@
 (q/defcomponent SerializedValueToken
   [t]
   (d/span {}
-          (InlineToken (:prone.prep/value t))
-          (d/code {:className "subtle"} "<" (:prone.prep/original-type t) ">")))
+    (InlineToken (let [v (:prone.prep/value t)]
+                   (if (string? v)
+                     (symbol v)
+                     v)))
+    (d/code {:className "subtle"} "<" (:prone.prep/original-type t) ">")))
 
 (defn- format-inline-map [[k v] navigate-request]
   [(InlineToken k navigate-request) " " (InlineToken v navigate-request)])
