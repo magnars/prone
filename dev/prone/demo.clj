@@ -14,40 +14,44 @@
 (def conn (do (d/create-database "datomic:mem://test-db")
               (d/connect "datomic:mem://test-db")))
 
-(defn piggie-backer [app]
-  (fn [req]
-    (app (-> req
-             (assoc :nested {:maps {:are {:certainly {:supported 42, :displayed 43}}}})
-             (assoc :some {:nested {:maps {:are {:simply "Too long to peek
+(defn add-test-data [req]
+  (-> req
+      (assoc :nested {:maps {:are {:certainly {:supported 42, :displayed 43}}}})
+      (assoc :some {:nested {:maps {:are {:simply "Too long to peek
              inside, at least while staying on only a single line.
              They need to be shortened somehow in the UI."}}}})
-             (assoc :vectors [:are "Also" "supported" 13])
-             (assoc :lists '(:are "Also" "supported" 13))
-             #_(assoc :lots-and-lots (into {}
-                                           (for [i (range 2000)]
-                                             [i (map (fn [_] (throw (Exception. (str "Surprise #" i "!")))) [1 2 3])])))
-             (assoc :exceptions {:inside {:lazy-lists (map (fn [_] (throw (Exception. "Surprise!"))) [1 2 3])
-                                          :are-handled (map name [:foo :bar nil])}})
-             (assoc :sets #{:are "Also" "supported" 13})
-             (assoc :really-big-sets #{:can :be :navigated :into :because :they "are" "simply" "too" "long" "to" "peek" "inside"
-                                       :here :is :a :nested-list ["are" "simply" "too" "long" "to" "peek" "inside,"
-                                                                  "at" "least" "while" "staying" "on" "only" "a" "single" "line."
-                                                                  "They need to be shortened somehow in the UI."]})
-             (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside,"
-                                   "at" "least" "while" "staying" "on" "only" "a" "single" "line."
-                                   "They need to be shortened somehow in the UI."])
-             (assoc :namespaced-maps #:my-ns{:are "supported"
-                                             :as "well"})
-             (assoc :datomic (let [db (d/db conn)]
-                               {:conn conn :db db :entity (d/entity db 1)}))
-             (assoc :now (java.util.Date.))
-             (assoc :session {:name "John Doe"
-                              :age 37
-                              :url (java.net.URL. "http://example.com")
-                              :body (ByteArrayInputStream. (.getBytes "Hello"))
-                              :lazy (map inc [1 2 3])
-                              :record (MyRecord. 17)
-                              :type (MyType. 23)})))))
+      (assoc :vectors [:are "Also" "supported" 13])
+      (assoc :lists '(:are "Also" "supported" 13))
+      #_(assoc :lots-and-lots (into {}
+                                    (for [i (range 2000)]
+                                      [i (map (fn [_] (throw (Exception. (str "Surprise #" i "!")))) [1 2 3])])))
+      (assoc :exceptions {:inside {:lazy-lists (map (fn [_] (throw (Exception. "Surprise!"))) [1 2 3])
+                                   :are-handled (map name [:foo :bar nil])}})
+      (assoc :sets #{:are "Also" "supported" 13})
+      (assoc :really-big-sets #{:can :be :navigated :into :because :they "are" "simply" "too" "long" "to" "peek" "inside"
+                                :here :is :a :nested-list ["are" "simply" "too" "long" "to" "peek" "inside,"
+                                                           "at" "least" "while" "staying" "on" "only" "a" "single" "line."
+                                                           "They need to be shortened somehow in the UI."]})
+      (assoc :some-vectors ["are" "simply" "too" "long" "to" "peek" "inside,"
+                            "at" "least" "while" "staying" "on" "only" "a" "single" "line."
+                            "They need to be shortened somehow in the UI."])
+      (assoc :namespaced-maps #:my-ns{:are "supported"
+                                      :as "well"})
+      (assoc :datomic (let [db (d/db conn)]
+                        {:conn conn :db db :entity (d/entity db 1)}))
+      (assoc :now (java.util.Date.))
+      (assoc :session {:name "John Doe"
+                       :age 37
+                       :url (java.net.URL. "http://example.com")
+                       :body (ByteArrayInputStream. (.getBytes "Hello"))
+                       :lazy (map inc [1 2 3])
+                       :record (MyRecord. 17)
+                       :type (MyType. 23)
+                       :var #'add-test-data})))
+
+(defn piggie-backer [app]
+  (fn [req]
+    (app (add-test-data req))))
 
 (defn- create-original-cause []
   (try
