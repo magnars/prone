@@ -53,7 +53,7 @@
           :datomic {:conn {:prone.prep/original-type "datomic.peer.LocalConnection",
                            :prone.prep/value ""}
                     :db {:prone.prep/original-type "datomic.db.Db",
-                         :prone.prep/value ""}
+                         :prone.prep/value {:basisT 63}}
                     :entity {:prone.prep/original-type "datomic.query.EntityMap",
                              :prone.prep/value "#:db{:id 1}"}}}
          (-> (prep-error-page {} {} {:session {:name "John Doe"
