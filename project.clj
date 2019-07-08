@@ -10,6 +10,7 @@
                       :bytes (slurp "dev-resources/prone/generated/prone.js")})}]
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.9.0"]
                                   [ring "1.6.3"]
+                                  [ring-server "0.5.0"]
                                   [hiccup-find  "0.5.0"]
                                   [org.clojure/clojurescript "1.9.946"]
                                   [quiescent "0.3.2"]
