@@ -19,7 +19,7 @@
 (defn select-current-error-in-chain [data]
   (if-let [other-error-path (get-in data [:paths :other-error])]
     (assoc data :error (get-in data other-error-path))
-    (update-in data [:error] #(get-in % (-> data :paths :error)))))
+    (update data :error #(get-in % (-> data :paths :error)))))
 
 (defn prepare-data-for-display [data]
   (let [data (select-current-error-in-chain data)]
@@ -63,8 +63,18 @@
       (assoc :src-loc-selection selection)
       ensure-selected-src-loc))
 
+(defn start-with-deepest-cause [data]
+  (assoc-in data [:paths :error]
+            (loop [error (:error data)
+                   path []]
+              (if (:caused-by error)
+                (recur (:caused-by error)
+                       (conj path :caused-by))
+                path))))
+
 (defn initialize-data [data]
   (-> data
+      start-with-deepest-cause
       ensure-selected-src-loc))
 
 (defn bootstrap! [data]
