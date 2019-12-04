@@ -142,23 +142,34 @@
                                 :print-stacktraces? false})"
   [handler & [{:keys [app-namespaces skip-prone? print-stacktraces?]
                :or {print-stacktraces? true} :as opts}]]
-  (fn [req]
-    (if-let [page (get @pages (:uri req))]
-      (serve-page page 200)
-      (if-let [asset (asset-url->contents (:uri req))]
-        {:body asset :status 200 :headers {"Cache-Control" "max-age=315360000"}}
-        (binding [debug/*debug-data* (atom [])]
-          (if (and skip-prone? (skip-prone? req))
-            (handler req)
-            (letfn [(handle-exception [e]
-                      (let [result (exceptions-response req e app-namespaces)]
-                        (when print-stacktraces?
-                          (try (.printStackTrace e) (catch Throwable t :ignore)))
-                        result))]
-              (try
-                (let [result (handler req)]
-                  (if (< 0 (count @debug/*debug-data*))
-                    (debug-response req @debug/*debug-data*)
-                    result))
-                (catch Exception e (handle-exception e))
-                (catch AssertionError e (handle-exception e))))))))))
+  (fn prone-handler
+    ([req]
+     (let [result (atom nil)]
+       (->> (fn [req respond raise]
+              (respond (handler req)))
+            (prone-handler req #(reset! result %) #(throw %)))
+       @result))
+    ([req respond raise]
+     (prone-handler req respond raise handler))
+    ([req respond raise handler-fn]
+     (if-let [page (get @pages (:uri req))]
+       (respond (serve-page page 200))
+       (if-let [asset (asset-url->contents (:uri req))]
+         (respond {:body asset :status 200 :headers {"Cache-Control" "max-age=315360000"}})
+         (binding [debug/*debug-data* (atom [])]
+           (if (and skip-prone? (skip-prone? req))
+             (handler-fn req respond raise)
+             (letfn [(handle-exception [e]
+                       (let [result (exceptions-response req e app-namespaces)]
+                         (when print-stacktraces?
+                           (try (.printStackTrace e) (catch Throwable t :ignore)))
+                         (respond result)))]
+               (try
+                 (handler-fn req (fn [result]
+                                   (respond
+                                    (if (< 0 (count @debug/*debug-data*))
+                                      (debug-response req @debug/*debug-data*)
+                                      result))) handle-exception)
+                 (catch Exception e (handle-exception e))
+                 (catch AssertionError e (handle-exception e)))))))))))
+
