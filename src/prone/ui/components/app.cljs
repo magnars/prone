@@ -104,8 +104,10 @@
   (let [debugging? (= :debug src-loc-selection)
         local-browsables (:browsables (if debugging? selected-src-loc error))
         heading (when (= :debug src-loc-selection) (:message debug-data))]
-    (apply d/div {:className "frame_info" :id "frame-info"}
-           (CodeExcerpt selected-src-loc)
+    (apply d/div {:className "frame_info" :id "frame-info"
+                  :style (when (:hide-sidebar? data) {:left "0"})}
+           (when-not (:hide-code-excerpt? data)
+             (CodeExcerpt selected-src-loc))
            (when heading (d/h2 {:className "sub-heading"} heading))
            (when (seq exceptions-when-realizing)
              (ExceptionsWhenRealizing exceptions-when-realizing navigate-data))
@@ -122,5 +124,6 @@
   (d/div {:className "top"}
          (Header data chans)
          (d/section {:className "backtrace"}
-                    (Sidebar data chans)
+                    (when-not (:hide-sidebar? data)
+                      (Sidebar data chans))
                     (Body data chans))))
