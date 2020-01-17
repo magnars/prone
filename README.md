@@ -17,7 +17,7 @@ pass to `debug`.
 
 ## Install
 
-Add `[prone "2019-07-08"]` to `:dependencies` in your `project.clj`.
+Add `[prone "2020-01-17"]` to `:dependencies` in your `project.clj`.
 
 This project no longer uses Semantic Versioning. Instead we're aiming to never
 break the API. Feel free to check out the [change log](#change-log).
