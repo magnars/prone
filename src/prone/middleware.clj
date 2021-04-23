@@ -53,6 +53,12 @@
 (def asset-name->contents (into {} (map (juxt :name :contents) assets)))
 (def asset-url->contents (into {} (map (juxt :url :contents) assets)))
 
+(defn asset-url->content-type [url]
+  (cond
+    (str/ends-with? url ".js") "text/javascript"
+    (str/ends-with? url ".css") "text/css"
+    (str/ends-with? url ".html") "text/html"))
+
 (defn- render-page [data]
   (render
    (let [data-str (prn-str data)
@@ -146,7 +152,11 @@
     (if-let [page (get @pages (:uri req))]
       (serve-page page 200)
       (if-let [asset (asset-url->contents (:uri req))]
-        {:body asset :status 200 :headers {"Cache-Control" "max-age=315360000"}}
+        {:body asset
+         :status 200
+         :headers {"Cache-Control" "max-age=315360000"
+                   "Content-Type" (str (asset-url->content-type (:uri req))
+                                       "; charset=utf-8")}}
         (binding [debug/*debug-data* (atom [])]
           (if (and skip-prone? (skip-prone? req))
             (handler req)
